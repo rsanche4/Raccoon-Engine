@@ -3,9 +3,9 @@ import sys
 import math
 
 pygame.init()
-WID = 1920
-HEI = 1080
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+WID = 320
+HEI = 240
+screen = pygame.display.set_mode((WID, HEI))
 clock = pygame.time.Clock()
 
 # A 3D triangle (3 vertices)
