@@ -5,3 +5,11 @@ This project is a full-featured retro-style 3D engine inspired by DOOM, includin
 The rendering pipeline begins with a user-defined 3D spatial layout composed of vertex-quadrilateral-texture tuples authored via an editor and is immediately subjected to Binary Space Partitioning tree construction to enable deterministic, non-overlapping front-to-back traversal using reversed Painter's Algorithm, after which the runtime engine injects the player camera into the world space and begins depth-aware raster sequencing by projecting geometry into normalized screen space under a capped quad budget, with each polygon undergoing perspective textured mapping while simultaneously performing per-fragment visibility rejection based on previously rendered pixel states to eliminate overdraw, followed by hierarchical floor rendering from the highest elevation downward using occlusion-culling logic, after which sprite entities are sorted by distance and each is subjected to a 2D grid-space ray traversal using Digital Differential Analyzer algorithm to verify potential visibility and line-of-sight interaction with the player, culminating in selective projection and rendering based on directional alignment and angle of incidence, before the engine scans the framebuffer for unresolved pixel domains to procedurally inject a parallax-mapped skybox background, and finally, all UI overlays and post-processing elements are composited atop the entire visual stack with full-layer alpha blending to complete the frame.
 
 Here the last paragraph will be inclduing all the different features like lighting and all those things.
+
+
+
+
+Note; For reading map data, the vertices are actually like this:
+x value, z value, floor height will be your y value. For when you dont have a ceilign. So you need to know how to read each type but basically thats that.
+Also keep in mind player starts at a specifc place. We need to shift all these vertices basically by that amount so it looks accurate.
+The other thing is make sure this works! test the edtior and ensure that it doesnt have any weird bugs and it loads maps, and it is capable of drawing all the worlds!
