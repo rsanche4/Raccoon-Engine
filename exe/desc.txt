@@ -1,1 +1,1 @@
-This will have the same as src but executables
+This will have the same as src but executables, in case you are in windows.
