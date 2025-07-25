@@ -1,0 +1,3 @@
+# Documentation In Progress...
+
+We will divide in different md files. One of them will havce the math description, another the api, another etc
