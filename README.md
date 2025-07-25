@@ -1,4 +1,4 @@
- # ![r](raccoon.png) RACCOON ENGINE
+# ![r](raccoon.png) Raccoon Engine
 
 This project is a full-featured retro-style 3D engine inspired by DOOM, including an intuitive sector-based editor that lets you build worlds with customizable wall heights, floors, ceilings, and more - just like the classics. It uses a Binary Space Partitioning (BSP) tree to efficiently sort polygons for correct rendering order. The engine supports directional sprites and textured walls, allowing you to create complex elements like fences and detailed environments. Built entirely in Python with native scripting, it seamlessly integrates any Python library for AI, procedural generation, or advanced gameplay logic. To maintain performance on a classic 320x240 resolution canvas (a nod to DOOM's original), it implements a front-to-back rendering approach combined with an efficient NumPy-based pixel masking technique that avoids unnecessary overdrawing. Additionally, radius-based culling limits rendering distance, ensuring smooth performance even on complex maps. The engine leverages Pygame for rendering and uses minimal dependencies for speed and simplicity, making it an accessible and extensible platform for retro 3D game development and experimentation.
 
@@ -6,8 +6,7 @@ The rendering pipeline begins with a user-defined 3D spatial layout composed of 
 
 Here the last paragraph will be inclduing all the different features like lighting and all those things.
 
-
-
+Then, show a demo basically showing pictures of how the engine is capable of rendering things. So display some demo sample map screenshot frames.
 
 Note; For reading map data, the vertices are actually like this:
 x value, z value, floor height will be your y value. For when you dont have a ceilign. So you need to know how to read each type but basically thats that.
