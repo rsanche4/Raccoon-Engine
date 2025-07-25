@@ -1,1 +1,0 @@
-the process of taking each map and turning into bsp can take a while
