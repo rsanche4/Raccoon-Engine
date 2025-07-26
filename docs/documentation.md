@@ -41,10 +41,7 @@ I am glad you asked! Well, during the summer of 2025, I had a lot of free time o
 I am Rafael Sanchez — a slightly sleep-deprived but highly passionate nerd with a lot of free time on my hands haha. I spend most of my time chilling at 127.0.0.1, building fun stuff, going on long walks. I also love math & AI! It's funny that I actually did not study game dev in college but Machine Learning instead. The weird turns of life! Oh and I also like acting and do fun theater shows every now and then. Boy do I have a diverse profile. Follow me on linkedin! -> https://www.linkedin.com/in/rafael-sanchez4/
 
 ### 4. Installation Guide
-To install Python, go to [https://www.python.org/downloads/](https://www.python.org/downloads/) and download the latest version for your operating system. On **Windows**, make sure to check the box that says **"Add Python to PATH"** during installation. After installation, open a terminal (Command Prompt or Terminal) and verify that Python is installed by typing: python --version
-After this, you are set! Usually pip is installed with python. So also type in the terminal: pip --version
-If you see the versions that's good! Now you are ready to install all the requirements for our project. Navigate with your terminal to this folder and type: pip install -r requirements.txt
-You should now wait for all the packages to be downloaded. Once ready, we are good to go.
+To install Python, go to [https://www.python.org/downloads/](https://www.python.org/downloads/) and download the latest version for your operating system. On **Windows**, make sure to check the box that says **"Add Python to PATH"** during installation. After installation, open a terminal (Command Prompt or Terminal) and verify that Python is installed by typing: `python --version`. After this, you are set! Usually pip is installed with python. So also type in the terminal: `pip --version`. If you see the versions that's good! Now you are ready to install all the requirements for our project. Navigate with your terminal to this folder and type: `pip install -r requirements.txt`. You should now wait for all the packages to be downloaded. Once ready, we are good to go.
 
 ## ⚙️ Technical Overview
 
