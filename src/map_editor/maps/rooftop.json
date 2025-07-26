@@ -1,0 +1,578 @@
+{
+  "map_properties": {
+    "map_name": "rooftop",
+    "world_sector_height": 256,
+    "spawn_x": 0.0,
+    "spawn_z": 0.0,
+    "grid_size": 1.0,
+    "map_size": 1000,
+    "skybox_texture": "nightskybox.png"
+  },
+  "sectors": [
+    {
+      "vertices": [
+        [
+          -320.0,
+          -896.0
+        ],
+        [
+          -320.0,
+          -64.0
+        ],
+        [
+          160.0,
+          -64.0
+        ],
+        [
+          160.0,
+          -896.0
+        ]
+      ],
+      "properties": {
+        "sector_id": "woodenfloor",
+        "floor_height": 0,
+        "ceiling_height": null,
+        "floor_texture": {
+          "texture": "woodentile.png",
+          "mode": "tile",
+          "scale": 1.0,
+          "brightness": 1.0
+        },
+        "ceiling_texture": null,
+        "wall_textures": [],
+        "ceiling_wall_textures": []
+      }
+    },
+    {
+      "vertices": [
+        [
+          -160.0,
+          -640.0
+        ],
+        [
+          -160.0,
+          -448.0
+        ],
+        [
+          -32.0,
+          -448.0
+        ],
+        [
+          -32.0,
+          -640.0
+        ]
+      ],
+      "properties": {
+        "sector_id": "roofmid",
+        "floor_height": 2,
+        "ceiling_height": null,
+        "floor_texture": {
+          "texture": "roofvent.png",
+          "mode": "stretch",
+          "scale": 1.0,
+          "brightness": 1.0
+        },
+        "ceiling_texture": null,
+        "wall_textures": [
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          }
+        ],
+        "ceiling_wall_textures": []
+      }
+    },
+    {
+      "vertices": [
+        [
+          -320.0,
+          -864.0
+        ],
+        [
+          160.0,
+          -864.0
+        ],
+        [
+          160.0,
+          -896.0
+        ],
+        [
+          -320.0,
+          -896.0
+        ]
+      ],
+      "properties": {
+        "sector_id": "wallnorth",
+        "floor_height": 2,
+        "ceiling_height": null,
+        "floor_texture": {
+          "texture": "wallconcrete.png",
+          "mode": "tile",
+          "scale": 1.0,
+          "brightness": 1.0
+        },
+        "ceiling_texture": null,
+        "wall_textures": [
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          }
+        ],
+        "ceiling_wall_textures": []
+      }
+    },
+    {
+      "vertices": [
+        [
+          160.0,
+          -864.0
+        ],
+        [
+          128.0,
+          -864.0
+        ],
+        [
+          128.0,
+          -64.0
+        ],
+        [
+          160.0,
+          -64.0
+        ]
+      ],
+      "properties": {
+        "sector_id": "walleast",
+        "floor_height": 2,
+        "ceiling_height": null,
+        "floor_texture": {
+          "texture": "wallconcrete.png",
+          "mode": "tile",
+          "scale": 1.0,
+          "brightness": 1.0
+        },
+        "ceiling_texture": null,
+        "wall_textures": [
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          }
+        ],
+        "ceiling_wall_textures": []
+      }
+    },
+    {
+      "vertices": [
+        [
+          128.0,
+          -64.0
+        ],
+        [
+          -320.0,
+          -64.0
+        ],
+        [
+          -320.0,
+          -96.0
+        ],
+        [
+          128.0,
+          -96.0
+        ]
+      ],
+      "properties": {
+        "sector_id": "wallsouth",
+        "floor_height": 2,
+        "ceiling_height": null,
+        "floor_texture": {
+          "texture": "wallconcrete.png",
+          "mode": "tile",
+          "scale": 1.0,
+          "brightness": 1.0
+        },
+        "ceiling_texture": null,
+        "wall_textures": [
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          }
+        ],
+        "ceiling_wall_textures": []
+      }
+    },
+    {
+      "vertices": [
+        [
+          -320.0,
+          -96.0
+        ],
+        [
+          -288.0,
+          -96.0
+        ],
+        [
+          -288.0,
+          -864.0
+        ],
+        [
+          -320.0,
+          -864.0
+        ]
+      ],
+      "properties": {
+        "sector_id": "wallwest",
+        "floor_height": 2,
+        "ceiling_height": null,
+        "floor_texture": {
+          "texture": "wallconcrete.png",
+          "mode": "tile",
+          "scale": 1.0,
+          "brightness": 1.0
+        },
+        "ceiling_texture": null,
+        "wall_textures": [
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "wallconcrete.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          }
+        ],
+        "ceiling_wall_textures": []
+      }
+    },
+    {
+      "vertices": [
+        [
+          -320.0,
+          -64.0
+        ],
+        [
+          -320.0,
+          -896.0
+        ],
+        [
+          -352.0,
+          -896.0
+        ],
+        [
+          -352.0,
+          -64.0
+        ]
+      ],
+      "properties": {
+        "sector_id": "fencewest",
+        "floor_height": 5,
+        "ceiling_height": null,
+        "floor_texture": {
+          "texture": "blacktexture.png",
+          "mode": "tile",
+          "scale": 1.0,
+          "brightness": 1.0
+        },
+        "ceiling_texture": null,
+        "wall_textures": [
+          {
+            "texture": "fence.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          }
+        ],
+        "ceiling_wall_textures": []
+      }
+    },
+    {
+      "vertices": [
+        [
+          -320.0,
+          -64.0
+        ],
+        [
+          160.0,
+          -64.0
+        ],
+        [
+          160.0,
+          -32.0
+        ],
+        [
+          -320.0,
+          -32.0
+        ]
+      ],
+      "properties": {
+        "sector_id": "fencesouth",
+        "floor_height": 5,
+        "ceiling_height": null,
+        "floor_texture": {
+          "texture": "blacktexture.png",
+          "mode": "tile",
+          "scale": 1.0,
+          "brightness": 1.0
+        },
+        "ceiling_texture": null,
+        "wall_textures": [
+          {
+            "texture": "fence.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          }
+        ],
+        "ceiling_wall_textures": []
+      }
+    },
+    {
+      "vertices": [
+        [
+          160.0,
+          -64.0
+        ],
+        [
+          160.0,
+          -896.0
+        ],
+        [
+          192.0,
+          -896.0
+        ],
+        [
+          192.0,
+          -64.0
+        ]
+      ],
+      "properties": {
+        "sector_id": "walleast",
+        "floor_height": 5,
+        "ceiling_height": null,
+        "floor_texture": {
+          "texture": "blacktexture.png",
+          "mode": "tile",
+          "scale": 1.0,
+          "brightness": 1.0
+        },
+        "ceiling_texture": null,
+        "wall_textures": [
+          {
+            "texture": "fence.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          }
+        ],
+        "ceiling_wall_textures": []
+      }
+    },
+    {
+      "vertices": [
+        [
+          -320.0,
+          -896.0
+        ],
+        [
+          160.0,
+          -896.0
+        ],
+        [
+          160.0,
+          -928.0
+        ],
+        [
+          -320.0,
+          -928.0
+        ]
+      ],
+      "properties": {
+        "sector_id": "wallnorth",
+        "floor_height": 5,
+        "ceiling_height": null,
+        "floor_texture": {
+          "texture": "blacktexture.png",
+          "mode": "tile",
+          "scale": 1.0,
+          "brightness": 1.0
+        },
+        "ceiling_texture": null,
+        "wall_textures": [
+          {
+            "texture": "fence.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          },
+          {
+            "texture": "blacktexture.png",
+            "mode": "tile",
+            "scale": 1.0,
+            "brightness": 1.0
+          }
+        ],
+        "ceiling_wall_textures": []
+      }
+    }
+  ]
+}

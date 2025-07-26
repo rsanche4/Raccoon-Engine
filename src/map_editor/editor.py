@@ -7,9 +7,9 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QGraphicsView, QGraphics
                             QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, 
                             QPushButton, QComboBox, QSpinBox, QDoubleSpinBox, 
                             QCheckBox, QMessageBox, QFormLayout, QScrollArea,
-                            QWidget, QGroupBox, QGridLayout)
-from PyQt5.QtGui import QPainter, QPen, QMouseEvent, QColor, QBrush, QPolygonF
-from PyQt5.QtCore import Qt, QPointF
+                            QWidget, QGroupBox, QGridLayout, QStatusBar)
+from PyQt5.QtGui import QPainter, QPen, QMouseEvent, QColor, QBrush, QPolygonF, QFont
+from PyQt5.QtCore import Qt, QPointF, pyqtSignal
 import colorsys
 
 GRID_SIZE = 32
@@ -366,6 +366,9 @@ class SectorPropertiesDialog(QDialog):
         }
 
 class EditorView(QGraphicsView):
+    # Signal to emit coordinates to parent window
+    coordinates_changed = pyqtSignal(float, float, float, float)
+    
     def __init__(self, parent=None):
         super().__init__()
         self.parent_window = parent
@@ -475,6 +478,20 @@ class EditorView(QGraphicsView):
             self.pan_start = event.pos()
 
     def mouseMoveEvent(self, event):
+        # Update coordinates display
+        scene_pos = self.mapToScene(event.pos())
+        snapped = self.snap_to_grid(scene_pos)
+        
+        # Convert to grid coordinates
+        grid_x = scene_pos.x() / self.grid_size
+        grid_y = -scene_pos.y() / self.grid_size  # Negative Y for typical game coordinate system
+        snapped_grid_x = snapped.x() / self.grid_size
+        snapped_grid_y = -snapped.y() / self.grid_size
+        
+        # Emit coordinates to parent window
+        self.coordinates_changed.emit(grid_x, grid_y, snapped_grid_x, snapped_grid_y)
+        
+        # Handle panning
         if self.pan_start:
             delta = self.pan_start - event.pos()
             self.pan_start = event.pos()
@@ -568,9 +585,29 @@ class RaccoonEditor(QMainWindow):
         self.editor_view = EditorView(self)
         self.setCentralWidget(self.editor_view)
         
+        # Connect coordinates signal
+        self.editor_view.coordinates_changed.connect(self.update_coordinates_display)
+        
+        # Create status bar for coordinates display
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+        
+        # Create coordinate labels
+        self.coord_label = QLabel("Mouse: (0.0, 0.0) | Snapped: (0, 0)")
+        self.coord_label.setStyleSheet("font-family: monospace; font-size: 12px; padding: 2px 5px;")
+        self.status_bar.addPermanentWidget(self.coord_label)
+        
+        # Add some helpful text
+        self.status_bar.showMessage("Left click to place vertices, right click and drag to pan, mouse wheel to zoom")
+        
         # Update window title with map name
         if self.map_properties:
             self.setWindowTitle(f"Raccoon Engine Sector Editor - {self.map_properties['map_name']}")
+
+    def update_coordinates_display(self, mouse_x, mouse_y, snapped_x, snapped_y):
+        """Update the coordinates display in the status bar"""
+        coord_text = f"Mouse: ({mouse_x:.1f}, {mouse_y:.1f}) | Snapped: ({snapped_x:.0f}, {snapped_y:.0f})"
+        self.coord_label.setText(coord_text)
 
     def create_new_map(self):
         """Create a new map with user-defined properties"""
