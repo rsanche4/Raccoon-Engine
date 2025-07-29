@@ -1,13 +1,55 @@
-# So if i understand, the first thing we need to do is look at the maps in the "maps" folder. 
-# Then, we have to go through all the .json files in there. Each .json is a map. 
-# So then, we need to create a "binary space partition tree" with this data. 
-# How do we do that? well, by reading the contents of each json!
-# the json are structured as follows:
-# paste the json structure here
-# Notice that the walls are simply where the vertices connect! So basically each line connects between each vertex. There is a wall between those. 
-# so vertex 1 is connected through a line with vertex 2. Vertex 2 to vertex 3. Etc. 
-# That is a "wall" for us so we need to run bsp on those in 2D is fine basically. We have the x and z coordinates of where they are so that's good.
-# There is "front" or "back" for the walls so feel free to label that yourself at random per wall if it makes things easier. Unless u need it specified then let me know.
-# Please include some sort of counter or something to help us keep track of where we are on the partition. This can take a while to do so it helps us keep track.
-# Finally, once you are done, output the same name for the map but with the name .rbt for each map, and drop each seperate bsp tree in these binary files that i can later extract somewere else. 
-# So for example map1.json and map2.json -> this outputs under bspt/ folder we put map1.rbt and map2.rbt
+import json
+import os
+import pickle
+from tqdm import tqdm
+from random import randint
+
+BSP_TREE = {}
+WALLDEFS = []
+
+def is_atomic_subspace(walls):
+    return len(walls)==1
+
+def recursive_bsp(walls):
+    global BSP_TREE
+    global WALLDEFS
+    if is_atomic_subspace(walls):
+        return
+    else:
+        splitterwall = randint(0, len(walls)-1) # This should change to try 5 different candidates and weight in the best score for splitting and balance tree but its fine
+        # So now the question is who goes to the left and who goes to the right
+        # The index IS the wall basically. Lot less space so all good. The only question is how do we decide who goes to the left and who goes to to the right
+        # TODO
+
+def is_horizontal(vertex1, vertex2):
+    if vertex1[0]!=vertex2[0]:
+        return True
+    elif vertex1[1]!=vertex2[1]:
+        return False
+
+def gen_bsp_tree(mapdata):
+    global BSP_TREE
+    global WALLDEFS
+    walldefs = []
+    for i in range(len(mapdata["sectors"])):
+        for j in range(len(mapdata["sectors"][i]["vertices"])):
+            if mapdata["sectors"][i]["properties"]["floor_height"]==0 and mapdata["sectors"][i]["properties"]["ceiling_height"] is None:
+                continue
+            x1, z1 = mapdata["sectors"][i]["vertices"][j][0], mapdata["sectors"][i]["vertices"][j][1] # x, z
+            x2, z2 = mapdata["sectors"][i]["vertices"][(j+1)%len(mapdata["sectors"][i]["vertices"])][0], mapdata["sectors"][i]["vertices"][(j+1)%len(mapdata["sectors"][i]["vertices"])][1]
+            walldefs.append({
+                "sector_id": mapdata["sectors"][i]["properties"]["sector_id"],
+                "wall_vertex_1": [x1, z1], 
+                "wall_vertex_2": [x2, z2],
+                "front_face": "UP" if is_horizontal([x1, z1], [x2, z2]) else "RIGHT"
+            })
+    recursive_bsp(walldefs)
+    return {"bsp_tree": BSP_TREE, "walldefs": WALLDEFS}
+    
+if __name__ == "__main__":
+    for mapname in tqdm(os.listdir("maps")):
+        with open(f'maps/{mapname}', 'r', encoding='utf-8') as file:
+            mapdata = json.load(file)
+        maprbt = gen_bsp_tree(mapdata)
+        with open(f"bspt/{mapname.replace(".json", "")}.rbt", "wb") as f:
+            pickle.dump(maprbt, f)

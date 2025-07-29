@@ -1,5 +1,3 @@
-# TODO Test that the editor works, and also make sure that when we want a flat texture and we have the two vertices 1 line type thing, we use the "floor height" variable to actually refer to how tall should it it be in this cases, and again black pixel means ignore dont touch draw the back type thing 
-
 import sys
 import json
 import os
