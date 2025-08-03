@@ -63,7 +63,7 @@ Overview of the `.json` map format used by the engine.
 How to import and use textures. Setting up dynamic or static skyboxes. Pictures.
 
 ### 10. Collision Handling
-How collisions work in the engine and how to define them in your maps.
+How collisions work in the engine. Basically walls have collision and sprites have collision. You can do an invisible wall by putting an empty wall type thing, since walls have collision anyways.
 
 ## 🧠 Game Logic and Scripting
 
@@ -82,7 +82,7 @@ Available API calls for interacting with the engine programmatically. The actual
 ## 🎮 Gameplay and Distribution
 
 ### 15. Running Your Game
-How to launch your game: simply run `python game.py`. Also include here how to turn ur game to an exec for WIndows, Apple, And Unix.
+How to launch your game: simply run `python game.py`. Also include here how to turn ur game to an exec for Windows, Apple, And Unix.
 
 ### 16. Check out the Demo!
 Right now there is a demo already written in the files! It is not much, as it is just our mascot Raccoony patrolling around a big city. Fun!
