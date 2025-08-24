@@ -1,0 +1,1 @@
+g++ sample.cpp -Iinclude -Llib -lSDL3 -o main.exe
