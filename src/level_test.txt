@@ -1,0 +1,21 @@
+[LEVEL]
+test 100 skybox.png 50
+[SECTORS]
+1 -50 200 floor.png 50 1 ceil.png 50 1
+2 5 100 floor.png 50 1 ceil.png 50 1
+3 50 100 floor.png 50 1 ceil.png 50 1
+4 0 200 floor.png 50 1 ceil.png 50 1
+[WALLS]
+-3 8 10 8 1 wall.png 50 1
+10 8 10 -7 1 wall.png 50 1
+-3 8 -10 8 2 wall.png 50 1
+-10 8 -10 -7 2 wall.png 50 1
+-10 -7 -10 -10 3 wall.png 50 1
+-10 -10 -3 -10 3 wall.png 50 1
+-3 -10 10 -10 4 wall.png 50 1
+10 -10 10 -7 4 wall.png 50 1
+[PORTALS]
+-3 8 -3 -7 1 2
+-10 -7 -3 -7 2 3
+-3 -7 10 -7 1 4
+-3 -7 -3 -10 3 4
