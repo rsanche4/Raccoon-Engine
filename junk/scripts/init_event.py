@@ -1,1 +1,0 @@
-REAPI.load_map("rooftop")
