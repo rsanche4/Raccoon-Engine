@@ -10,10 +10,13 @@ public class Camera implements KeyListener {
 	private boolean left_once_flag, right_once_flag, forward_once_flag, back_once_flag, enter_once_flag, space_once_flag, ctrl_once_flag, strafeleft_once_flag, straferight_once_flag, alt_once_flag, first_once_flag, second_once_flag, third_once_flag;
 	public static double direction_rad;
 	public static double TURN_SPEED = 0.04;
+	public static double MOVE_SPEED = 0.08;
 	public static double player_x, player_y, player_z;
+	public static double retina_dist = 4;
 	
 	public Camera() {
 		direction_rad = 0;
+		player_x = player_y = player_z = 0;
 	}
 
 	@Override

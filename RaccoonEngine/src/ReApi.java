@@ -1,4 +1,11 @@
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
@@ -28,9 +35,11 @@ public class ReApi {
     }
     
     public void endme(int script_index) {
-        if (Main.active_scripts != null && script_index >= 0 && script_index < Main.active_scripts.size()) {
-            Main.active_scripts.remove(script_index);
-        }
+        Main.active_scripts.remove(script_index);
+    }
+    
+    public void endit(String script_name) {
+        Main.active_scripts.remove(script_name);
     }
     
     public void set_skybox(String skyboxname, float brightness) {
@@ -39,17 +48,138 @@ public class ReApi {
     }
     
     public void load_map(String mapname) {
-    	// Clean the structures of the screen so they are blank
-    	// Read the mapname file and parse it so that you save the stuff into some sort of structure of Screen
-    	// Now screen will use that strucutre to render
+    	mapname = mapname.toLowerCase();
+    	if (mapname.contentEquals("menu")) {
+    		Screen.is_menu = true;
+    		return;
+    	} else {
+    		Screen.is_menu = false;
+    	}
+    	
+        Screen.sectorMap = new HashMap<>();
+        Screen.wallMap = new HashMap<>();
+        Screen.portalMap = new HashMap<>();
+
+        String path = "data/maps/" + mapname; // relative path
+
+        int selected = -1;
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(path));
+            for (String line : lines) {
+                line = line.trim();
+                if (line.equals("[SECTORS]")) { selected = 0; continue; }
+                if (line.equals("[WALLS]")) { selected = 1; continue; }
+                if (line.equals("[PORTALS]")) { selected = 2; continue; }
+
+                String[] parts = line.split("\\s+");
+
+                switch (selected) {
+                    case 0 -> { // SECTORS
+                    	int secid = Integer.parseInt(parts[0]); 
+                        Sector curr_sector = new Sector(
+                        	secid,
+                            Double.parseDouble(parts[1]),
+                            Double.parseDouble(parts[2]),
+                            parts[3],
+                            Double.parseDouble(parts[4]),
+                            parts[5],
+                            Double.parseDouble(parts[6])
+                        );
+                        
+                        Screen.sectorMap.put(secid, curr_sector);
+                    }
+                    case 1 -> { // WALLS
+                        double x1 = Double.parseDouble(parts[0]);
+                        double z1 = Double.parseDouble(parts[1]);
+                        double x2 = Double.parseDouble(parts[2]);
+                        double z2 = Double.parseDouble(parts[3]);
+                        int sectorId = Integer.parseInt(parts[4]);
+                        String texture = parts[5];
+                        double scale = Double.parseDouble(parts[6]);
+
+                        // Normalize coordinates
+                        if (x1 > x2 || (x1 == x2 && z1 > z2)) {
+                            double tmpX = x1, tmpZ = z1;
+                            x1 = x2; z1 = z2;
+                            x2 = tmpX; z2 = tmpZ;
+                        }
+
+                        // Split horizontal walls (z fixed)
+                        if (z1 == z2) {
+                            for (double x = x1; x < x2; x++) {
+                                String key = Screen.makeWallKey(x, z1, x + 1, z1);
+                                Wall w = new Wall(x, z1, x + 1, z1, sectorId, texture, scale);
+                           
+                                Screen.wallMap.put(key, w);
+                            }
+                        }
+                        // Split vertical walls (x fixed)
+                        else if (x1 == x2) {
+                            for (double z = z1; z < z2; z++) {
+                                String key = Screen.makeWallKey(x1, z, x1, z + 1);
+                                Wall w = new Wall(x1, z, x1, z + 1, sectorId, texture, scale);
+                                Screen.wallMap.put(key, w);
+                            }
+                        }
+                    }
+                    case 2 -> { // PORTALS
+                        double x1 = Double.parseDouble(parts[0]);
+                        double z1 = Double.parseDouble(parts[1]);
+                        double x2 = Double.parseDouble(parts[2]);
+                        double z2 = Double.parseDouble(parts[3]);
+                        int sectorA = Integer.parseInt(parts[4]);
+                        int sectorB = Integer.parseInt(parts[5]);
+
+                        // Normalize coordinates and sectors
+                        if (x1 > x2 || (x1 == x2 && z1 > z2)) {
+                            double tmpX = x1, tmpZ = z1;
+                            x1 = x2; z1 = z2;
+                            x2 = tmpX; z2 = tmpZ;
+                        }
+                        if (sectorA > sectorB) {
+                            int tmp = sectorA;
+                            sectorA = sectorB;
+                            sectorB = tmp;
+                        }
+
+                        // Split horizontal portals (z fixed)
+                        if (z1 == z2) {
+                            for (double x = x1; x < x2; x++) {
+                                String key = Screen.makeWallKey(x, z1, x + 1, z1);
+                                Portal p = new Portal(x, z1, x + 1, z1, sectorA, sectorB);
+                                Screen.portalMap.put(key, p);
+                            }
+                        }
+                        // Split vertical portals (x fixed)
+                        else if (x1 == x2) {
+                            for (double z = z1; z < z2; z++) {
+                                String key = Screen.makeWallKey(x1, z, x1, z + 1);
+                                Portal p = new Portal(x1, z, x1, z + 1, sectorA, sectorB);
+                                Screen.portalMap.put(key, p);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
-    public void set_atomic_xz_unit(int u) {
+    public void set_atomic_xz_unit(double u) {
     	Screen.atomic_xz_unit = u;
     }
     
-    public int get_atomic_xz_unit() {
+    public double get_atomic_xz_unit() {
     	return Screen.atomic_xz_unit;
+    }
+    
+    public double get_retina_dist() {
+    	return Camera.retina_dist;
+    }
+    
+    public void set_retina_dist(double retina_dist) {
+    	Camera.retina_dist = retina_dist;
     }
     
     public void set_player_pos(double x, double y, double z) {
@@ -69,6 +199,91 @@ public class ReApi {
     public double get_player_pos_z() {
     	return Camera.player_z;
     }
+    
+    public double get_move_speed() {
+    	return Camera.MOVE_SPEED;
+    }
+    
+    public void set_move_speed(double move_speed) {
+    	Camera.MOVE_SPEED = move_speed;
+    }
+    
+    public double get_turn_speed() {
+    	return Camera.TURN_SPEED;
+    }
+    
+    public void set_turn_speed(double turn_speed) {
+    	Camera.TURN_SPEED = turn_speed;
+    }
+    
+    public double get_dir_player() {
+    	return Camera.direction_rad;
+    }
+    
+    public void set_dir_player(double dir) {
+    	Camera.direction_rad = dir;
+    }
+    
+    public boolean is_key_pressed_once(String keyname) {
+        keyname = keyname.toLowerCase();
+        switch (keyname) {
+            case "left": return Camera.left_once;
+            case "right": return Camera.right_once;
+            case "forward": return Camera.forward_once;
+            case "back": return Camera.back_once;
+            case "enter": return Camera.enter_once;
+            case "space": return Camera.space_once;
+            case "ctrl": return Camera.ctrl_once;
+            case "strafeleft": return Camera.strafeleft_once;
+            case "straferight": return Camera.straferight_once;
+            case "alt": return Camera.alt_once;
+            case "first": return Camera.first_once;
+            case "second": return Camera.second_once;
+            case "third": return Camera.third_once;
+            default: return false;
+        }
+    }
+
+    public boolean is_key_pressed(String keyname) {
+        keyname = keyname.toLowerCase();
+        switch (keyname) {
+            case "left": return Camera.left;
+            case "right": return Camera.right;
+            case "forward": return Camera.forward;
+            case "back": return Camera.back;
+            case "enter": return Camera.enter;
+            case "space": return Camera.space;
+            case "ctrl": return Camera.ctrl;
+            case "strafeleft": return Camera.strafeleft;
+            case "straferight": return Camera.straferight;
+            case "alt": return Camera.alt;
+            case "first": return Camera.first;
+            case "second": return Camera.second;
+            case "third": return Camera.third;
+            default: return false;
+        }
+    }
+
+    public boolean is_key_released(String keyname) {
+        keyname = keyname.toLowerCase();
+        switch (keyname) {
+            case "left": return !Camera.left;
+            case "right": return !Camera.right;
+            case "forward": return !Camera.forward;
+            case "back": return !Camera.back;
+            case "enter": return !Camera.enter;
+            case "space": return !Camera.space;
+            case "ctrl": return !Camera.ctrl;
+            case "strafeleft": return !Camera.strafeleft;
+            case "straferight": return !Camera.straferight;
+            case "alt": return !Camera.alt;
+            case "first": return !Camera.first;
+            case "second": return !Camera.second;
+            case "third": return !Camera.third;
+            default: return true; // consider default as released
+        }
+    }
+
     
     public void displayText(String text, int pos_x, int pos_y, String fontfile) {
 	    text = text.toLowerCase();

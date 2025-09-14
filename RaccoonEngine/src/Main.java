@@ -39,10 +39,8 @@ import com.jogamp.common.nio.Buffers;
 public class Main extends JFrame implements Runnable, GLEventListener {
 	private static final long serialVersionUID = 1L;
 	public static double FPS = 30.0;
-	public static double world_light_factor = 1.0;
 	private static String game_title;
 	private static String game_version;
-	public static String current_world;
 	private static String fullscreen;
 	public static int game_width=320;
 	public static int game_height=240;
