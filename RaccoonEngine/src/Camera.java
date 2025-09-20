@@ -11,12 +11,13 @@ public class Camera implements KeyListener {
 	public static double direction_rad;
 	public static double TURN_SPEED = 0.04;
 	public static double MOVE_SPEED = 0.08;
-	public static double player_x, player_y, player_z;
+	public static double player_x, player_y, player_z, player_sector;
 	public static double retina_dist = 4;
 	
 	public Camera() {
 		direction_rad = 0;
 		player_x = player_y = player_z = 0;
+		player_sector = 1;
 	}
 
 	@Override

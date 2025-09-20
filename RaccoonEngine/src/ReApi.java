@@ -97,31 +97,35 @@ public class ReApi {
                         String texture = parts[5];
                         double scale = Double.parseDouble(parts[6]);
 
-                        // Normalize coordinates
+                        // Normalize coordinates so start < end
                         if (x1 > x2 || (x1 == x2 && z1 > z2)) {
                             double tmpX = x1, tmpZ = z1;
                             x1 = x2; z1 = z2;
                             x2 = tmpX; z2 = tmpZ;
                         }
 
-                        // Split horizontal walls (z fixed)
+                        // Horizontal walls (z fixed)
                         if (z1 == z2) {
-                            for (double x = x1; x < x2; x++) {
-                                String key = Screen.makeWallKey(x, z1, x + 1, z1);
-                                Wall w = new Wall(x, z1, x + 1, z1, sectorId, texture, scale);
-                           
+                            int startX = (int) Math.floor(x1);
+                            int endX = (int) Math.floor(x2);
+                            for (int x = startX; x < endX; x++) {
+                                String key = Screen.makeWallKey((double)x, z1, (double)(x + 1), z1);
+                                Wall w = new Wall((double)x, z1, (double)(x + 1), z1, sectorId, texture, scale);
                                 Screen.wallMap.put(key, w);
                             }
                         }
-                        // Split vertical walls (x fixed)
+                        // Vertical walls (x fixed)
                         else if (x1 == x2) {
-                            for (double z = z1; z < z2; z++) {
-                                String key = Screen.makeWallKey(x1, z, x1, z + 1);
-                                Wall w = new Wall(x1, z, x1, z + 1, sectorId, texture, scale);
+                            int startZ = (int) Math.floor(z1);
+                            int endZ = (int) Math.floor(z2);
+                            for (int z = startZ; z < endZ; z++) {
+                                String key = Screen.makeWallKey(x1, (double)z, x1, (double)(z + 1));
+                                Wall w = new Wall(x1, (double)z, x1, (double)(z + 1), sectorId, texture, scale);
                                 Screen.wallMap.put(key, w);
                             }
                         }
                     }
+
                     case 2 -> { // PORTALS
                         double x1 = Double.parseDouble(parts[0]);
                         double z1 = Double.parseDouble(parts[1]);
@@ -130,36 +134,44 @@ public class ReApi {
                         int sectorA = Integer.parseInt(parts[4]);
                         int sectorB = Integer.parseInt(parts[5]);
 
-                        // Normalize coordinates and sectors
+                        // Normalize coordinates so start < end
                         if (x1 > x2 || (x1 == x2 && z1 > z2)) {
                             double tmpX = x1, tmpZ = z1;
                             x1 = x2; z1 = z2;
                             x2 = tmpX; z2 = tmpZ;
                         }
+
+                        // Optional: normalize sectors so sectorA <= sectorB
                         if (sectorA > sectorB) {
                             int tmp = sectorA;
                             sectorA = sectorB;
                             sectorB = tmp;
                         }
 
-                        // Split horizontal portals (z fixed)
+                        // Horizontal portals (z fixed)
                         if (z1 == z2) {
-                            for (double x = x1; x < x2; x++) {
-                                String key = Screen.makeWallKey(x, z1, x + 1, z1);
-                                Portal p = new Portal(x, z1, x + 1, z1, sectorA, sectorB);
+                            int startX = (int) Math.floor(x1);
+                            int endX = (int) Math.ceil(x2);
+                            for (int x = startX; x < endX; x++) {
+                                String key = Screen.makeWallKey((double)x, z1, (double)(x + 1), z1);
+                                Portal p = new Portal((double)x, z1, (double)(x + 1), z1, sectorA, sectorB);
                                 Screen.portalMap.put(key, p);
                             }
                         }
-                        // Split vertical portals (x fixed)
+                        // Vertical portals (x fixed)
                         else if (x1 == x2) {
-                            for (double z = z1; z < z2; z++) {
-                                String key = Screen.makeWallKey(x1, z, x1, z + 1);
-                                Portal p = new Portal(x1, z, x1, z + 1, sectorA, sectorB);
+                            int startZ = (int) Math.floor(z1);
+                            int endZ = (int) Math.ceil(z2);
+                            for (int z = startZ; z < endZ; z++) {
+                                String key = Screen.makeWallKey(x1, (double)z, x1, (double)(z + 1));
+                                Portal p = new Portal(x1, (double)z, x1, (double)(z + 1), sectorA, sectorB);
                                 Screen.portalMap.put(key, p);
                             }
                         }
                     }
+                    
                 }
+                
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -182,10 +194,11 @@ public class ReApi {
     	Camera.retina_dist = retina_dist;
     }
     
-    public void set_player_pos(double x, double y, double z) {
+    public void set_player_pos(double x, double y, double z, double sector) {
     	Camera.player_x = x;
     	Camera.player_y = y;
     	Camera.player_z = z;
+    	Camera.player_sector = sector;
     }
     
     public double get_player_pos_x() {
@@ -198,6 +211,14 @@ public class ReApi {
     
     public double get_player_pos_z() {
     	return Camera.player_z;
+    }
+    
+    public double get_player_sector() {
+    	return Camera.player_sector;
+    }
+    
+    public double euclidean_distance(double x1, double y1, double x2, double y2) {
+    	return Screen.euclid_dist(x1, y1, x2, y2);
     }
     
     public double get_move_speed() {

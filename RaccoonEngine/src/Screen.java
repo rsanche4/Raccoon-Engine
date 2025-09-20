@@ -34,128 +34,98 @@ public class Screen {
 	}
 
 	public void update(int frame_num) {
+//		for (int y=0; y < Main.game_height; y++) {
+//    		gamepixels[y * Main.game_width + x] = 0x00FF00;
+//    	}
 		Arrays.fill(gamepixels, 0x000000);
-		//		for (int x = 0; x < Main.game_width; x++) {
-		//			for (int y = 0; y < Main.game_height; y++) {
-		//				gamepixels[y * Main.game_width + x] = 0xFF0000;
-		//			}
-		//		}
 		if (!is_menu) {
 			double camera_mid_side_a = Camera.retina_dist;
 			double camera_mid_side_b = Main.game_width / 2.0 / atomic_xz_unit;
 
-			// Calculate total field of view, then divide by screen width for angular step per pixel
 			double total_fov = 2 * Math.atan(camera_mid_side_b / camera_mid_side_a);
 			double deltatheta = total_fov / Main.game_width;
 
-			// So now basically go through each ray and REDO TODO all of this loop and logic. DDA needs to be actually carried out manually by me step by step so its al concise. We should go through an example
-			// I belive one of the problems is the edges and corners, another is just this logic seems to suck so go over it
-//			for (int x = 0; x < Main.game_width; x++) {
-//			    int ray_num = (Main.game_width/2) - x;
-//			    
-//			    double ray_angle = Camera.direction_rad + ray_num * deltatheta;
-//			    
-//			    double rayX = Camera.player_x;
-//			    double rayZ = Camera.player_z;
-//			    double rayDirX = Math.cos(ray_angle);
-//			    double rayDirZ = Math.sin(ray_angle);
-//			    
-//			    // Use floating point for precise tracking
-//			    double currentX = rayX;
-//			    double currentZ = rayZ;
-//			    
-//			    double deltaDistX = Math.abs(1 / rayDirX);
-//			    double deltaDistZ = Math.abs(1 / rayDirZ);
-//			    
-//			    int stepX = (rayDirX < 0) ? -1 : 1;
-//			    int stepZ = (rayDirZ < 0) ? -1 : 1;
-//			    
-//			    // Calculate distance to next grid line in each direction
-//			    double sideDistX = (rayDirX < 0) ? (currentX - Math.floor(currentX)) * deltaDistX : (Math.ceil(currentX) - currentX) * deltaDistX;
-//			    double sideDistZ = (rayDirZ < 0) ? (currentZ - Math.floor(currentZ)) * deltaDistZ : (Math.ceil(currentZ) - currentZ) * deltaDistZ;
-//			    
-//			    // Handle edge case where we start exactly on a grid line
-//			    if (sideDistX == 0) sideDistX = deltaDistX;
-//			    if (sideDistZ == 0) sideDistZ = deltaDistZ;
-//			    
-//			    boolean hit = false;
-//			    int stepsMax = 100;
-//			    int stepscount = 0;
-//			    
-//			    while (!hit && stepscount < stepsMax) {
-//			        stepscount++;
-//			        
-//			        int prevMapX = (int) Math.floor(currentX);
-//			        int prevMapZ = (int) Math.floor(currentZ);
-//			        
-//			        boolean crossedX = false;
-//			        boolean crossedZ = false;
-//			        
-//			        // Step along the smallest distance
-//			        if (sideDistX < sideDistZ) {
-//			            currentX += stepX * (sideDistX / deltaDistX);
-//			            sideDistX += deltaDistX;
-//			            crossedX = true;
-//			        } else {
-//			            currentZ += stepZ * (sideDistZ / deltaDistZ);
-//			            sideDistZ += deltaDistZ;
-//			            crossedZ = true;
-//			        }
-//			        
-//			        int mapX = (int) Math.floor(currentX);
-//			        int mapZ = (int) Math.floor(currentZ);
-//			        
-//			        // Check if we've crossed into a corner (both coordinates changed grid cells)
-//			        boolean isCorner = (mapX != prevMapX && mapZ != prevMapZ);
-//			        
-//			        if (isCorner) {
-//			            // We've moved diagonally across a corner - check all adjacent edges
-//			            int x0 = Math.min(prevMapX, mapX);
-//			            int z0 = Math.min(prevMapZ, mapZ);
-//			            
-//			            String[] cornerKeys = new String[] {
-//			                makeWallKey(x0, z0, x0 + 1, z0),         // horizontal edge (bottom)
-//			                makeWallKey(x0 + 1, z0, x0 + 1, z0 + 1), // vertical edge (right)
-//			                makeWallKey(x0 + 1, z0 + 1, x0, z0 + 1), // horizontal edge (top)
-//			                makeWallKey(x0, z0 + 1, x0, z0)          // vertical edge (left)
-//			            };
-//			            
-//			            for (String key : cornerKeys) {
-//			                if (wallMap.containsKey(key) || portalMap.containsKey(key)) {
-//			                    hit = true;
-//			                    // Remove debug print for performance - uncomment if needed
-//			                    // System.out.println("Hit wall at corner edge: " + key + " Ray: " + x);
-//			                    for (int y = 0; y < Main.game_height; y++) {
-//			                    	gamepixels[y * Main.game_width + x] = 0xFF0000;
-//			                    }
-//			                    break;
-//			                }
-//			            }
-//			        } else {
-//			            // Regular edge crossing - check the specific edge we crossed
-//			            String key = null;
-//			            
-//			            if (crossedX) {
-//			                // We crossed a vertical grid line
-//			                int edgeX = (stepX > 0) ? mapX : prevMapX;
-//			                key = makeWallKey(edgeX, prevMapZ, edgeX, prevMapZ + 1);
-//			            } else {
-//			                // We crossed a horizontal grid line  
-//			                int edgeZ = (stepZ > 0) ? mapZ : prevMapZ;
-//			                key = makeWallKey(prevMapX, edgeZ, prevMapX + 1, edgeZ);
-//			            }
-//			            
-//			            if (key != null && (wallMap.containsKey(key) || portalMap.containsKey(key))) {
-//			                hit = true;
-//			                // Remove debug print for performance - uncomment if needed
-//			                //System.out.println("Hit wall at edge: " + key + " Ray: " + x);
-//			                for (int y = 0; y < Main.game_height; y++) {
-//		                    	gamepixels[y * Main.game_width + x] = 0xFF0000;
-//		                    }
-//			            }
-//			        }
-//			    }
-//			}
+			for (int x = 0; x < Main.game_width; x++) {
+			    int ray_num = (Main.game_width/2) - x;
+			    
+			    double ray_angle = Camera.direction_rad + ray_num * deltatheta;
+			    
+			    double startx = Camera.player_x;
+			    double startz = Camera.player_z;
+			    
+			    double dirThetaX = Math.signum(Math.cos(ray_angle));
+			    double dirThetaZ = Math.signum(Math.sin(ray_angle));
+			    
+			    while (true) {			    	
+			    	double dx_1;
+				    double dz_1;
+				    double dx_2;
+				    double dz_2;
+				    if (dirThetaX>0) {
+				    	dx_1 = Math.floor(startx+1)-startx;
+				    } else {
+				    	dx_1 = Math.ceil(startx-1)-startx;
+				    }
+				        
+				    dz_1 = dirThetaZ*Math.abs(dx_1*Math.tan(ray_angle));
+
+				    double dist_horizontal = euclid_dist(startx, startz, startx+dx_1, startz+dz_1);
+
+				    if (dirThetaZ > 0) {
+				        dz_2 = Math.floor(startz + 1) - startz;
+				    } else {
+				        dz_2 = Math.ceil(startz - 1) - startz;
+				    }
+				    dx_2 = dirThetaX * Math.abs(dz_2 / Math.tan(ray_angle));
+
+				    double dist_vertical = euclid_dist(startx, startz, startx + dx_2, startz + dz_2);
+
+				    // Pick the closer intersection
+				    if (dist_horizontal < dist_vertical) {
+				        startx = startx + dx_1;
+				        startz = startz + dz_1;
+				    	
+				        String wallkey = makeWallKey(startx, Math.floor(startz), startx, Math.floor(startz+1));
+				        
+				        if (wallMap.containsKey(wallkey)) {
+				        	
+				        	Wall wallhit = wallMap.get(wallkey);
+				        	// TODO Call Projection
+				        	break;
+				        }
+				        
+				        if (portalMap.containsKey(wallkey)) {
+				        	Portal portalhit = portalMap.get(wallkey);
+				        	// TODO Call Projection
+				        	continue;
+				        	
+				        }
+				        
+				    } else {
+				        startx = startx + dx_2;
+				        startz = startz + dz_2;
+				        
+				        String wallkey = makeWallKey(Math.floor(startx), startz, Math.floor(startx+1), startz);
+				        
+				        if (wallMap.containsKey(wallkey)) {
+				        	Wall wallhit = wallMap.get(wallkey);
+				        	// TODO Call Projection
+				        	break;
+				        }
+				        
+				        if (portalMap.containsKey(wallkey)) {
+				        	Portal portalhit = portalMap.get(wallkey);
+				        	// TODO Call Projection
+				        	continue;
+				        }
+				    }
+			    	
+			    }
+			    
+			    
+			    
+			    
+			}
 
 			if (skybox!=null) {
 				draw_sky(Camera.direction_rad, Main.allTextures.get(skybox).pixels);
@@ -165,7 +135,11 @@ public class Screen {
 		ReApi.run_user_scripts();
 		up_res();
 	}
-		
+	
+	public static double euclid_dist(double x1, double z1, double x2, double z2) {
+		return Math.sqrt((z2-z1)*(z2-z1)+(x2-x1)*(x2-x1));
+	} 
+	
 	public static String makeWallKey(double x1, double z1, double x2, double z2) {
 	    // Normalize so the smaller point comes first
 	    if (x1 > x2 || (x1 == x2 && z1 > z2)) {
@@ -175,7 +149,7 @@ public class Screen {
 	    }
 	    return x1 + "," + z1 + "," + x2 + "," + z2;
 	}
-
+	
 	private void draw_sky(double dir, int[] skybox_picture) {
 		int skybox_width = Main.game_width * 4;  
 		int skybox_height = Main.game_height; 
