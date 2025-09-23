@@ -237,6 +237,14 @@ public class ReApi {
     	Camera.TURN_SPEED = turn_speed;
     }
     
+    public double get_move_up_speed() {
+    	return Camera.MOVE_UP_SPEED;
+    }
+    
+    public void set_move_up_speed(double move_up_speed) {
+    	Camera.MOVE_UP_SPEED = move_up_speed;
+    }
+    
     public double get_dir_player() {
     	return Camera.direction_rad;
     }
@@ -261,6 +269,8 @@ public class ReApi {
             case "first": return Camera.first_once;
             case "second": return Camera.second_once;
             case "third": return Camera.third_once;
+            case "pgup": return Camera.pgup_once;
+            case "pgdn": return Camera.pgdn_once;
             default: return false;
         }
     }
@@ -281,6 +291,8 @@ public class ReApi {
             case "first": return Camera.first;
             case "second": return Camera.second;
             case "third": return Camera.third;
+            case "pgup": return Camera.pgup;
+            case "pgdn": return Camera.pgdn;
             default: return false;
         }
     }
@@ -301,6 +313,8 @@ public class ReApi {
             case "first": return !Camera.first;
             case "second": return !Camera.second;
             case "third": return !Camera.third;
+            case "pgup": return !Camera.pgup;
+            case "pgdn": return !Camera.pgdn;
             default: return true; // consider default as released
         }
     }

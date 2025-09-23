@@ -56,7 +56,10 @@ public class Screen {
 			    double dirThetaX = Math.signum(Math.cos(ray_angle));
 			    double dirThetaZ = Math.signum(Math.sin(ray_angle));
 			    
-			    while (true) {			    	
+			    int counter = 0;
+			    int max_count = 100;
+			    while (counter<max_count) {
+			    	counter+=1;
 			    	double dx_1;
 				    double dz_1;
 				    double dx_2;

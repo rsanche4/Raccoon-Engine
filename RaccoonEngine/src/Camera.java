@@ -5,12 +5,13 @@ import java.awt.event.KeyListener;
 // Camera Class
 // Description: The class that allows for movement of the player when inputting keys. Main keys are detected here.
 public class Camera implements KeyListener {
-	public static boolean left, right, forward, back, enter, space, ctrl, strafeleft, straferight, alt, first, second, third;
-	public static boolean left_once, right_once, forward_once, back_once, enter_once, space_once, ctrl_once, strafeleft_once, straferight_once, alt_once, first_once, second_once, third_once;
-	private boolean left_once_flag, right_once_flag, forward_once_flag, back_once_flag, enter_once_flag, space_once_flag, ctrl_once_flag, strafeleft_once_flag, straferight_once_flag, alt_once_flag, first_once_flag, second_once_flag, third_once_flag;
+	public static boolean left, right, forward, back, enter, space, ctrl, strafeleft, straferight, alt, first, second, third, pgup, pgdn;
+	public static boolean left_once, right_once, forward_once, back_once, enter_once, space_once, ctrl_once, strafeleft_once, straferight_once, alt_once, first_once, second_once, third_once, pgup_once, pgdn_once;
+	private boolean left_once_flag, right_once_flag, forward_once_flag, back_once_flag, enter_once_flag, space_once_flag, ctrl_once_flag, strafeleft_once_flag, straferight_once_flag, alt_once_flag, first_once_flag, second_once_flag, third_once_flag, pgup_once_flag, pgdn_once_flag;
 	public static double direction_rad;
 	public static double TURN_SPEED = 0.04;
-	public static double MOVE_SPEED = 0.08;
+	public static double MOVE_SPEED = 0.25;
+	public static double MOVE_UP_SPEED = 0.1;
 	public static double player_x, player_y, player_z, player_sector;
 	public static double retina_dist = 4;
 	
@@ -144,6 +145,24 @@ public class Camera implements KeyListener {
 				third_once_flag = true;
 			}
 		}
+		if (e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
+			pgup = true;
+			if (pgup_once_flag) {
+				pgup_once = false;
+			} else {
+				pgup_once = true;
+				pgup_once_flag = true;
+			}
+		}
+		if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
+			pgdn = true;
+			if (pgdn_once_flag) {
+				pgdn_once = false;
+			} else {
+				pgdn_once = true;
+				pgdn_once_flag = true;
+			}
+		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);
 		}
@@ -203,6 +222,14 @@ public class Camera implements KeyListener {
             third = false;
             third_once_flag = false;
         }
+        if (e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
+        	pgup = false;
+        	pgup_once_flag = false;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
+        	pgdn = false;
+        	pgdn_once_flag = false;
+        }
 	}
 
 	public void update() {
@@ -212,8 +239,30 @@ public class Camera implements KeyListener {
 		        direction_rad += 2 * Math.PI;
 		    }
 		}
-		if (left) {
+		else if (left) {
 			direction_rad = (direction_rad + TURN_SPEED) % (2*Math.PI);
+		}
+		if (forward) {
+			player_x += Math.cos(direction_rad) * MOVE_SPEED;
+			player_z += Math.sin(direction_rad) * MOVE_SPEED;
+		}
+		else if (back) {
+			player_x -= Math.cos(direction_rad) * MOVE_SPEED;
+			player_z -= Math.sin(direction_rad) * MOVE_SPEED;
+		}
+		if (straferight) {
+		    player_x += Math.cos(direction_rad - Math.PI/2) * MOVE_SPEED;
+		    player_z += Math.sin(direction_rad - Math.PI/2) * MOVE_SPEED;
+		}
+		else if (strafeleft) {
+		    player_x += Math.cos(direction_rad + Math.PI/2) * MOVE_SPEED;
+		    player_z += Math.sin(direction_rad + Math.PI/2) * MOVE_SPEED;
+		}
+		if (pgup) {
+			player_y += MOVE_UP_SPEED;
+		}
+		else if (pgdn) {
+			player_y -= MOVE_UP_SPEED;
 		}
 	}
 }
