@@ -79,46 +79,46 @@ public class Screen {
 				    dx_2 = dirThetaX * Math.abs(dz_2 / Math.tan(ray_angle));
 
 				    double dist_vertical = euclid_dist(startx, startz, startx + dx_2, startz + dz_2);
-
+				    
+				    String wallkey;
 				    // Pick the closer intersection
 				    if (dist_horizontal < dist_vertical) {
 				        startx = startx + dx_1;
 				        startz = startz + dz_1;
-				    	
-				        String wallkey = makeWallKey(startx, Math.floor(startz), startx, Math.floor(startz+1));
-				        
-				        if (wallMap.containsKey(wallkey)) {
-				        	
-				        	Wall wallhit = wallMap.get(wallkey);
-				        	// TODO Call Projection
-				        	break;
-				        }
-				        
-				        if (portalMap.containsKey(wallkey)) {
-				        	Portal portalhit = portalMap.get(wallkey);
-				        	// TODO Call Projection
-				        	continue;
-				        	
-				        }
-				        
+				        wallkey = makeWallKey(startx, Math.floor(startz), startx, Math.floor(startz+1));
 				    } else {
 				        startx = startx + dx_2;
 				        startz = startz + dz_2;
-				        
-				        String wallkey = makeWallKey(Math.floor(startx), startz, Math.floor(startx+1), startz);
-				        
-				        if (wallMap.containsKey(wallkey)) {
-				        	Wall wallhit = wallMap.get(wallkey);
-				        	// TODO Call Projection
-				        	break;
-				        }
-				        
-				        if (portalMap.containsKey(wallkey)) {
-				        	Portal portalhit = portalMap.get(wallkey);
-				        	// TODO Call Projection
-				        	continue;
-				        }
+				        wallkey = makeWallKey(Math.floor(startx), startz, Math.floor(startx+1), startz);
 				    }
+				    
+				    if (wallMap.containsKey(wallkey)) {
+			        	
+			        	Wall wallhit = wallMap.get(wallkey);
+			        	Sector sector_info = sectorMap.get(wallhit.sectorid); 
+			        	int dy_walltop = Main.game_height/2 - project_column(startx, sector_info.ceil_height, startz, Main.game_height, ray_angle);
+			        	int dy_wallbottom = Main.game_height/2 - project_column(startx, sector_info.floor_height, startz, Main.game_height, ray_angle);
+			    		
+			        	// Draw depending on the sector
+			        	int[] sector_color = new int[] {0xFF0000, 0x00FF00, 0x0000FF, 0xFF00FF};
+			        	for (int y=dy_walltop; y < dy_wallbottom; y++) {
+			    			gamepixels[y * Main.game_width + x] = sector_color[wallhit.sectorid-1];
+			    		}
+			        	
+			        	for (int y=dy_wallbottom; y < Main.game_height; y++) {
+			        		gamepixels[y * Main.game_width + x] = 0xFFF000;
+			        	}
+			        	
+			        	break;
+			        }
+			        
+			        if (portalMap.containsKey(wallkey)) {
+			        	Portal portalhit = portalMap.get(wallkey);
+			        	// TODO Call Projection
+			        	continue;
+			        	
+			        }
+				    
 			    	
 			    }
 			    
@@ -196,6 +196,19 @@ public class Screen {
 						pixels[screenY + x] = gamepixels[srcOffset + srcX];
 					}
 				}
+	}
+	
+	private int project_column(double wallhit_x, double wallhit_y, double wallhit_z, int column_size, double ray_angle) {
+		double dy = ((wallhit_y-Camera.player_y)/(euclid_dist(Camera.player_x, Camera.player_z, wallhit_x, wallhit_z)*Math.cos(ray_angle-Camera.direction_rad)))*Camera.retina_dist;
+		int dy_from_middle = (int)(dy*atomic_xz_unit);
+		int column_size_half = column_size/2;
+		if (dy_from_middle < -column_size_half) {
+			return -column_size_half;
+		}
+		if (dy_from_middle > column_size_half) {
+			return column_size_half;
+		}
+		return dy_from_middle;
 	}
 
 }
