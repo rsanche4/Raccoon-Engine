@@ -76,7 +76,8 @@ public class ReApi {
                 switch (selected) {
                     case 0 -> { // SECTORS
                     	int secid = Integer.parseInt(parts[0]); 
-                        Sector curr_sector = new Sector(
+                        
+                    	Sector curr_sector = new Sector(
                         	secid,
                             Double.parseDouble(parts[1]),
                             Double.parseDouble(parts[2]),
@@ -106,6 +107,7 @@ public class ReApi {
 
                         // Horizontal walls (z fixed)
                         if (z1 == z2) {
+                        	Screen.sectorMap.get(sectorId).update_sector_boundary(z1, 0);
                             int startX = (int) Math.floor(x1);
                             int endX = (int) Math.floor(x2);
                             for (int x = startX; x < endX; x++) {
@@ -116,6 +118,7 @@ public class ReApi {
                         }
                         // Vertical walls (x fixed)
                         else if (x1 == x2) {
+                        	Screen.sectorMap.get(sectorId).update_sector_boundary(x1, 1);
                             int startZ = (int) Math.floor(z1);
                             int endZ = (int) Math.floor(z2);
                             for (int z = startZ; z < endZ; z++) {
@@ -150,6 +153,8 @@ public class ReApi {
 
                         // Horizontal portals (z fixed)
                         if (z1 == z2) {
+                        	Screen.sectorMap.get(sectorA).update_sector_boundary(z1, 0);
+                        	Screen.sectorMap.get(sectorB).update_sector_boundary(z1, 0);
                             int startX = (int) Math.floor(x1);
                             int endX = (int) Math.ceil(x2);
                             for (int x = startX; x < endX; x++) {
@@ -160,6 +165,8 @@ public class ReApi {
                         }
                         // Vertical portals (x fixed)
                         else if (x1 == x2) {
+                        	Screen.sectorMap.get(sectorA).update_sector_boundary(x1, 1);
+                        	Screen.sectorMap.get(sectorB).update_sector_boundary(x1, 1);
                             int startZ = (int) Math.floor(z1);
                             int endZ = (int) Math.ceil(z2);
                             for (int z = startZ; z < endZ; z++) {
@@ -194,11 +201,10 @@ public class ReApi {
     	Camera.retina_dist = retina_dist;
     }
     
-    public void set_player_pos(double x, double y, double z, double sector) {
+    public void set_player_pos(double x, double y, double z) {
     	Camera.player_x = x;
     	Camera.player_y = y;
     	Camera.player_z = z;
-    	Camera.player_sector = sector;
     }
     
     public double get_player_pos_x() {
@@ -213,7 +219,7 @@ public class ReApi {
     	return Camera.player_z;
     }
     
-    public double get_player_sector() {
+    public int get_player_sector() {
     	return Camera.player_sector;
     }
     
