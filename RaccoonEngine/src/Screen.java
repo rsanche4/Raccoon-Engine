@@ -48,6 +48,7 @@ public class Screen {
 				if (Camera.player_x >= sector.boundary_coords[0] && Camera.player_x <= sector.boundary_coords[1] &&
 		            Camera.player_z >= sector.boundary_coords[2] && Camera.player_z <= sector.boundary_coords[3]) {
 		            Camera.player_sector = sector.sectorId;
+		            break;
 		        }
 		    }
 			
