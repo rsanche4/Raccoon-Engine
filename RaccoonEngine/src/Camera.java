@@ -5,9 +5,9 @@ import java.awt.event.KeyListener;
 // Camera Class
 // Description: The class that allows for movement of the player when inputting keys. Main keys are detected here.
 public class Camera implements KeyListener {
-	public static boolean left, right, forward, back, enter, space, ctrl, strafeleft, straferight, alt, first, second, third, pgup, pgdn;
-	public static boolean left_once, right_once, forward_once, back_once, enter_once, space_once, ctrl_once, strafeleft_once, straferight_once, alt_once, first_once, second_once, third_once, pgup_once, pgdn_once;
-	private boolean left_once_flag, right_once_flag, forward_once_flag, back_once_flag, enter_once_flag, space_once_flag, ctrl_once_flag, strafeleft_once_flag, straferight_once_flag, alt_once_flag, first_once_flag, second_once_flag, third_once_flag, pgup_once_flag, pgdn_once_flag;
+	public static boolean left, right, forward, back, enter, space, ctrl, strafeleft, straferight, first, second, third, pgup, pgdn, fourth;
+	public static boolean left_once, right_once, forward_once, back_once, enter_once, space_once, ctrl_once, strafeleft_once, straferight_once, first_once, second_once, third_once, pgup_once, pgdn_once, fourth_once;
+	private boolean left_once_flag, right_once_flag, forward_once_flag, back_once_flag, enter_once_flag, space_once_flag, ctrl_once_flag, strafeleft_once_flag, straferight_once_flag, first_once_flag, second_once_flag, third_once_flag, pgup_once_flag, pgdn_once_flag, fourth_once_flag;
 	public static double direction_rad;
 	public static double TURN_SPEED = 0.04;
 	public static double MOVE_SPEED = 0.25;
@@ -110,15 +110,6 @@ public class Camera implements KeyListener {
 				straferight_once_flag = true;
 			}
 		}
-		if (e.getKeyCode() == KeyEvent.VK_ALT) {
-			alt = true;
-			if (alt_once_flag) {
-				alt_once = false;
-			} else {
-				alt_once = true;
-				alt_once_flag = true;
-			}
-		}
 		if (e.getKeyCode() == KeyEvent.VK_1) {
 			first = true;
 			if (first_once_flag) {
@@ -164,6 +155,15 @@ public class Camera implements KeyListener {
 				pgdn_once_flag = true;
 			}
 		}
+		if (e.getKeyCode() == KeyEvent.VK_4) {
+			fourth = true;
+			if (fourth_once_flag) {
+				fourth_once = false;
+			} else {
+				fourth_once = true;
+				fourth_once_flag = true;
+			}
+		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);
 		}
@@ -207,10 +207,6 @@ public class Camera implements KeyListener {
             straferight = false;
             straferight_once_flag = false;
         }
-        if (e.getKeyCode() == KeyEvent.VK_ALT) {
-            alt = false;
-            alt_once_flag = false;
-        }
         if (e.getKeyCode() == KeyEvent.VK_1) {
             first = false;
             first_once_flag = false;
@@ -230,6 +226,10 @@ public class Camera implements KeyListener {
         if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
         	pgdn = false;
         	pgdn_once_flag = false;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_4) {
+        	fourth = false;
+        	fourth_once_flag = false;
         }
 	}
 

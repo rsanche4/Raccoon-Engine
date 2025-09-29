@@ -100,14 +100,19 @@ public class Screen {
 
 					String wallkey;
 					// Pick the closer intersection
+					double decimal_value_wall_hit;
 					if (dist_horizontal < dist_vertical) {
 						startx = startx + dx_1;
 						startz = startz + dz_1;
 						wallkey = makeWallKey(startx, Math.floor(startz), startx, Math.floor(startz+1));
+						double abs_startz = Math.abs(startz);
+						decimal_value_wall_hit = abs_startz-Math.floor(abs_startz);
 					} else {
 						startx = startx + dx_2;
 						startz = startz + dz_2;
 						wallkey = makeWallKey(Math.floor(startx), startz, Math.floor(startx+1), startz);
+						double abs_startx = Math.abs(startx);
+						decimal_value_wall_hit = abs_startx-Math.floor(abs_startx);
 					}
 
 					if (wallMap.containsKey(wallkey)) {
@@ -117,17 +122,21 @@ public class Screen {
 						int dy_walltop = Main.game_height/2 - project_column(startx, sector_info.ceil_height, startz, Main.game_height, ray_angle);
 						int dy_wallbottom = Main.game_height/2 - project_column(startx, sector_info.floor_height, startz, Main.game_height, ray_angle);
 
+						int dy_walltop_clipped = clip_column(dy_walltop);
+						int dy_wallbottom_clipped = clip_column(dy_wallbottom);
+						
 						// Draw depending on the sector
-						for (int y=0; y < dy_walltop; y++) {
-							draw_renderpixel(x, y, sector_colors_ceil[sector_info.sectorId]);
+						for (int y=0; y < dy_walltop_clipped; y++) {
+							draw_pixel_with_color(x, y, sector_colors_ceil[sector_info.sectorId]);
+						}
+						
+						int column_pixel_size = dy_wallbottom-dy_walltop;
+						for (int y=dy_walltop_clipped; y < dy_wallbottom_clipped; y++) {
+							draw_wall_texture(x, y, decimal_value_wall_hit, dy_walltop, dy_wallbottom, wallhit.wallTexture, wallhit.wallBrightness, column_pixel_size);
 						}
 
-						for (int y=dy_walltop; y < dy_wallbottom; y++) {
-							draw_renderpixel(x, y, 0xFF00FF);
-						}
-
-						for (int y=dy_wallbottom; y < Main.game_height; y++) {
-							draw_renderpixel(x, y, sector_colors_floor[sector_info.sectorId]);
+						for (int y=dy_wallbottom_clipped; y < Main.game_height; y++) {
+							draw_pixel_with_color(x, y, sector_colors_floor[sector_info.sectorId]);
 						}
 
 						break;
@@ -158,21 +167,28 @@ public class Screen {
 							dy_wall_top_bottom = Main.game_height/2 - project_column(startx, cur_sector.ceil_height, startz, Main.game_height, ray_angle);
 							dy_wall_top_top = dy_wall_top_bottom;
 						}
-
-						for (int y=0; y < dy_wall_top_top; y++) {
-							draw_renderpixel(x, y, sector_colors_ceil[cur_sector.sectorId]);
+						
+						int dy_wall_top_top_clipped = clip_column(dy_wall_top_top);
+						int dy_wall_top_bottom_clipped = clip_column(dy_wall_top_bottom);
+						int dy_wall_bottom_top_clipped = clip_column(dy_wall_bottom_top);
+						int dy_wall_bottom_bottom_clipped = clip_column(dy_wall_bottom_bottom);
+						
+						for (int y=0; y < dy_wall_top_top_clipped; y++) {
+							draw_pixel_with_color(x, y, sector_colors_ceil[cur_sector.sectorId]);
+						}
+						
+						int column_pixel_size = dy_wall_top_bottom-dy_wall_top_top;
+						for (int y=dy_wall_top_top_clipped; y < dy_wall_top_bottom_clipped; y++) {
+							draw_wall_texture(x, y, decimal_value_wall_hit, dy_wall_top_top, dy_wall_top_bottom, portalhit.portalTexture, portalhit.portalBrightness, column_pixel_size);
+						}
+						
+						column_pixel_size = dy_wall_bottom_bottom-dy_wall_bottom_top;
+						for (int y=dy_wall_bottom_top_clipped; y < dy_wall_bottom_bottom_clipped; y++) {
+							draw_wall_texture(x, y, decimal_value_wall_hit, dy_wall_bottom_top, dy_wall_bottom_bottom, portalhit.portalTexture, portalhit.portalBrightness, column_pixel_size);
 						}
 
-						for (int y=dy_wall_top_top; y < dy_wall_top_bottom; y++) {
-							draw_renderpixel(x, y, 0xFFFFFF);
-						}
-
-						for (int y=dy_wall_bottom_top; y < dy_wall_bottom_bottom; y++) {
-							draw_renderpixel(x, y, 0xFFFFFF);
-						}
-
-						for (int y=dy_wall_bottom_bottom; y < Main.game_height; y++) {
-							draw_renderpixel(x, y, sector_colors_floor[cur_sector.sectorId]);
+						for (int y=dy_wall_bottom_bottom_clipped; y < Main.game_height; y++) {
+							draw_pixel_with_color(x, y, sector_colors_floor[cur_sector.sectorId]);
 						}
 
 						continue;
@@ -261,20 +277,44 @@ public class Screen {
 	private int project_column(double wallhit_x, double wallhit_y, double wallhit_z, int column_size, double ray_angle) {
 		double dy = ((wallhit_y-Camera.player_y)/(euclid_dist(Camera.player_x, Camera.player_z, wallhit_x, wallhit_z)*Math.cos(ray_angle-Camera.direction_rad)))*Camera.retina_dist;
 		int dy_from_middle = (int)(dy*atomic_xz_unit);
-		int column_size_half = column_size/2;
-		if (dy_from_middle < -column_size_half) {
-			return -column_size_half;
-		}
-		if (dy_from_middle > column_size_half) {
-			return column_size_half;
-		}
 		return dy_from_middle;
 	}
 
-	private void draw_renderpixel(int x, int y, int color) {
+	private void draw_pixel_with_color(int x, int y, int color) {
 		if (gamepixels[y * Main.game_width + x]==0x000000) {
 			gamepixels[y * Main.game_width + x] = color;
 		}
 	}
+	
+	private void draw_wall_texture(int x, int y, double decimal_value_wall_hit, int dy_walltop, int dy_wallbottom, String wallTexture, double wallBrightness, int wall_column_pixel_size) {
+		if (gamepixels[y * Main.game_width + x]==0x000000) {
+			Texture texture_wall_obj = Main.allTextures.get(wallTexture);
+			int u = (int)Math.round(decimal_value_wall_hit*texture_wall_obj.IMG_WID); // similar to u v mapping so the idea is u is the x along texture where, and v is going to be the y of that texture where
+			int v = (int)Math.round((((double)y-(double)dy_walltop)/((double)wall_column_pixel_size))*texture_wall_obj.IMG_HEI);
+			
+			u = Math.max(0, Math.min(texture_wall_obj.IMG_WID - 1, u));
+		    v = Math.max(0, Math.min(texture_wall_obj.IMG_HEI - 1, v));
+			
+			gamepixels[y * Main.game_width + x] = adjustBrightness(texture_wall_obj.pixels[v * texture_wall_obj.IMG_WID + u], wallBrightness);
+		}
+	}
+	
+	private int adjustBrightness(int color, double brightness) {
+	    int r = Math.min(255, (int)(((color >> 16) & 0xFF) * brightness));
+	    int g = Math.min(255, (int)(((color >> 8) & 0xFF) * brightness));
+	    int b = Math.min(255, (int)((color & 0xFF) * brightness));
+	    
+	    return (r << 16) | (g << 8) | b;
+	}
 
+	private int clip_column(int column_n) {
+		if (column_n < 0) {
+			return 0;
+		} else if (column_n > Main.game_height) {
+			return Main.game_height;
+		}
+		return column_n;
+	}
+	
+	
 }

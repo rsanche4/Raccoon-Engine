@@ -96,7 +96,7 @@ public class ReApi {
                         double z2 = Double.parseDouble(parts[3]);
                         int sectorId = Integer.parseInt(parts[4]);
                         String texture = parts[5];
-                        double scale = Double.parseDouble(parts[6]);
+                        double brightness = Double.parseDouble(parts[6]);
 
                         // Normalize coordinates so start < end
                         if (x1 > x2 || (x1 == x2 && z1 > z2)) {
@@ -112,7 +112,7 @@ public class ReApi {
                             int endX = (int) Math.floor(x2);
                             for (int x = startX; x < endX; x++) {
                                 String key = Screen.makeWallKey((double)x, z1, (double)(x + 1), z1);
-                                Wall w = new Wall((double)x, z1, (double)(x + 1), z1, sectorId, texture, scale);
+                                Wall w = new Wall((double)x, z1, (double)(x + 1), z1, sectorId, texture, brightness);
                                 Screen.wallMap.put(key, w);
                             }
                         }
@@ -123,7 +123,7 @@ public class ReApi {
                             int endZ = (int) Math.floor(z2);
                             for (int z = startZ; z < endZ; z++) {
                                 String key = Screen.makeWallKey(x1, (double)z, x1, (double)(z + 1));
-                                Wall w = new Wall(x1, (double)z, x1, (double)(z + 1), sectorId, texture, scale);
+                                Wall w = new Wall(x1, (double)z, x1, (double)(z + 1), sectorId, texture, brightness);
                                 Screen.wallMap.put(key, w);
                             }
                         }
@@ -136,6 +136,9 @@ public class ReApi {
                         double z2 = Double.parseDouble(parts[3]);
                         int sectorA = Integer.parseInt(parts[4]);
                         int sectorB = Integer.parseInt(parts[5]);
+                        String texture = parts[6];
+                        double brightness = Double.parseDouble(parts[7]);
+                        
 
                         // Normalize coordinates so start < end
                         if (x1 > x2 || (x1 == x2 && z1 > z2)) {
@@ -159,7 +162,7 @@ public class ReApi {
                             int endX = (int) Math.ceil(x2);
                             for (int x = startX; x < endX; x++) {
                                 String key = Screen.makeWallKey((double)x, z1, (double)(x + 1), z1);
-                                Portal p = new Portal((double)x, z1, (double)(x + 1), z1, sectorA, sectorB);
+                                Portal p = new Portal((double)x, z1, (double)(x + 1), z1, sectorA, sectorB, texture, brightness);
                                 Screen.portalMap.put(key, p);
                             }
                         }
@@ -171,7 +174,7 @@ public class ReApi {
                             int endZ = (int) Math.ceil(z2);
                             for (int z = startZ; z < endZ; z++) {
                                 String key = Screen.makeWallKey(x1, (double)z, x1, (double)(z + 1));
-                                Portal p = new Portal(x1, (double)z, x1, (double)(z + 1), sectorA, sectorB);
+                                Portal p = new Portal(x1, (double)z, x1, (double)(z + 1), sectorA, sectorB, texture, brightness);
                                 Screen.portalMap.put(key, p);
                             }
                         }
@@ -271,12 +274,12 @@ public class ReApi {
             case "ctrl": return Camera.ctrl_once;
             case "strafeleft": return Camera.strafeleft_once;
             case "straferight": return Camera.straferight_once;
-            case "alt": return Camera.alt_once;
             case "first": return Camera.first_once;
             case "second": return Camera.second_once;
             case "third": return Camera.third_once;
             case "pgup": return Camera.pgup_once;
             case "pgdn": return Camera.pgdn_once;
+            case "fourth": return Camera.fourth_once;
             default: return false;
         }
     }
@@ -293,12 +296,12 @@ public class ReApi {
             case "ctrl": return Camera.ctrl;
             case "strafeleft": return Camera.strafeleft;
             case "straferight": return Camera.straferight;
-            case "alt": return Camera.alt;
             case "first": return Camera.first;
             case "second": return Camera.second;
             case "third": return Camera.third;
             case "pgup": return Camera.pgup;
             case "pgdn": return Camera.pgdn;
+            case "fourth": return Camera.fourth;
             default: return false;
         }
     }
@@ -315,12 +318,12 @@ public class ReApi {
             case "ctrl": return !Camera.ctrl;
             case "strafeleft": return !Camera.strafeleft;
             case "straferight": return !Camera.straferight;
-            case "alt": return !Camera.alt;
             case "first": return !Camera.first;
             case "second": return !Camera.second;
             case "third": return !Camera.third;
             case "pgup": return !Camera.pgup;
             case "pgdn": return !Camera.pgdn;
+            case "fourth": return !Camera.fourth;
             default: return true; // consider default as released
         }
     }
