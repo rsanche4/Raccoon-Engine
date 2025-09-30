@@ -104,6 +104,7 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 			
 			// Setup JFrame with OpenGL canvas
 			add(canvas);
+			canvas.addKeyListener(camera);
 			setSize(SCREEN_W, SCREEN_H);
 			setResizable(false);
 			setUndecorated(fullscreen.contentEquals("on"));

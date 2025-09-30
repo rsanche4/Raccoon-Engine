@@ -72,7 +72,7 @@ public class Screen {
 				int dy_wall_top_top;
 				// DEBUG shading
 				int[] sector_colors_ceil= new int[] {0, 0xFF0000, 0x00FF00, 0x0000FF, 0xFFF000};
-				int[] sector_colors_floor= new int[] {0, 0xF0F000, 0x0FF000, 0xF0000F, 0x0F0F00};
+				int[] sector_colors_floor= new int[] {0, 0xF0F000, 0x0FF000, 0xF0000F, 0x0FFFF0};
 				while (counter<max_count) {
 					counter+=1;
 					double dx_1;

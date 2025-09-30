@@ -246,12 +246,44 @@ public class ReApi {
     	Camera.TURN_SPEED = turn_speed;
     }
     
-    public double get_move_up_speed() {
-    	return Camera.MOVE_UP_SPEED;
+    public double get_fly_up_speed() {
+    	return Camera.FLY_UP_SPEED;
     }
     
-    public void set_move_up_speed(double move_up_speed) {
-    	Camera.MOVE_UP_SPEED = move_up_speed;
+    public void set_fly_up_speed(double move_up_speed) {
+    	Camera.FLY_UP_SPEED = move_up_speed;
+    }
+    
+    public double get_jump_up_speed() {
+    	return Camera.JUMP_UP_SPEED;
+    }
+    
+    public void set_jump_up_speed(double move_up_speed) {
+    	Camera.JUMP_UP_SPEED = move_up_speed;
+    }
+    
+    public void set_gravity_up_multiplier(double grav_up_mult) {
+    	Camera.gravity_up_multiplier = grav_up_mult;
+    }
+    
+    public void set_gravity_down_multiplier(double grav_dn_mult) {
+    	Camera.gravity_down_multiplier = grav_dn_mult;
+    }
+    
+   public double get_gravity_up_multiplier() {
+    	return Camera.gravity_up_multiplier;
+    }
+    
+    public double get_gravity_down_multiplier() {
+    	return Camera.gravity_down_multiplier;
+    }
+    
+    public double get_crouching_speed() {
+    	return Camera.CROUCHING_SPEED;
+    }
+    
+    public void set_crouching_speed(double crouch_speed) {
+    	Camera.CROUCHING_SPEED = crouch_speed;
     }
     
     public double get_dir_player() {
@@ -260,6 +292,22 @@ public class ReApi {
     
     public void set_dir_player(double dir) {
     	Camera.direction_rad = dir;
+    }
+    
+    public void set_player_height (double player_height) {
+    	Camera.player_height = player_height;
+    }
+    
+    public double get_player_height() {
+    	return Camera.player_height;
+    }
+    
+    public boolean is_flying_mode_true() {
+    	return Camera.flying;
+    }
+    
+    public void set_flying_mode(boolean flying_mode) {
+    	Camera.flying = flying_mode;
     }
     
     public boolean is_key_pressed_once(String keyname) {
