@@ -2,6 +2,6 @@ local script_index = ...
 
 REAPI:log("Running Init Script from Lua!!")
 REAPI:set_player_pos(0, 0, 4)
-REAPI:set_skybox("nightskybox.png", 1.0)
+REAPI:set_skybox("big_mount_skybox.png", 1.0)
 REAPI:load_map("level_test.txt")
 REAPI:endme(script_index)

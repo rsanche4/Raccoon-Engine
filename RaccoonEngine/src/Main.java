@@ -42,10 +42,10 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 	private static String game_title;
 	private static String game_version;
 	private static String fullscreen;
-	public static int game_width=320;
-	public static int game_height=240;
 	public static int SCREEN_W=800;
 	public static int SCREEN_H=600;
+	public static int game_width=SCREEN_W;
+	public static int game_height=SCREEN_H;
 	
 	public static ArrayList<String> active_scripts = new ArrayList<>();
 	

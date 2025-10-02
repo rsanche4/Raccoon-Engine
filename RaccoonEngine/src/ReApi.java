@@ -310,6 +310,34 @@ public class ReApi {
     	Camera.flying = flying_mode;
     }
     
+    public boolean get_fog_occlusion() {
+    	return Screen.fog_occlusion;
+    }
+    
+    public void set_fog_occlusion(boolean fog) {
+    	Screen.fog_occlusion = fog;
+    }
+    
+    public void set_fog_settings(int r, int g, int b, double start, double end) {
+    	Screen.fog_r = r;
+    	Screen.fog_g = g;
+    	Screen.fog_b = b;
+    	Screen.fog_start = start;
+    	Screen.fog_end = end;
+    }
+    
+    public int fog_color() {
+    	return (Screen.fog_r << 16) | (Screen.fog_g << 8) | Screen.fog_b;
+    }
+    
+    public double get_fog_start() {
+    	return Screen.fog_start;
+    }
+    
+    public double get_fog_end() {
+    	return Screen.fog_end;
+    }
+    
     public boolean is_key_pressed_once(String keyname) {
         keyname = keyname.toLowerCase();
         switch (keyname) {
