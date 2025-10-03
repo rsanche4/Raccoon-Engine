@@ -34,6 +34,10 @@ public class ReApi {
         System.out.println("[Lua] " + msg);
     }
     
+    public void add_script(String script_name) {
+    	Main.active_scripts.add(script_name);
+    }
+    
     public void endme(int script_index) {
         Main.active_scripts.remove(script_index);
     }
@@ -136,10 +140,13 @@ public class ReApi {
                         double z2 = Double.parseDouble(parts[3]);
                         int sectorA = Integer.parseInt(parts[4]);
                         int sectorB = Integer.parseInt(parts[5]);
-                        String texture = parts[6];
-                        double brightness = Double.parseDouble(parts[7]);
+                        String bottomtexture = parts[6];
+                        double bottombrightness = Double.parseDouble(parts[7]);
+                        String middleTexture = parts[8];
+                        double middlebrightness = Double.parseDouble(parts[9]);
+                        String topTexture = parts[10];
+                        double topbrightness = Double.parseDouble(parts[11]);
                         
-
                         // Normalize coordinates so start < end
                         if (x1 > x2 || (x1 == x2 && z1 > z2)) {
                             double tmpX = x1, tmpZ = z1;
@@ -162,7 +169,7 @@ public class ReApi {
                             int endX = (int) Math.ceil(x2);
                             for (int x = startX; x < endX; x++) {
                                 String key = Screen.makeWallKey((double)x, z1, (double)(x + 1), z1);
-                                Portal p = new Portal((double)x, z1, (double)(x + 1), z1, sectorA, sectorB, texture, brightness);
+                                Portal p = new Portal((double)x, z1, (double)(x + 1), z1, sectorA, sectorB, bottomtexture, bottombrightness, middleTexture, middlebrightness, topTexture, topbrightness);
                                 Screen.portalMap.put(key, p);
                             }
                         }
@@ -174,7 +181,7 @@ public class ReApi {
                             int endZ = (int) Math.ceil(z2);
                             for (int z = startZ; z < endZ; z++) {
                                 String key = Screen.makeWallKey(x1, (double)z, x1, (double)(z + 1));
-                                Portal p = new Portal(x1, (double)z, x1, (double)(z + 1), sectorA, sectorB, texture, brightness);
+                                Portal p = new Portal(x1, (double)z, x1, (double)(z + 1), sectorA, sectorB, bottomtexture, bottombrightness, middleTexture, middlebrightness, topTexture, topbrightness);
                                 Screen.portalMap.put(key, p);
                             }
                         }
@@ -404,6 +411,47 @@ public class ReApi {
         }
     }
 
+    public double get_fps() {
+    	return Main.currentFPS;
+    }
+    
+    public double get_max_fps() {
+    	return Main.MAX_FPS;
+    }
+    
+    public void set_max_fps(double max_fps) {
+    	Main.MAX_FPS = max_fps;
+    }
+    
+    public void addUIToScreen(String textureName, int pos_x, int pos_y, int opacity) {
+	    Texture texture = Main.allTextures.get(textureName);
+	    if (texture == null) return;
+	    float opacityFactor = opacity / 255.0f;
+	    for (int y = 0; y < texture.IMG_HEI; y++) {
+	        for (int x = 0; x < texture.IMG_WID; x++) {
+	            int screenX = pos_x + x;
+	            int screenY = pos_y + y;
+	            if (screenX >= 0 && screenX < Main.game_width && screenY >= 0 && screenY < Main.game_height) {
+	                int srcPixel = texture.pixels[y * texture.IMG_WID + x];
+	                if ((srcPixel & 0xFF000000) != 0 || srcPixel != 0x000000) {
+	                    int screenIndex = screenY * Main.game_width + screenX;
+	                    int dstPixel = Screen.gamepixels[screenIndex];
+	                    int Rb = (dstPixel >> 16) & 0xFF;
+	                    int Gb = (dstPixel >> 8) & 0xFF;
+	                    int Bb = dstPixel & 0xFF;
+	                    
+	                    int Rf = (srcPixel >> 16) & 0xFF;
+	                    int Gf = (srcPixel >> 8) & 0xFF;
+	                    int Bf = srcPixel & 0xFF;
+	                    int Rr = Math.min(255, (int)(Rf * opacityFactor + Rb * (1 - opacityFactor)));
+	                    int Gr = Math.min(255, (int)(Gf * opacityFactor + Gb * (1 - opacityFactor)));
+	                    int Br = Math.min(255, (int)(Bf * opacityFactor + Bb * (1 - opacityFactor)));
+	                    Screen.gamepixels[screenIndex] = 0xFF000000 | (Rr << 16) | (Gr << 8) | Br;
+	                }
+	            }
+	        }
+	    }
+	}
     
     public void displayText(String text, int pos_x, int pos_y, String fontfile) {
 	    text = text.toLowerCase();

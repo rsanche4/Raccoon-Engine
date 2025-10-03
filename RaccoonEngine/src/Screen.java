@@ -33,8 +33,8 @@ public class Screen {
 	public static int fog_r = 0x00;
 	public static int fog_g = 0x00;    
 	public static int fog_b = 0x01;
-	public static double fog_start = 10.0;
-	public static double fog_end = 15.0;
+	public static double fog_start = 5.0;
+	public static double fog_end = 25.0;
 	private int skybox_refresh_val = 0x1000000;
 
 	public Screen(int[] pixels, int[] gamepixels) {
@@ -194,12 +194,20 @@ public class Screen {
 						
 						int column_pixel_size = dy_wall_top_bottom-dy_wall_top_top;
 						for (int y=dy_wall_top_top_clipped; y < dy_wall_top_bottom_clipped; y++) {
-							draw_wall_texture(x, y, decimal_value_wall_hit, dy_wall_top_top, dy_wall_top_bottom, portalhit.portalTexture, portalhit.portalBrightness, column_pixel_size, full_euclid_dist);
+							draw_wall_texture(x, y, decimal_value_wall_hit, dy_wall_top_top, dy_wall_top_bottom, portalhit.portalTopTexture, portalhit.portalTopBrightness, column_pixel_size, full_euclid_dist);
 						}
+						
+						if (!portalhit.portalMiddleTexture.contentEquals("black.png")) {
+							column_pixel_size = dy_wall_bottom_top-dy_wall_top_bottom;
+							for (int y=dy_wall_top_bottom_clipped; y < dy_wall_bottom_top_clipped; y++) {
+								draw_wall_texture(x, y, decimal_value_wall_hit, dy_wall_top_bottom, dy_wall_bottom_top, portalhit.portalMiddleTexture, portalhit.portalMiddleBrightness, column_pixel_size, full_euclid_dist);
+							}	
+						}
+						
 						
 						column_pixel_size = dy_wall_bottom_bottom-dy_wall_bottom_top;
 						for (int y=dy_wall_bottom_top_clipped; y < dy_wall_bottom_bottom_clipped; y++) {
-							draw_wall_texture(x, y, decimal_value_wall_hit, dy_wall_bottom_top, dy_wall_bottom_bottom, portalhit.portalTexture, portalhit.portalBrightness, column_pixel_size, full_euclid_dist);
+							draw_wall_texture(x, y, decimal_value_wall_hit, dy_wall_bottom_top, dy_wall_bottom_bottom, portalhit.portalBottomTexture, portalhit.portalBottomBrightness, column_pixel_size, full_euclid_dist);
 						}
 
 						for (int y=dy_wall_bottom_bottom_clipped; y < Main.game_height; y++) {
@@ -365,7 +373,12 @@ public class Screen {
 	        b = (int)(b * (1 - fog_factor) + fog_b * fog_factor);
 	    }
 	    
-	    return (r << 16) | (g << 8) | b;
+	    // Ensure not total black pixel
+	    int pixel_color = (r << 16) | (g << 8) | b;
+	    if (pixel_color==0x000000) {
+	    	return 0x000001;
+	    }
+	    return pixel_color;
 	}
 
 	private int clip_column(int column_n) {

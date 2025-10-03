@@ -38,7 +38,8 @@ import com.jogamp.common.nio.Buffers;
 // Description: This is the main class with GPU acceleration using JOGL while keeping the same pixel array logic
 public class Main extends JFrame implements Runnable, GLEventListener {
 	private static final long serialVersionUID = 1L;
-	public static double FPS = 30.0;
+	public static double MAX_FPS = 30.0;
+	public static double currentFPS = 0;
 	private static String game_title;
 	private static String game_version;
 	private static String fullscreen;
@@ -221,24 +222,38 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 	}
 
 	public void run() {
-		long lastTime = System.nanoTime();
-		final double ns = 1000000000.0 / FPS;
-		double delta = 0;
-		requestFocus();
-		int frame_num = 0;
-		while (running) {
-			long now = System.nanoTime();
-			delta = delta + ((now - lastTime) / ns);
-			lastTime = now;
-			while (delta >= 1) {
-				screen.update(frame_num);
-				camera.update();
-				frame_num = (frame_num + 1) % 1000;
-				delta--;
-			}
-			// Trigger OpenGL rendering
-			canvas.display();
-		}
+	    long lastTime = System.nanoTime();
+	    final double ns = 1000000000.0 / MAX_FPS;
+	    double delta = 0;
+	    requestFocus();
+	    int frame_num = 0;
+	    
+	    int frames = 0;
+	    long lastFpsTime = System.nanoTime();
+	    
+	    while (running) {
+	        long now = System.nanoTime();
+	        delta = delta + ((now - lastTime) / ns);
+	        lastTime = now;
+	        
+	        while (delta >= 1) {
+	            screen.update(frame_num);
+	            camera.update();
+	            frame_num = (frame_num + 1) % 1000;
+	            delta--;
+	            
+	            // Move rendering inside the delta loop
+	            canvas.display();
+	            frames++;
+	            
+	            // Calculate FPS every second
+	            if (now - lastFpsTime >= 1000000000) {
+	                currentFPS = frames;
+	                frames = 0;
+	                lastFpsTime = now;
+	            }
+	        }
+	    }
 	}
 
 	public static void main(String[] args) {

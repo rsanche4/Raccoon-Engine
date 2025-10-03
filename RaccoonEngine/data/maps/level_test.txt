@@ -13,7 +13,7 @@
 -3 -10 10 -10 4 walled_fence.png 0.5
 10 -10 10 -7 4 wall3h_with_cuteanime2hd.png 1.0
 [PORTALS]
--3 -7 -3 8 1 2 wall.png 1.0
--10 -7 -3 -7 2 3 wall.png 0.5
--3 -7 10 -7 1 4 wall.png 0.5
--3 -10 -3 -7 3 4 wall.png 1.0
+-3 -7 -3 8 1 2 wall.png 1.0 fence2.png 1.0 wall.png 1.0
+-10 -7 -3 -7 2 3 wall.png 0.5 black.png 1.0 wall.png 0.5
+-3 -7 10 -7 1 4 wall.png 0.5 black.png 1.0 wall.png 1.0
+-3 -10 -3 -7 3 4 wall.png 1.0 black.png 1.0 wall.png 0.5

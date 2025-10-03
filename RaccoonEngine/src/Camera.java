@@ -218,7 +218,8 @@ public class Camera implements KeyListener {
 
 	public void update() {
 		// TODO: Collision detection. Note: When you crouch, you cannot leave a sector that is higher than where you are. Doesnt make sense. You are crouching. 
-		
+		Sector cur_sector = Screen.sectorMap.get(player_sector);
+
 		if (right) {
 			direction_rad = (direction_rad - TURN_SPEED) % (2*Math.PI);
 			if (direction_rad < 0) {
@@ -228,7 +229,7 @@ public class Camera implements KeyListener {
 		else if (left) {
 			direction_rad = (direction_rad + TURN_SPEED) % (2*Math.PI);
 		}
-		if (forward) {
+		if (forward) {			
 			player_x += Math.cos(direction_rad) * MOVE_SPEED;
 			player_z += Math.sin(direction_rad) * MOVE_SPEED;
 		}
@@ -252,7 +253,7 @@ public class Camera implements KeyListener {
 				player_y -= FLY_UP_SPEED;
 			}
 		} else {
-			double sector_h = Screen.sectorMap.get(player_sector).floor_height;
+			double sector_h = cur_sector.floor_height;
 			double player_h_limit = sector_h+player_height;
 			double player_f_limit = sector_h+crouch_diff_height;
 			double move_up_speed = JUMP_UP_SPEED*gravity_up_multiplier;
