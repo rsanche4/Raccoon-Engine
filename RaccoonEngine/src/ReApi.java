@@ -447,6 +447,22 @@ public class ReApi {
     	Main.MAX_FPS = max_fps;
     }
     
+    public void playBGM(String bgm_path, boolean loop) {
+		Screen.current_bgm = new Sound("data/bgm/"+bgm_path, loop);
+	}
+	
+	public void stopBGM() {
+		Screen.current_bgm.stopSound();
+	}
+	
+	public void playSE(String bgm_path, boolean loop) {
+		Screen.current_sfe = new Sound("data/se/"+bgm_path, loop);
+	}
+	
+	public void stopSE() {
+		Screen.current_sfe.stopSound();
+	}
+    
     public void addUIToScreen(String textureName, int pos_x, int pos_y, int opacity) {
 	    Texture texture = Main.allTextures.get(textureName);
 	    if (texture == null) return;

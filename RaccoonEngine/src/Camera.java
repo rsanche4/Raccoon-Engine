@@ -9,8 +9,8 @@ public class Camera implements KeyListener {
 	public static boolean left_once, right_once, forward_once, back_once, enter_once, space_once, ctrl_once, strafeleft_once, straferight_once, first_once, second_once, third_once, pgup_once, pgdn_once, fourth_once;
 	private boolean left_once_flag, right_once_flag, forward_once_flag, back_once_flag, enter_once_flag, space_once_flag, ctrl_once_flag, strafeleft_once_flag, straferight_once_flag, first_once_flag, second_once_flag, third_once_flag, pgup_once_flag, pgdn_once_flag, fourth_once_flag;
 	public static double direction_rad;
-	public static double TURN_SPEED = 0.04;
-	public static double MOVE_SPEED = 0.25;
+	public static double TURN_SPEED = 0.03;
+	public static double MOVE_SPEED = 0.2;
 	public static double FLY_UP_SPEED = 0.1;
 	public static double JUMP_UP_SPEED = 0.2;
 	public static double CROUCHING_SPEED = 0.5;
@@ -23,7 +23,7 @@ public class Camera implements KeyListener {
 	public static double player_height = 2;
 	private boolean jumping_in_progress = false;
 	private double crouch_diff_height = player_height/2;
-	private double jump_diff_height = player_height/2;
+	private double jump_diff_height = player_height/4;
 	private boolean jumping_down_flag = false;
 	private boolean crouching_in_progress = false;
 	private double buffer_dist = 0.2;
@@ -226,6 +226,9 @@ public class Camera implements KeyListener {
 		
 		int possible_sector = Screen.update_player_sector(temp_x, temp_z);
 		
+		if ((possible_sector<0) || (pgdn && Screen.sectorMap.get(possible_sector).floor_height>cur_sector.floor_height)) {
+			return true;
+		}
 		if (possible_sector>=0 && !cur_sector.collision_data[possible_sector-1]) {
 			return false;
 		}
@@ -290,6 +293,7 @@ public class Camera implements KeyListener {
 			double player_f_limit = sector_h+crouch_diff_height;
 			double move_up_speed = JUMP_UP_SPEED*gravity_up_multiplier;
 			double move_dn_speed = JUMP_UP_SPEED*gravity_down_multiplier;
+			
 			if (pgup_once) {
 				jumping_in_progress = true;
 			} else if (jumping_in_progress) {
@@ -321,7 +325,6 @@ public class Camera implements KeyListener {
 					player_y -= move_dn_speed;
 				}
 			}
-
 		}
 
 		// Reset all "once" flags after processing

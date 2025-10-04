@@ -36,6 +36,8 @@ public class Screen {
 	public static double fog_start = 5.0;
 	public static double fog_end = 25.0;
 	private int skybox_refresh_val = 0x1000000;
+	public static Sound current_bgm;
+	public static Sound current_sfe;
 
 	public Screen(int[] pixels, int[] gamepixels) {
 		this.pixels = pixels;
