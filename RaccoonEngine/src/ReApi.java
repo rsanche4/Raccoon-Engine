@@ -77,6 +77,8 @@ public class ReApi {
 
                 String[] parts = line.split("\\s+");
 
+                boolean sectors_finished = false;
+                
                 switch (selected) {
                     case 0 -> { // SECTORS
                     	int secid = Integer.parseInt(parts[0]); 
@@ -94,6 +96,16 @@ public class ReApi {
                         Screen.sectorMap.put(secid, curr_sector);
                     }
                     case 1 -> { // WALLS
+                    	
+                    	// if we are here, that means we collected all sectors, which means init the collision for them all
+                    	if (!sectors_finished) {
+                    		int sector_count = Screen.sectorMap.size();
+                    		sectors_finished = true;
+                    		for (int sectori=1; sectori <= sector_count; sectori++) {
+                    			Screen.sectorMap.get(sectori).init_collisions(sector_count);
+                    		}
+                    	}
+                    	
                         double x1 = Double.parseDouble(parts[0]);
                         double z1 = Double.parseDouble(parts[1]);
                         double x2 = Double.parseDouble(parts[2]);
@@ -161,6 +173,18 @@ public class ReApi {
                             sectorB = tmp;
                         }
 
+                        Sector sectA = Screen.sectorMap.get(sectorA);
+                    	Sector sectB = Screen.sectorMap.get(sectorB);
+                        // store collision based on portals rendering
+                        if (!middleTexture.contentEquals("black.png")) {
+                        	Screen.sectorMap.get(sectA.sectorId).collision_data[sectB.sectorId-1] = true;
+                        	Screen.sectorMap.get(sectB.sectorId).collision_data[sectA.sectorId-1] = true;
+                        } else if (sectA.floor_height > sectB.floor_height && sectA.floor_height-sectB.floor_height>1) {
+                    		Screen.sectorMap.get(sectB.sectorId).collision_data[sectA.sectorId-1] = true;
+                    	} else if (sectA.floor_height < sectB.floor_height && sectB.floor_height-sectA.floor_height>1) {
+                    		Screen.sectorMap.get(sectA.sectorId).collision_data[sectB.sectorId-1] = true;
+                    	}
+                        
                         // Horizontal portals (z fixed)
                         if (z1 == z2) {
                         	Screen.sectorMap.get(sectorA).update_sector_boundary(z1, 0);

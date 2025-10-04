@@ -30,9 +30,9 @@ public class Screen {
 	private int half_screen_height = Main.game_height/2;
 	public static boolean fog_occlusion = true;
 	private double[] depth_buffer;
-	public static int fog_r = 0x00;
-	public static int fog_g = 0x00;    
-	public static int fog_b = 0x01;
+	public static int fog_r = 0x10;
+	public static int fog_g = 0x10;    
+	public static int fog_b = 0x10;
 	public static double fog_start = 5.0;
 	public static double fog_end = 25.0;
 	private int skybox_refresh_val = 0x1000000;
@@ -41,6 +41,17 @@ public class Screen {
 		this.pixels = pixels;
 		this.gamepixels = gamepixels;
 		this.depth_buffer = new double[gamepixels.length];
+	}
+	
+	public static int update_player_sector(double player_x, double player_z) {
+		// kinda terrible, can optimize but im too lazy
+		for (int i=1; i<=Screen.sectorMap.size(); i++) {
+	        Sector sector = Screen.sectorMap.get(i);
+			if (player_x >= sector.boundary_coords[0] && player_x <= sector.boundary_coords[1] && player_z >= sector.boundary_coords[2] && player_z <= sector.boundary_coords[3]) {
+	            return sector.sectorId;
+	        }
+	    }
+		return -1;
 	}
 
 	public void update(int frame_num) {
@@ -53,15 +64,7 @@ public class Screen {
 			double total_fov = 2 * Math.atan(camera_mid_side_b / camera_mid_side_a);
 			double deltatheta = total_fov / Main.game_width;
 
-			// kinda terrible, can optimize but im too lazy
-			for (int i=1; i<=Screen.sectorMap.size(); i++) {
-		        Sector sector = Screen.sectorMap.get(i);
-				if (Camera.player_x >= sector.boundary_coords[0] && Camera.player_x <= sector.boundary_coords[1] &&
-		            Camera.player_z >= sector.boundary_coords[2] && Camera.player_z <= sector.boundary_coords[3]) {
-		            Camera.player_sector = sector.sectorId;
-		            break;
-		        }
-		    }
+			Camera.player_sector = update_player_sector(Camera.player_x, Camera.player_z);
 			
 			for (int x = 0; x < Main.game_width; x++) {
 				int ray_num = (Main.game_width/2) - x;
@@ -204,7 +207,6 @@ public class Screen {
 							}	
 						}
 						
-						
 						column_pixel_size = dy_wall_bottom_bottom-dy_wall_bottom_top;
 						for (int y=dy_wall_bottom_top_clipped; y < dy_wall_bottom_bottom_clipped; y++) {
 							draw_wall_texture(x, y, decimal_value_wall_hit, dy_wall_bottom_top, dy_wall_bottom_bottom, portalhit.portalBottomTexture, portalhit.portalBottomBrightness, column_pixel_size, full_euclid_dist);
@@ -215,17 +217,9 @@ public class Screen {
 						}
 
 						continue;
-
 					}
-
-
 				}
-
-
-
-
 			}
-
 			if (skybox!=null) {
 				draw_sky(Camera.direction_rad, Main.allTextures.get(skybox).pixels);
 			}

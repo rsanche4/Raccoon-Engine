@@ -18,14 +18,15 @@ public class Camera implements KeyListener {
 	public static double gravity_down_multiplier = 1;
 	public static double player_x, player_y, player_z;
 	public static int player_sector;
-	public static double retina_dist = 10;
+	public static double retina_dist = 8;
 	public static boolean flying = false;
 	public static double player_height = 2;
-	private static boolean jumping_in_progress = false;
-	private static double crouch_diff_height = player_height/2;
-	private static double jump_diff_height = player_height/2;
-	private static boolean jumping_down_flag = false;
-	private static boolean crouching_in_progress = false;
+	private boolean jumping_in_progress = false;
+	private double crouch_diff_height = player_height/2;
+	private double jump_diff_height = player_height/2;
+	private boolean jumping_down_flag = false;
+	private boolean crouching_in_progress = false;
+	private double buffer_dist = 0.2;
 	
 
 	public Camera() {
@@ -216,8 +217,22 @@ public class Camera implements KeyListener {
 		}
 	}
 
+	private boolean is_collision(Sector cur_sector, double val_to_add_x, double val_to_add_z) {
+		double temp_x = player_x;
+		double temp_z = player_z;
+		
+		temp_x += val_to_add_x;
+		temp_z += val_to_add_z;
+		
+		int possible_sector = Screen.update_player_sector(temp_x, temp_z);
+		
+		if (possible_sector>=0 && !cur_sector.collision_data[possible_sector-1]) {
+			return false;
+		}
+		return true;
+	}
+	
 	public void update() {
-		// TODO: Collision detection. Note: When you crouch, you cannot leave a sector that is higher than where you are. Doesnt make sense. You are crouching. 
 		Sector cur_sector = Screen.sectorMap.get(player_sector);
 
 		if (right) {
@@ -230,20 +245,36 @@ public class Camera implements KeyListener {
 			direction_rad = (direction_rad + TURN_SPEED) % (2*Math.PI);
 		}
 		if (forward) {			
-			player_x += Math.cos(direction_rad) * MOVE_SPEED;
-			player_z += Math.sin(direction_rad) * MOVE_SPEED;
+			if (!is_collision(cur_sector, Math.cos(direction_rad) * (MOVE_SPEED + buffer_dist), 0)) {
+				player_x += Math.cos(direction_rad) * MOVE_SPEED;
+			}
+			if (!is_collision(cur_sector, 0, Math.sin(direction_rad) * (MOVE_SPEED + buffer_dist))) {
+				player_z += Math.sin(direction_rad) * MOVE_SPEED;
+			}
 		}
 		else if (back) {
-			player_x -= Math.cos(direction_rad) * MOVE_SPEED;
-			player_z -= Math.sin(direction_rad) * MOVE_SPEED;
+			if (!is_collision(cur_sector, -Math.cos(direction_rad) * (MOVE_SPEED + buffer_dist), 0)) {
+				player_x -= Math.cos(direction_rad) * MOVE_SPEED;
+			}
+			if (!is_collision(cur_sector, 0, -Math.sin(direction_rad) * (MOVE_SPEED + buffer_dist))) {
+				player_z -= Math.sin(direction_rad) * MOVE_SPEED;
+			}
 		}
 		if (straferight) {
-			player_x += Math.cos(direction_rad - Math.PI/2) * MOVE_SPEED;
-			player_z += Math.sin(direction_rad - Math.PI/2) * MOVE_SPEED;
+			if (!is_collision(cur_sector, Math.cos(direction_rad - Math.PI/2) * (MOVE_SPEED + buffer_dist), 0)) {
+				player_x += Math.cos(direction_rad - Math.PI/2) * MOVE_SPEED;
+			}
+			if (!is_collision(cur_sector, 0, Math.sin(direction_rad - Math.PI/2) * (MOVE_SPEED + buffer_dist))) {
+				player_z += Math.sin(direction_rad - Math.PI/2) * MOVE_SPEED;
+			}
 		}
 		else if (strafeleft) {
-			player_x += Math.cos(direction_rad + Math.PI/2) * MOVE_SPEED;
-			player_z += Math.sin(direction_rad + Math.PI/2) * MOVE_SPEED;
+			if (!is_collision(cur_sector, Math.cos(direction_rad + Math.PI/2) * (MOVE_SPEED + buffer_dist), 0)) {
+				player_x += Math.cos(direction_rad + Math.PI/2) * MOVE_SPEED;
+			}
+			if (!is_collision(cur_sector, 0, Math.sin(direction_rad + Math.PI/2) * (MOVE_SPEED + buffer_dist))) {
+				player_z += Math.sin(direction_rad + Math.PI/2) * MOVE_SPEED;
+			}
 		}
 		if (flying) {
 			if (pgup) {
@@ -252,7 +283,8 @@ public class Camera implements KeyListener {
 			else if (pgdn) {
 				player_y -= FLY_UP_SPEED;
 			}
-		} else {
+		} 
+		else {
 			double sector_h = cur_sector.floor_height;
 			double player_h_limit = sector_h+player_height;
 			double player_f_limit = sector_h+crouch_diff_height;

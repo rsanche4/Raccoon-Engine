@@ -8,6 +8,8 @@ public class Sector {
     String ceilTexture;
     double ceilBrightness;
     
+    boolean[] collision_data; // before u do the index, do sector id -1 to get the correct value 
+    
     double[] boundary_coords = new double[4]; // { horizontal_value1, horizontal_value2, vertical_value1, vertical_value2 }
     int index_set_boundary_x = 0; 
     int index_set_boundary_z = 2;
@@ -21,6 +23,10 @@ public class Sector {
         this.floorBrightness = floorBrightness;
         this.ceilTexture = ceilTexture;
         this.ceilBrightness = ceilBrightness;
+    }
+    
+    public void init_collisions(int size) {
+    	collision_data = new boolean[size];
     }
     
     // 0 - horizontal, 1 - vertical
