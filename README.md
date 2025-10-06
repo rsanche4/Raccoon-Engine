@@ -4,7 +4,7 @@
 
 - [Introduction](#introduction)
   - [1. What is the Raccoon Engine?](#1-what-is-the-raccoon-engine)
-  - [2. Why I Built This](#2-why-i-built-this)
+  - [2. Why Build This?](#2-why-build-this)
   - [3. About Me](#3-about-me)
   - [4. Installation Guide](#4-installation-guide)
 - [Technical Overview](#technical-overview)
@@ -36,7 +36,7 @@
 
 The Raccoon Engine is a lightweight game engine inspired by the simplicity and flexibility of Build Engine-style architectures and grid stepping logic of raycasters. It combines a Java core with a Lua frontend for easy scripting and rapid prototyping.
 
-### 2. Why I Built This
+### 2. Why Build This?
 
 I am glad you asked! Well, during the summer of 2025, I had a lot of free time on my hands due to personal circumstances in my life. I had already been working on a game engine that used raycasting instead since 2022. I was able to finish it, but I felt like it was too limited still. Raycasting was great, but I could accomplish a lot more. I wanted to create my own 3D engine, but I did not want to go full rasterization, so I decided to opt in for something simpler. It was here where I remembered one of my favorite childhood games, DOOM. And thus, I learned a lot about how it was able to create its complex scenes without full 3D!
 
