@@ -22,7 +22,7 @@
   - [14. API Reference](#14-api-reference)
 - [Gameplay and Distribution](#gameplay-and-distribution)
   - [15. Publishing Your Game!](#15-publishing-your-game)
-  - [16. Check out the quick Demo & Video Tutorial!](#16-check-out-the-demo)
+  - [16. Check Out Demo & Tutorial!](#16-check-out-demo--tutorial)
 - [Final Bits](#final-bits)
   - [17. Known Limitations and Constraints](#17-known-limitations-and-constraints)
   - [18. License Info](#18-license-info)
@@ -54,7 +54,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
 ### 5. Why Java?
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+You might be wondering why I chose Java for a raycasting game engine instead of the more typical choices like C++ or C. Honestly, Java is just good enough for this type of project. Raycasting engines aren't pushing the bleeding edge of performance. The techniques used in Wolfenstein 3D worked on early 90s hardware, so modern Java on today's machines handles it without breaking a sweat. Not to mention good old Minecraft was also written in Java originally, so nothing like paying homage to the legend! On top of that, Java isn't limited to just software rendering. With libraries like LWJGL (Lightweight Java Game Library) or JOGL, you can access OpenGL directly from Java. This opens up possibilities for hardware-accelerated graphics while still enjoying Java's ecosystem. It's the best of both worlds: high-level language convenience with low-level graphics power when you need it.
 
 ### 6. Core Concepts Explained
 
@@ -108,7 +108,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
-### 16. Check Out the Demo!
+### 16. Check Out Demo & Tutorial!
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
@@ -122,15 +122,16 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
 ### 18. License Info
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Raccoon Engine is released under the MIT License, one of the most permissive open-source licenses out there. You're free to use the engine for personal or commercial projects, modify the source code however you like, distribute your games without any restrictions, fork the project and create your own variations, etc. The only requirement is that you include the original copyright notice and license text in any distributions of the source code. Basically, you can do whatever you want with Raccoon Engine. Build games, sell them, modify the engine, share your improvements, etc. The MIT License is designed to get out of your way and let you create. For the full legal text, see the LICENSE file included with the engine.
 
 ### 19. Contact Me
 
-You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to email me at: raffysplayground@gmail.com
+You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to email me at: `raffysplayground@gmail.com`.
 
 Only things left to do:
 - Add Directional Sprites, with pathfinding, and behavior
 - Allow sound to decrease in volume or be raised api, good for distance of objects making sounds
+- Allow keybindings to be different and let the player decide between bindings etc (Retro, or Modern)
 - Create Editor for easy map making
 - Figure out Easy Publishing or Possibly migrate to C/C++ if too hard on Java
 - Finish this documentation
