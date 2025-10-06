@@ -42,7 +42,7 @@ I am glad you asked! Well, during the summer of 2025, I had a lot of free time o
 
 ### 3. About Me
 
-I am Rafael Sanchez, a slightly sleep-deprived but highly passionate nerd with a lot of free time on my hands haha. I spend most of my time chilling at 127.0.0.1, building fun stuff, going on long walks. I also love math! It's funny that I actually did not study game dev in college but Machine Learning instead. The weird turns of life! Oh and I also like acting and do fun theater shows every now and then. Boy do I have a diverse profile. Follow me on linkedin! -> https://www.linkedin.com/in/rafael-sanchez4/
+I am Rafael Sanchez, a slightly sleep-deprived but highly passionate nerd with a lot of free time on my hands haha. I spend most of my time chilling at 127.0.0.1, building fun stuff, going on long walks. I also love math! It's funny that I actually did not study game dev in college but Machine Learning instead. The weird turns of life! Oh and I also like acting and do fun theater shows every now and then. Boy do I have a diverse profile. Follow me on [linkedin](https://www.linkedin.com/in/rafael-sanchez4/)!
 
 ### 4. Installation Guide
 
@@ -126,7 +126,7 @@ Raccoon Engine is released under the MIT License, one of the most permissive ope
 
 ### 19. Contact Me
 
-You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to email me at: `raffysplayground@gmail.com`.
+You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to [email me](mailto:raffysplayground@gmail.com)!
 
 Only things left to do:
 - Add Directional Sprites, with pathfinding, and behavior
