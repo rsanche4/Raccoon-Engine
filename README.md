@@ -118,7 +118,29 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
 ### 17. Known Limitations and Constraints
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+The Raccoon Engine uses a sector-based portal rendering system inspired by Doom and the Build Engine. Each vertical column on screen renders exactly one floor, one ceiling, and the walls in between. This is an elegant constraint that enables fast performance while creating rich, multi-layered 3D environments. However, as a raycaster at its core, the engine has some inherent limitations:
+
+**No Rooms Above Rooms**
+
+This is the classic limitation that Doom also had to deal with. Since each sector only stores two values (floor height and ceiling height), you cannot place one sector directly on top of another. This is simply impossible with the raycasting approach.
+
+**Single Axis of Rotation**
+
+Because of the column-based rendering, true looking up and down would cause visual distortions. The engine is locked to horizontal rotation only (yaw), giving you 1 degree of rotational freedom. Your view always remains level with the horizon.
+
+**Billboarded Sprites**
+
+There are no true 3D polygons for objects or enemies. Instead, sprites are "billboarded", or flat images always facing the player. To create the illusion of 3D, the engine displays different sprite images based on the viewing angle (front view, side view, back view, etc.), giving that classic pseudo-3D look without the complexity of polygon rendering.
+
+**No Sprite Stacking**
+
+Sprites cannot overlap or stack on top of each other in 3D space. This simplifies collision detection and reduces CPU overhead, but means you'll need to plan object placement carefully.
+
+**Sector Count Considerations**
+
+Try to keep your world under 100 sectors for optimal performance. If your map grows larger, consider splitting it into separate map files and using teleporters or level transitions to move the player between them. This keeps rendering efficient and frame rates smooth.
+
+Note: These limitations aren't bugs! They're design choices that make the engine fast, understandable, and give it that distinctive retro feel!
 
 ### 18. License Info
 
