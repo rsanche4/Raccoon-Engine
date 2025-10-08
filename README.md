@@ -58,7 +58,43 @@ You might be wondering why I chose Java for a raycasting game engine instead of 
 
 ### 6. Core Concepts Explained
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+**The Raycasting Foundation**
+
+For each vertical column on the screen, the engine casts a single ray from the player's position outward into the world. These rays travel through the 2D grid map, checking for intersections with walls. The distance to the nearest wall determines how tall that wall appears on screen. Essentially, closer walls are taller, distant walls are shorter. This creates the illusion of depth and perspective.
+
+**DDA Algorithm (Digital Differential Analysis)**
+
+The engine uses the DDA algorithm to efficiently step through the grid. Instead of checking every possible point along the ray, DDA intelligently jumps from grid line to grid line (both horizontal and vertical), checking only the grid cells the ray actually passes through. This makes collision detection fast and accurate.
+
+**Projection and Scaling**
+
+Once a wall is hit, the engine calculates the perpendicular distance to avoid the "fish-eye" distortion effect. This distance is then used to determine the wall's height on screen using trigonometry and projection.
+
+**Portal Rendering**
+
+When a ray passes through a sector boundary (a portal), the engine continues into the next convex room or sector, where the rendering process is repeated but only on the smaller window of the portal through which we can see the next sector. This allows for multi-room environments with varying heights, creating complex interconnected spaces while maintaining performance.
+
+**Billboarded Sprites**
+
+Objects, enemies, and items are rendered as 2D images that always face the player. The engine calculates the sprite's distance and screen position, then scales and draws the appropriate image. To create a pseudo-3D effect, different sprite images are displayed based on the viewing angle (front, side, back views), giving objects a sense of dimensionality without true 3D geometry.
+
+**Texture Mapping**
+
+When a ray hits a wall, the engine determines exactly where on that wall the collision occurred. This hit point maps to a specific column in the wall's texture. The texture is then scaled vertically to match the wall's screen height and drawn column by column.
+
+For floor and ceiling tiles, the process is similar but works in reverse: for each pixel on screen, the engine calculates which world tile it corresponds to and samples the appropriate pixel from that tile's texture. This creates the illusion of textured floors stretching into the distance.
+
+**Depth Buffer and Lighting**
+
+A depth buffer tracks the distance of everything rendered on screen. This depth information adjusts the brightness of walls, floors, and sprites. Closer objects should appear brighter, distant objects fade into darkness. This creates atmospheric fog effects and realistic lighting without expensive lighting calculations.
+
+**Brush Up Your Math Skills**
+
+If all of this sounded confusing, you are not alone! I was very much confused by the entire jargon of 3D graphics when I first started my journey all the way back in 2022. Here are some very nice resources that helped me very much understand a lot about how to accomplish all of this. (Keep in mind, I did my own flavor of rendering. I did not follow these tutorials but mixed and matched algorithms with what was easier to understand and what worked better for me!): 
+https://lodev.org/cgtutor/raycasting.html -> A tutorial on Wolfestein 3D rendering algorithm for raycasting!
+https://youtu.be/NbSee-XM7WA -> DDA more easily explained.
+https://youtu.be/fSjc8vLMg8c -> An overview on how to re-create the DOOM engine.
+https://youtu.be/eoXn6nwV694 -> A great video explaining the main concepts behind perspective projection.
 
 ---
 
@@ -94,7 +130,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
 ### 13. The `config.cfg` File
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+The `config.cfg` file can be found in the `Data/` folder. It contains the following entries: `game_title`, `game_version`, `game_res`, and `window_res`.
+
+**game_title**: The title of your game that appears in the window's title bar. This can be anything you want. It's simply the name of your project displayed to players.
+**game_version**: The version number of your game. Set this to whatever versioning scheme you prefer (e.g., "1.0", "0.5 Beta", "Alpha Build 3").
+**game_res**: This is the internal rendering resolution i.e. the resolution at which all game logic and rendering calculations are performed. It's strongly recommended to keep this at `640x480` for the authentic retro look and optimal performance. This classic resolution gives you that nostalgic chunky-pixel aesthetic while keeping the raycasting fast.
+**window_res**: This is the actual window size displayed on your screen. The game rendering is scaled up from `game_res` to match this window size. If you set `window_res` equal to your screen resolution, the game will run in fullscreen mode.
+
+All resolutions must follow the format `widthxheight` (e.g., `1280x720`, `1920x1080`, `800x600`). Make sure there are no spaces and the 'x' is lowercase.
 
 ### 14. API Reference
 
@@ -136,6 +179,10 @@ There are no true 3D polygons for objects or enemies. Instead, sprites are "bill
 
 Sprites cannot overlap or stack on top of each other in 3D space. This simplifies collision detection and reduces CPU overhead, but means you'll need to plan object placement carefully.
 
+**Grid-Aligned Walls Only**
+
+The engine uses a strict grid-based system where all walls must be aligned horizontally or vertically. You cannot create diagonal walls, angled corridors, or sloped surfaces. While this is more restrictive than Doom's approach (which allowed arbitrary wall angles), it makes raycasting significantly faster and completely avoids the epsilon/precision problems that Doom's BSP system had to handle. The tradeoff is simplicity and performance for geometric flexibility: your walls snap to the grid, keeping everything clean and predictable.
+
 **Sector Count Considerations**
 
 Try to keep your world under 100 sectors for optimal performance. If your map grows larger, consider splitting it into separate map files and using teleporters or level transitions to move the player between them. This keeps rendering efficient and frame rates smooth.
@@ -149,11 +196,3 @@ Raccoon Engine is released under the MIT License, one of the most permissive ope
 ### 19. Contact Me
 
 You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to [email me](mailto:raffysplayground@gmail.com)!
-
-Only things left to do:
-- Add Directional Sprites, with pathfinding, and behavior
-- Allow sound to decrease in volume or be raised api, good for distance of objects making sounds
-- Allow keybindings to be different and let the player decide between bindings etc (Retro, or Modern)
-- Create Editor for easy map making
-- Figure out Easy Publishing or Possibly migrate to C/C++ if too hard on Java
-- Finish this documentation
