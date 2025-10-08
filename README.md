@@ -90,10 +90,14 @@ A depth buffer tracks the distance of everything rendered on screen. This depth 
 
 **Brush Up Your Math Skills**
 
-If all of this sounded confusing, you are not alone! I was very much confused by the entire jargon of 3D graphics when I first started my journey all the way back in 2022. Here are some very nice resources that helped me very much understand a lot about how to accomplish all of this. (Keep in mind, I did my own flavor of rendering. I did not follow these tutorials but mixed and matched algorithms with what was easier to understand and what worked better for me!): 
+If all of this sounded confusing, you are not alone! I was very much confused by the entire jargon of 3D graphics when I first started my journey all the way back in 2022. Here are some very nice resources that helped me very much understand a lot about how to accomplish all of this. (Keep in mind, I did my own flavor of rendering. I did not follow these tutorials but mixed and matched algorithms with what was easier to understand and what worked better for me!):
+
 https://lodev.org/cgtutor/raycasting.html -> A tutorial on Wolfestein 3D rendering algorithm for raycasting!
+
 https://youtu.be/NbSee-XM7WA -> DDA more easily explained.
+
 https://youtu.be/fSjc8vLMg8c -> An overview on how to re-create the DOOM engine.
+
 https://youtu.be/eoXn6nwV694 -> A great video explaining the main concepts behind perspective projection.
 
 ---
@@ -133,8 +137,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 The `config.cfg` file can be found in the `Data/` folder. It contains the following entries: `game_title`, `game_version`, `game_res`, and `window_res`.
 
 **game_title**: The title of your game that appears in the window's title bar. This can be anything you want. It's simply the name of your project displayed to players.
+
 **game_version**: The version number of your game. Set this to whatever versioning scheme you prefer (e.g., "1.0", "0.5 Beta", "Alpha Build 3").
+
 **game_res**: This is the internal rendering resolution i.e. the resolution at which all game logic and rendering calculations are performed. It's strongly recommended to keep this at `640x480` for the authentic retro look and optimal performance. This classic resolution gives you that nostalgic chunky-pixel aesthetic while keeping the raycasting fast.
+
 **window_res**: This is the actual window size displayed on your screen. The game rendering is scaled up from `game_res` to match this window size. If you set `window_res` equal to your screen resolution, the game will run in fullscreen mode.
 
 All resolutions must follow the format `widthxheight` (e.g., `1280x720`, `1920x1080`, `800x600`). Make sure there are no spaces and the 'x' is lowercase.
