@@ -1,0 +1,149 @@
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #0f0;
+            overflow: hidden;
+        }
+        #menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 40px;
+            text-align: center;
+        }
+        #menu h1 {
+            margin-bottom: 30px;
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
+        button {
+            background: #000;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 15px 40px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.2s;
+        }
+        button:hover:not(:disabled) {
+            background: #0f0;
+            color: #000;
+        }
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        #editor {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+        }
+        #canvas {
+            display: block;
+            background: #0a0a0a;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border: 1px solid #0f0;
+            font-size: 12px;
+        }
+        #finalizeBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #000;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+        }
+        #finalizeBtn:hover {
+            background: #0f0;
+            color: #000;
+        }
+        #saveBtn {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background: #000;
+            color: #ff0;
+            border: 2px solid #ff0;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+        }
+        #saveBtn:hover {
+            background: #ff0;
+            color: #000;
+        }
+        #configPanel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 20px;
+            display: none;
+            max-height: 80vh;
+            overflow-y: auto;
+            min-width: 400px;
+        }
+        #configPanel h2 {
+            margin-bottom: 15px;
+            color: #0f0;
+        }
+        #configPanel h3 {
+            margin-top: 10px;
+            color: #ff0;
+            font-size: 14px;
+        }
+        #configPanel label {
+            display: block;
+            margin: 10px 0 5px 0;
+            color: #0f0;
+        }
+        #configPanel input {
+            width: 100%;
+            background: #1a1a1a;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        #configPanel .wall-section {
+            border-top: 1px solid #0f0;
+            margin-top: 15px;
+            padding-top: 15px;
+        }
+        .button-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .button-group button {
+            flex: 1;
+        }
+        #configPanel p {
+            color: #0ff;
+            margin: 5px 0;
+        }
