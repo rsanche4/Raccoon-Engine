@@ -1,5 +1,5 @@
 [SECTORS]
-1 -2 2 floor.png 1.2 floor.png 0.5
+1 -2 1 floor.png 1.2 floor.png 0.5
 2 -3 2 grass.png 1.2 black.png 1.0
 3 -2 2 floor.png 1.2 floor.png 0.5
 4 -1 2 floor.png 1.2 floor.png 0.5

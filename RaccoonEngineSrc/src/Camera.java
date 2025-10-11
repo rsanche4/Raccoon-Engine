@@ -1,13 +1,13 @@
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import javax.swing.JFrame;
 
-// Camera Class
-// Description: The class that allows for movement of the player when inputting keys. Main keys are detected here.
 public class Camera implements KeyListener {
-	public static boolean left, right, forward, back, enter, space, ctrl, strafeleft, straferight, first, second, third, pgup, pgdn, fourth;
-	public static boolean left_once, right_once, forward_once, back_once, enter_once, space_once, ctrl_once, strafeleft_once, straferight_once, first_once, second_once, third_once, pgup_once, pgdn_once, fourth_once;
-	private boolean left_once_flag, right_once_flag, forward_once_flag, back_once_flag, enter_once_flag, space_once_flag, ctrl_once_flag, strafeleft_once_flag, straferight_once_flag, first_once_flag, second_once_flag, third_once_flag, pgup_once_flag, pgdn_once_flag, fourth_once_flag;
+	public static boolean left, right, forward, back, enter, space, ctrl, strafeleft, straferight, first, second, third, pgup, pgdn, fourth, f4;
+	public static boolean left_once, right_once, forward_once, back_once, enter_once, space_once, ctrl_once, strafeleft_once, straferight_once, first_once, second_once, third_once, pgup_once, pgdn_once, fourth_once, f4_once;
+	private boolean left_once_flag, right_once_flag, forward_once_flag, back_once_flag, enter_once_flag, space_once_flag, ctrl_once_flag, strafeleft_once_flag, straferight_once_flag, first_once_flag, second_once_flag, third_once_flag, pgup_once_flag, pgdn_once_flag, fourth_once_flag, f4_once_flag;
+	private boolean fullscreen = false;
 	public static double direction_rad;
 	public static double TURN_SPEED = 0.03;
 	public static double MOVE_SPEED = 0.2;
@@ -147,9 +147,17 @@ public class Camera implements KeyListener {
 				fourth_once_flag = true;
 			}
 		}
+		if (e.getKeyCode() == KeyEvent.VK_F4) {
+			f4 = true;
+			if (!f4_once_flag) {
+				f4_once = true;
+				f4_once_flag = true;
+			}
+		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);
 		}
+		
 	}
 
 	@Override
@@ -215,6 +223,10 @@ public class Camera implements KeyListener {
 			fourth = false;
 			fourth_once_flag = false;
 		}
+		if (e.getKeyCode() == KeyEvent.VK_F4) {
+			f4 = false;
+			f4_once_flag = false;
+		}
 	}
 
 	private boolean is_collision(Sector cur_sector, double val_to_add_x, double val_to_add_z) {
@@ -235,7 +247,28 @@ public class Camera implements KeyListener {
 		return true;
 	}
 	
-	public void update() {
+	public void update(JFrame frame) {
+		if (f4_once) {
+			fullscreen = !fullscreen;
+			if (fullscreen) {
+				Main.SCREEN_W = Main.USER_SCREEN_SIZE_W;
+			    Main.SCREEN_H = Main.USER_SCREEN_SIZE_H;
+			    frame.dispose(); // Remove current window
+			    frame.setUndecorated(true); // Remove window borders
+			    frame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximize
+			    Main.reinitializeBuffers(frame);
+			    frame.setVisible(true);
+			} else {
+				Main.SCREEN_W = 800;
+			    Main.SCREEN_H = 600;
+			    frame.dispose();
+			    frame.setUndecorated(false);
+			    frame.setExtendedState(JFrame.NORMAL);
+			    Main.reinitializeBuffers(frame);
+			    frame.setVisible(true);
+			}
+		}
+		
 		Sector cur_sector = Screen.sectorMap.get(player_sector);
 
 		if (right) {
@@ -373,6 +406,8 @@ public class Camera implements KeyListener {
 		if (fourth_once_flag) {
 			fourth_once = false;
 		}
-
+		if (f4_once_flag) {
+			f4_once = false;
+		}
 	}
 }

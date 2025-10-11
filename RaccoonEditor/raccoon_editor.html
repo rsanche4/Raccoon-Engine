@@ -4,13 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raccoon Level Editor</title>
-    <link rel="stylesheet" href="raccoon_style.css">
+    <link rel="stylesheet" href="editor_style.css">
 </head>
 <body>
     <div id="menu">
         <h1>RACCOON LEVEL EDITOR</h1>
         <button id="newMapBtn">NEW MAP</button>
-        <button id="loadMapBtn" disabled>LOAD MAP</button>
+        <button id="loadMapBtn">LOAD MAP</button>
+    </div>
+
+    <div id="loadDialog">
+        <h2>Load Map State</h2>
+        <p>How would you like to load the map?</p>
+        <button id="loadDrawingBtn">DRAWING MODE</button>
+        <button id="loadFinalizedBtn">FINALIZED MODE</button>
+        <button id="cancelLoadBtn">CANCEL</button>
     </div>
 
     <div id="editor">
@@ -44,7 +52,6 @@
             </div>
         </div>
     </div>
-
     <script src="editor.js"></script>
 </body>
 </html>

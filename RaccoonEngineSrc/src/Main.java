@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JFrame;
 import org.json.JSONArray;
@@ -34,36 +36,38 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.common.nio.Buffers;
 
-// Game Class with GPU Acceleration
-// Description: This is the main class with GPU acceleration using JOGL while keeping the same pixel array logic
 public class Main extends JFrame implements Runnable, GLEventListener {
 	private static final long serialVersionUID = 1L;
 	public static double MAX_FPS = 30.0;
 	public static double currentFPS = 0;
 	private static String game_title;
 	private static String game_version;
-	private static String fullscreen;
-	public static int SCREEN_W=800;
-	public static int SCREEN_H=600;
-	public static int game_width=640;
-	public static int game_height=480;
-	
+	public static int SCREEN_W = 800;
+	public static int SCREEN_H = 600;
+	public static int game_width = 640;
+	public static int game_height = 480;
 	public static ArrayList<String> active_scripts = new ArrayList<>();
-	
+	public static int USER_SCREEN_SIZE_W;
+	public static int USER_SCREEN_SIZE_H;
 	private Thread thread;
-	private BufferedImage image;
-	private int[] pixels;
+	private static BufferedImage image;
+	private static int[] pixels;
 	private Camera camera;
 	private Screen screen;
 	private boolean running;
 	private int[] gamepixels = new int[game_width*game_height]; 
 	public static HashMap<String, Texture> allTextures = new HashMap<>();
+	public static HashMap<String, Sprite> allSprites = new HashMap<>();
+	
+	public static int cores = Runtime.getRuntime().availableProcessors();
+	public static ExecutorService executorThreads = Executors.newFixedThreadPool(cores);
+	
 	// GPU related variables
-	private GLCanvas canvas;
+	private static GLCanvas canvas;
 	private int textureId;
-	private ByteBuffer pixelBuffer;
-	private boolean textureInitialized = false;
-
+	private static ByteBuffer pixelBuffer;
+	private static boolean textureInitialized = false;
+	
 	public Main() {
 		thread = new Thread(this);
 		image = new BufferedImage(SCREEN_W, SCREEN_H, BufferedImage.TYPE_INT_RGB);
@@ -108,9 +112,9 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 			canvas.addKeyListener(camera);
 			setSize(SCREEN_W, SCREEN_H);
 			setResizable(false);
-			setUndecorated(fullscreen.contentEquals("on"));
+			setUndecorated(false);
 			setLocation(0, 0);
-			setTitle(game_title + " " + game_version.toString());
+			setTitle(game_title + " " + game_version.toString() + " | F4: Toggle Fullscreen | ESC: Quit");
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			setBackground(Color.black);
 			setLocationRelativeTo(null);
@@ -170,13 +174,19 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 
 	// OpenGL display method - this replaces the old render() method
 	@Override
-	public void display(GLAutoDrawable drawable) {
-		if (!textureInitialized) return;
-		
-		GL2 gl = drawable.getGL().getGL2();
-		
-		// Clear the screen
-		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+	public void display(GLAutoDrawable drawable) {		
+	    GL2 gl = drawable.getGL().getGL2();
+	    
+	    // Reinitialize texture if needed
+	    if (!textureInitialized) {
+	        gl.glBindTexture(GL.GL_TEXTURE_2D, textureId);
+	        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+	        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+	        textureInitialized = true;
+	    }
+	    
+	    // Clear the screen
+	    gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 		
 		// Convert pixel array to ByteBuffer for GPU transfer
 		pixelBuffer.clear();
@@ -220,6 +230,31 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 			gl.glDeleteTextures(1, new int[]{textureId}, 0);
 		}
 	}
+	
+	public static void reinitializeBuffers(JFrame frame) {
+	    // Recreate the BufferedImage with new dimensions
+	    image = new BufferedImage(SCREEN_W, SCREEN_H, BufferedImage.TYPE_INT_RGB);
+	    pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+	    
+	    // Recreate the pixel buffer for GPU transfer
+	    pixelBuffer = Buffers.newDirectByteBuffer(SCREEN_W * SCREEN_H * 4);
+	    
+	    // Update the screen object with new pixel array
+	    Screen.updatePixelArrays(pixels);
+	    
+	    // Mark texture as needing reinitialization
+	    textureInitialized = false;
+	    
+	    // Update the JFrame and canvas size
+	    canvas.setPreferredSize(new Dimension(SCREEN_W, SCREEN_H));
+	    canvas.setSize(SCREEN_W, SCREEN_H);
+	    
+	    frame.setSize(SCREEN_W, SCREEN_H);
+	    frame.revalidate();
+	    
+	    // Force canvas to reinitialize texture on next display call
+	    canvas.display();
+	}
 
 	public void run() {
 	    long lastTime = System.nanoTime();
@@ -238,7 +273,7 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 	        
 	        while (delta >= 1) {
 	            screen.update(frame_num);
-	            camera.update();
+	            camera.update(this);
 	            frame_num = (frame_num + 1) % 1000;
 	            delta--;
 	            
@@ -278,14 +313,10 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 			}
 			game_title = config.get("game_title");
 			game_version = config.get("game_version");
-			fullscreen = config.get("fullscreen");
 	        Toolkit toolkit = Toolkit.getDefaultToolkit();
 	        Dimension screenSize = toolkit.getScreenSize();
-	        if (fullscreen.contentEquals("on")) {
-				SCREEN_W = screenSize.width;
-				SCREEN_H = screenSize.height;
-			}
-
+	        USER_SCREEN_SIZE_W = screenSize.width;
+	        USER_SCREEN_SIZE_H = screenSize.height;
 			active_scripts.add("init.lua");
 			
 			new Main();

@@ -22,7 +22,7 @@
   - [14. API Reference](#14-api-reference)
 - [Gameplay and Distribution](#gameplay-and-distribution)
   - [15. Publishing Your Game!](#15-publishing-your-game)
-  - [16. Check Out Demo & Tutorial!](#16-check-out-demo--tutorial)
+  - [16. Check Out Tutorial!](#16-check-out-tutorial)
 - [Final Bits](#final-bits)
   - [17. Known Limitations and Constraints](#17-known-limitations-and-constraints)
   - [18. License Info](#18-license-info)
@@ -126,7 +126,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
 ### 11. Control Scheme
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. In this, when user presses F4 you should able to full screen so add that. or not. toggle
 
 ### 12. Scripting Your Game
 
@@ -134,17 +134,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
 ### 13. The `config.cfg` File
 
-The `config.cfg` file can be found in the `Data/` folder. It contains the following entries: `game_title`, `game_version`, `game_res`, and `window_res`.
+The `config.cfg` file can be found in the `Data/` folder. It contains the following entries: `game_title`, `game_version`.
 
 **game_title**: The title of your game that appears in the window's title bar. This can be anything you want. It's simply the name of your project displayed to players.
 
 **game_version**: The version number of your game. Set this to whatever versioning scheme you prefer (e.g., "1.0", "0.5 Beta", "Alpha Build 3").
-
-**game_res**: This is the internal rendering resolution i.e. the resolution at which all game logic and rendering calculations are performed. It's strongly recommended to keep this at `640x480` for the authentic retro look and optimal performance. This classic resolution gives you that nostalgic chunky-pixel aesthetic while keeping the raycasting fast.
-
-**window_res**: This is the actual window size displayed on your screen. The game rendering is scaled up from `game_res` to match this window size. If you set `window_res` equal to your screen resolution, the game will run in fullscreen mode.
-
-All resolutions must follow the format `widthxheight` (e.g., `1280x720`, `1920x1080`, `800x600`). Make sure there are no spaces and the 'x' is lowercase.
 
 ### 14. API Reference
 
@@ -158,7 +152,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
-### 16. Check Out Demo & Tutorial!
+### 16. Check Out Tutorial!
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
@@ -192,7 +186,7 @@ The engine uses a strict grid-based system where all walls must be aligned horiz
 
 **Sector Count Considerations**
 
-Try to keep your world under 100 sectors for optimal performance. If your map grows larger, consider splitting it into separate map files and using teleporters or level transitions to move the player between them. This keeps rendering efficient and frame rates smooth.
+Try to keep your world under reasonable amount of sectors for optimal performance. If your map grows larger (for example more than 100 sectors), consider splitting it into separate map files and using teleporters or level transitions to move the player between them.
 
 Note: These limitations aren't bugs! They're design choices that make the engine fast, understandable, and give it that distinctive retro feel!
 

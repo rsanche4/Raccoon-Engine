@@ -3,8 +3,6 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-// Texture Class
-// Description: Here we can load the textures. Returns a 1D array of the textures
 public class Texture {
 	public int[] pixels;
 	public int IMG_WID;

@@ -23,7 +23,23 @@ public class ReApi {
                 globals.set("REAPI", CoerceJavaToLua.coerce(apiInstance));
                 LuaValue chunk = globals.load(new FileReader("data/scripts/" + Main.active_scripts.get(i)), "");
                 chunk.call(LuaValue.valueOf(i));
-
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        for (Map.Entry<String, Sprite> entry : Main.allSprites.entrySet()) {
+            try {
+                Globals globals = JsePlatform.standardGlobals();
+                globals.set("REAPI", CoerceJavaToLua.coerce(apiInstance));
+                Sprite entity = entry.getValue();
+                LuaValue chunk = globals.load(new FileReader("data/scripts/" + entity.behaviorScript), "");
+                chunk.call(LuaValue.valueOf(entity.spriteXPos));
+                chunk.call(LuaValue.valueOf(entity.spriteYPos));
+                chunk.call(LuaValue.valueOf(entity.spriteZPos));
+                chunk.call(LuaValue.valueOf(entity.spriteDir));
+                chunk.call(LuaValue.valueOf(entity.spriteDist));
+                chunk.call(LuaValue.valueOf(entity.spritename));
+                chunk.call(LuaValue.valueOf(entity.spriteId));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -217,22 +233,6 @@ public class ReApi {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    
-    public void set_atomic_xz_unit(double u) {
-    	Screen.atomic_xz_unit = u;
-    }
-    
-    public double get_atomic_xz_unit() {
-    	return Screen.atomic_xz_unit;
-    }
-    
-    public double get_retina_dist() {
-    	return Camera.retina_dist;
-    }
-    
-    public void set_retina_dist(double retina_dist) {
-    	Camera.retina_dist = retina_dist;
     }
     
     public void set_player_pos(double x, double y, double z) {
@@ -461,6 +461,23 @@ public class ReApi {
 	
 	public void stopSE() {
 		Screen.current_sfe.stopSound();
+	}
+	
+	public void addSprite(double sx, double sy, double sz, double sprite_dir, String spriteTextureName, String spriteId, String behavior_script) {
+		Sprite entity = new Sprite(sx, sy, sz, sprite_dir, spriteTextureName, spriteId, behavior_script);
+		Main.allSprites.put(spriteId, entity);
+	}
+	
+	public boolean updateSprite(double sx, double sy, double sz, double sprite_dir, String spriteTextureName, String spriteId, String behavior_script) {
+		Sprite entity = new Sprite(sx, sy, sz, sprite_dir, spriteTextureName, spriteId, behavior_script);
+		if (Main.allSprites.replace(spriteId, entity)==null) {
+			return false;
+		}
+		return true;
+	}
+	
+	public void removeSprite(String spriteId) {
+		Main.allSprites.remove(spriteId);
 	}
     
     public void addUIToScreen(String textureName, int pos_x, int pos_y, int opacity) {
