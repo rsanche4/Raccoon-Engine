@@ -44,6 +44,9 @@ public class Screen {
 	double camera_mid_side_b = Main.game_width / 2.0 / atomic_xz_unit;
 	double total_fov = 2 * Math.atan(camera_mid_side_b / camera_mid_side_a);
 	double deltatheta = total_fov / Main.game_width;
+	int ray_num_first = (Main.game_width/2);
+	int ray_num_last = (Main.game_width/2) - (Main.game_width-1);
+	double r = euclid_dist(0, 0, Camera.retina_dist, (Main.game_width/2));
 	int max_count = 100;
 
 	public Screen(int[] pixels, int[] gamepixels) {
@@ -105,17 +108,14 @@ public class Screen {
 	}
 	
 	private void draw_sprites() {
-		int ray_num_first = (Main.game_width/2);
-		int ray_num_last = (Main.game_width/2) - (Main.game_width-1);
 		double ray_angle_first = Camera.direction_rad + ray_num_first * deltatheta;
 		double ray_angle_last = Camera.direction_rad + ray_num_last * deltatheta;
-		double r = euclid_dist(0, 0, Camera.retina_dist, (Main.game_width/2));
         double screen_leftend_location_x = r*Math.cos(ray_angle_first)+Camera.player_x;
         double screen_leftend_location_z = r*Math.sin(ray_angle_first)+Camera.player_z;
         double screen_rightend_location_x = r*Math.cos(ray_angle_last)+Camera.player_x;
         double screen_rightend_location_z = r*Math.sin(ray_angle_last)+Camera.player_z;
         
-        // implicit line equation form passing through camera points Ax+By+C>=0
+        // implicit line equation form passing through camera points Ax+Bz+C>0
         double A = screen_leftend_location_z-screen_rightend_location_z;
         double B = screen_rightend_location_x-screen_leftend_location_x;
         double C = screen_leftend_location_x*screen_rightend_location_z-screen_rightend_location_x*screen_leftend_location_z;
@@ -123,8 +123,9 @@ public class Screen {
 		for (Map.Entry<String, Sprite> entry : Main.allSprites.entrySet()) {
                 Sprite entity = entry.getValue();
                 if (A*entity.spriteXPos+B*entity.spriteZPos+C>0) {
-                	// we are in front of camera, draw sprite, check the angle between us and the sprite, and based on that draw the direction, also check which direction is the sprite actually looking at so we do it relative and it all makes sense
-                	// TODO project, all different parts ensure it all good and use depth buffer etc, projecting for example the four corners will account for perspective well, they are always facing us though so keep that in mind
+                	// we are in front of camera, draw sprite, check the angle between us and the sprite, and based on that draw the direction, also check which direction is the sprite actually 
+                	// looking at so we do it relative and it all makes sense TODO project, all different parts ensure it all good and use depth buffer etc, projecting 
+                	// for example the four corners will account for perspective well, they are always facing us though so keep that in mind
                 }
         }
 	}
@@ -441,6 +442,4 @@ public class Screen {
 		}
 		return column_n;
 	}
-	
-	
 }

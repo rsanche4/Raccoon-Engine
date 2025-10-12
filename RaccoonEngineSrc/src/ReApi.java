@@ -277,14 +277,6 @@ public class ReApi {
     	Camera.TURN_SPEED = turn_speed;
     }
     
-    public double get_fly_up_speed() {
-    	return Camera.FLY_UP_SPEED;
-    }
-    
-    public void set_fly_up_speed(double move_up_speed) {
-    	Camera.FLY_UP_SPEED = move_up_speed;
-    }
-    
     public double get_jump_up_speed() {
     	return Camera.JUMP_UP_SPEED;
     }
@@ -331,14 +323,6 @@ public class ReApi {
     
     public double get_player_height() {
     	return Camera.player_height;
-    }
-    
-    public boolean is_flying_mode_true() {
-    	return Camera.flying;
-    }
-    
-    public void set_flying_mode(boolean flying_mode) {
-    	Camera.flying = flying_mode;
     }
     
     public boolean get_fog_occlusion() {

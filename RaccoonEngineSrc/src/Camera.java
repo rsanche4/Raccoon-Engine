@@ -11,7 +11,6 @@ public class Camera implements KeyListener {
 	public static double direction_rad;
 	public static double TURN_SPEED = 0.03;
 	public static double MOVE_SPEED = 0.2;
-	public static double FLY_UP_SPEED = 0.1;
 	public static double JUMP_UP_SPEED = 0.2;
 	public static double CROUCHING_SPEED = 0.5;
 	public static double gravity_up_multiplier = 1;
@@ -19,7 +18,6 @@ public class Camera implements KeyListener {
 	public static double player_x, player_y, player_z;
 	public static int player_sector;
 	public static double retina_dist = 8;
-	public static boolean flying = false;
 	public static double player_height = 2;
 	private boolean jumping_in_progress = false;
 	private double crouch_diff_height = player_height/2;
@@ -312,53 +310,45 @@ public class Camera implements KeyListener {
 				player_z += Math.sin(direction_rad + Math.PI/2) * MOVE_SPEED;
 			}
 		}
-		if (flying) {
-			if (pgup) {
-				player_y += FLY_UP_SPEED;
-			}
-			else if (pgdn) {
-				player_y -= FLY_UP_SPEED;
-			}
-		} 
-		else {
-			double sector_h = cur_sector.floor_height;
-			double player_h_limit = sector_h+player_height;
-			double player_f_limit = sector_h+crouch_diff_height;
-			double move_up_speed = JUMP_UP_SPEED*gravity_up_multiplier;
-			double move_dn_speed = JUMP_UP_SPEED*gravity_down_multiplier;
-			
-			if (pgup_once) {
-				jumping_in_progress = true;
-			} else if (jumping_in_progress) {
-				if (!jumping_down_flag && player_y<player_h_limit+jump_diff_height) {
-					player_y += move_up_speed;
-				} else if (player_y > player_h_limit) {
-					player_y -= move_dn_speed;
-					jumping_down_flag = true;
-				} else {
-					jumping_in_progress = false;
-					jumping_down_flag = false;
-				}
-			} else if (!crouching_in_progress && pgdn) {
-				crouching_in_progress = true;
-			} else if (crouching_in_progress) {
-				if (player_y > player_f_limit) {
-					player_y -= CROUCHING_SPEED;
-				} else {
-					crouching_in_progress = false;
-				}
+
+		double sector_h = cur_sector.floor_height;
+		double player_h_limit = sector_h+player_height;
+		double player_f_limit = sector_h+crouch_diff_height;
+		double move_up_speed = JUMP_UP_SPEED*gravity_up_multiplier;
+		double move_dn_speed = JUMP_UP_SPEED*gravity_down_multiplier;
+
+		if (pgup_once) {
+			jumping_in_progress = true;
+		} else if (jumping_in_progress) {
+			if (!jumping_down_flag && player_y<player_h_limit+jump_diff_height) {
+				player_y += move_up_speed;
+			} else if (player_y > player_h_limit) {
+				player_y -= move_dn_speed;
+				jumping_down_flag = true;
 			} else {
-				if (Math.abs(player_y-player_h_limit)<move_up_speed || Math.abs(player_y-player_h_limit)<move_dn_speed) {
-					player_y = player_h_limit;
-				}
-				else if (player_y<player_h_limit) {
-					player_y += move_up_speed;
-				}
-				else if (player_y > player_h_limit) {
-					player_y -= move_dn_speed;
-				}
+				jumping_in_progress = false;
+				jumping_down_flag = false;
+			}
+		} else if (!crouching_in_progress && pgdn) {
+			crouching_in_progress = true;
+		} else if (crouching_in_progress) {
+			if (player_y > player_f_limit) {
+				player_y -= CROUCHING_SPEED;
+			} else {
+				crouching_in_progress = false;
+			}
+		} else {
+			if (Math.abs(player_y-player_h_limit)<move_up_speed || Math.abs(player_y-player_h_limit)<move_dn_speed) {
+				player_y = player_h_limit;
+			}
+			else if (player_y<player_h_limit) {
+				player_y += move_up_speed;
+			}
+			else if (player_y > player_h_limit) {
+				player_y -= move_dn_speed;
 			}
 		}
+		
 
 		// Reset all "once" flags after processing
 		if (left_once_flag) {
