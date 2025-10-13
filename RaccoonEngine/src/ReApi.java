@@ -2,7 +2,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,12 +100,12 @@ public class ReApi {
                         
                     	Sector curr_sector = new Sector(
                         	secid,
-                            Double.parseDouble(parts[1]),
-                            Double.parseDouble(parts[2]),
+                            Float.parseFloat(parts[1]),
+                            Float.parseFloat(parts[2]),
                             parts[3],
-                            Double.parseDouble(parts[4]),
+                            Float.parseFloat(parts[4]),
                             parts[5],
-                            Double.parseDouble(parts[6])
+                            Float.parseFloat(parts[6])
                         );
                         
                         Screen.sectorMap.put(secid, curr_sector);
@@ -122,17 +121,17 @@ public class ReApi {
                     		}
                     	}
                     	
-                        double x1 = Double.parseDouble(parts[0]);
-                        double z1 = Double.parseDouble(parts[1]);
-                        double x2 = Double.parseDouble(parts[2]);
-                        double z2 = Double.parseDouble(parts[3]);
+                        float x1 = Float.parseFloat(parts[0]);
+                        float z1 = Float.parseFloat(parts[1]);
+                        float x2 = Float.parseFloat(parts[2]);
+                        float z2 = Float.parseFloat(parts[3]);
                         int sectorId = Integer.parseInt(parts[4]);
                         String texture = parts[5];
-                        double brightness = Double.parseDouble(parts[6]);
+                        float brightness = Float.parseFloat(parts[6]);
 
                         // Normalize coordinates so start < end
                         if (x1 > x2 || (x1 == x2 && z1 > z2)) {
-                            double tmpX = x1, tmpZ = z1;
+                            float tmpX = x1, tmpZ = z1;
                             x1 = x2; z1 = z2;
                             x2 = tmpX; z2 = tmpZ;
                         }
@@ -143,8 +142,8 @@ public class ReApi {
                             int startX = (int) Math.floor(x1);
                             int endX = (int) Math.floor(x2);
                             for (int x = startX; x < endX; x++) {
-                                String key = Screen.makeWallKey((double)x, z1, (double)(x + 1), z1);
-                                Wall w = new Wall((double)x, z1, (double)(x + 1), z1, sectorId, texture, brightness);
+                                String key = Screen.makeWallKey((float)x, z1, (float)(x + 1), z1);
+                                Wall w = new Wall((float)x, z1, (float)(x + 1), z1, sectorId, texture, brightness);
                                 Screen.wallMap.put(key, w);
                             }
                         }
@@ -154,30 +153,30 @@ public class ReApi {
                             int startZ = (int) Math.floor(z1);
                             int endZ = (int) Math.floor(z2);
                             for (int z = startZ; z < endZ; z++) {
-                                String key = Screen.makeWallKey(x1, (double)z, x1, (double)(z + 1));
-                                Wall w = new Wall(x1, (double)z, x1, (double)(z + 1), sectorId, texture, brightness);
+                                String key = Screen.makeWallKey(x1, (float)z, x1, (float)(z + 1));
+                                Wall w = new Wall(x1, (float)z, x1, (float)(z + 1), sectorId, texture, brightness);
                                 Screen.wallMap.put(key, w);
                             }
                         }
                     }
 
                     case 2 -> { // PORTALS
-                        double x1 = Double.parseDouble(parts[0]);
-                        double z1 = Double.parseDouble(parts[1]);
-                        double x2 = Double.parseDouble(parts[2]);
-                        double z2 = Double.parseDouble(parts[3]);
+                        float x1 = Float.parseFloat(parts[0]);
+                        float z1 = Float.parseFloat(parts[1]);
+                        float x2 = Float.parseFloat(parts[2]);
+                        float z2 = Float.parseFloat(parts[3]);
                         int sectorA = Integer.parseInt(parts[4]);
                         int sectorB = Integer.parseInt(parts[5]);
                         String bottomtexture = parts[6];
-                        double bottombrightness = Double.parseDouble(parts[7]);
+                        float bottombrightness = Float.parseFloat(parts[7]);
                         String middleTexture = parts[8];
-                        double middlebrightness = Double.parseDouble(parts[9]);
+                        float middlebrightness = Float.parseFloat(parts[9]);
                         String topTexture = parts[10];
-                        double topbrightness = Double.parseDouble(parts[11]);
+                        float topbrightness = Float.parseFloat(parts[11]);
                         
                         // Normalize coordinates so start < end
                         if (x1 > x2 || (x1 == x2 && z1 > z2)) {
-                            double tmpX = x1, tmpZ = z1;
+                            float tmpX = x1, tmpZ = z1;
                             x1 = x2; z1 = z2;
                             x2 = tmpX; z2 = tmpZ;
                         }
@@ -208,8 +207,8 @@ public class ReApi {
                             int startX = (int) Math.floor(x1);
                             int endX = (int) Math.ceil(x2);
                             for (int x = startX; x < endX; x++) {
-                                String key = Screen.makeWallKey((double)x, z1, (double)(x + 1), z1);
-                                Portal p = new Portal((double)x, z1, (double)(x + 1), z1, sectorA, sectorB, bottomtexture, bottombrightness, middleTexture, middlebrightness, topTexture, topbrightness);
+                                String key = Screen.makeWallKey((float)x, z1, (float)(x + 1), z1);
+                                Portal p = new Portal((float)x, z1, (float)(x + 1), z1, sectorA, sectorB, bottomtexture, bottombrightness, middleTexture, middlebrightness, topTexture, topbrightness);
                                 Screen.portalMap.put(key, p);
                             }
                         }
@@ -220,8 +219,8 @@ public class ReApi {
                             int startZ = (int) Math.floor(z1);
                             int endZ = (int) Math.ceil(z2);
                             for (int z = startZ; z < endZ; z++) {
-                                String key = Screen.makeWallKey(x1, (double)z, x1, (double)(z + 1));
-                                Portal p = new Portal(x1, (double)z, x1, (double)(z + 1), sectorA, sectorB, bottomtexture, bottombrightness, middleTexture, middlebrightness, topTexture, topbrightness);
+                                String key = Screen.makeWallKey(x1, (float)z, x1, (float)(z + 1));
+                                Portal p = new Portal(x1, (float)z, x1, (float)(z + 1), sectorA, sectorB, bottomtexture, bottombrightness, middleTexture, middlebrightness, topTexture, topbrightness);
                                 Screen.portalMap.put(key, p);
                             }
                         }
@@ -235,21 +234,21 @@ public class ReApi {
         }
     }
     
-    public void set_player_pos(double x, double y, double z) {
+    public void set_player_pos(float x, float y, float z) {
     	Camera.player_x = x;
     	Camera.player_y = y;
     	Camera.player_z = z;
     }
     
-    public double get_player_pos_x() {
+    public float get_player_pos_x() {
     	return Camera.player_x;
     }
     
-    public double get_player_pos_y() {
+    public float get_player_pos_y() {
     	return Camera.player_y;
     }
     
-    public double get_player_pos_z() {
+    public float get_player_pos_z() {
     	return Camera.player_z;
     }
     
@@ -257,83 +256,75 @@ public class ReApi {
     	return Camera.player_sector;
     }
     
-    public double euclidean_distance(double x1, double y1, double x2, double y2) {
+    public float euclidean_distance(float x1, float y1, float x2, float y2) {
     	return Screen.euclid_dist(x1, y1, x2, y2);
     }
     
-    public double get_move_speed() {
+    public float get_move_speed() {
     	return Camera.MOVE_SPEED;
     }
     
-    public void set_move_speed(double move_speed) {
+    public void set_move_speed(float move_speed) {
     	Camera.MOVE_SPEED = move_speed;
     }
     
-    public double get_turn_speed() {
+    public float get_turn_speed() {
     	return Camera.TURN_SPEED;
     }
     
-    public void set_turn_speed(double turn_speed) {
+    public void set_turn_speed(float turn_speed) {
     	Camera.TURN_SPEED = turn_speed;
     }
     
-    public double get_jump_up_speed() {
+    public float get_jump_up_speed() {
     	return Camera.JUMP_UP_SPEED;
     }
     
-    public void set_jump_up_speed(double move_up_speed) {
+    public void set_jump_up_speed(float move_up_speed) {
     	Camera.JUMP_UP_SPEED = move_up_speed;
     }
     
-    public void set_gravity_up_multiplier(double grav_up_mult) {
+    public void set_gravity_up_multiplier(float grav_up_mult) {
     	Camera.gravity_up_multiplier = grav_up_mult;
     }
     
-    public void set_gravity_down_multiplier(double grav_dn_mult) {
+    public void set_gravity_down_multiplier(float grav_dn_mult) {
     	Camera.gravity_down_multiplier = grav_dn_mult;
     }
     
-   public double get_gravity_up_multiplier() {
+   public float get_gravity_up_multiplier() {
     	return Camera.gravity_up_multiplier;
     }
     
-    public double get_gravity_down_multiplier() {
+    public float get_gravity_down_multiplier() {
     	return Camera.gravity_down_multiplier;
     }
     
-    public double get_crouching_speed() {
+    public float get_crouching_speed() {
     	return Camera.CROUCHING_SPEED;
     }
     
-    public void set_crouching_speed(double crouch_speed) {
+    public void set_crouching_speed(float crouch_speed) {
     	Camera.CROUCHING_SPEED = crouch_speed;
     }
     
-    public double get_dir_player() {
+    public float get_dir_player() {
     	return Camera.direction_rad;
     }
     
-    public void set_dir_player(double dir) {
+    public void set_dir_player(float dir) {
     	Camera.direction_rad = dir;
     }
     
-    public void set_player_height (double player_height) {
+    public void set_player_height (float player_height) {
     	Camera.player_height = player_height;
     }
     
-    public double get_player_height() {
+    public float get_player_height() {
     	return Camera.player_height;
     }
     
-    public boolean get_fog_occlusion() {
-    	return Screen.fog_occlusion;
-    }
-    
-    public void set_fog_occlusion(boolean fog) {
-    	Screen.fog_occlusion = fog;
-    }
-    
-    public void set_fog_settings(int r, int g, int b, double start, double end) {
+    public void set_fog_settings(int r, int g, int b, float start, float end) {
     	Screen.fog_r = r;
     	Screen.fog_g = g;
     	Screen.fog_b = b;
@@ -345,11 +336,11 @@ public class ReApi {
     	return (Screen.fog_r << 16) | (Screen.fog_g << 8) | Screen.fog_b;
     }
     
-    public double get_fog_start() {
+    public float get_fog_start() {
     	return Screen.fog_start;
     }
     
-    public double get_fog_end() {
+    public float get_fog_end() {
     	return Screen.fog_end;
     }
     
@@ -419,15 +410,15 @@ public class ReApi {
         }
     }
 
-    public double get_fps() {
+    public float get_fps() {
     	return Main.currentFPS;
     }
     
-    public double get_max_fps() {
+    public float get_max_fps() {
     	return Main.MAX_FPS;
     }
     
-    public void set_max_fps(double max_fps) {
+    public void set_max_fps(float max_fps) {
     	Main.MAX_FPS = max_fps;
     }
     
@@ -447,12 +438,12 @@ public class ReApi {
 		Screen.current_sfe.stopSound();
 	}
 	
-	public void addSprite(double sx, double sy, double sz, double sprite_dir, String spriteTextureName, String spriteId, String behavior_script) {
+	public void addSprite(float sx, float sy, float sz, float sprite_dir, String spriteTextureName, String spriteId, String behavior_script) {
 		Sprite entity = new Sprite(sx, sy, sz, sprite_dir, spriteTextureName, spriteId, behavior_script);
 		Main.allSprites.put(spriteId, entity);
 	}
 	
-	public boolean updateSprite(double sx, double sy, double sz, double sprite_dir, String spriteTextureName, String spriteId, String behavior_script) {
+	public boolean updateSprite(float sx, float sy, float sz, float sprite_dir, String spriteTextureName, String spriteId, String behavior_script) {
 		Sprite entity = new Sprite(sx, sy, sz, sprite_dir, spriteTextureName, spriteId, behavior_script);
 		if (Main.allSprites.replace(spriteId, entity)==null) {
 			return false;

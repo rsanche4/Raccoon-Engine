@@ -1,15 +1,15 @@
 
 public class Sprite {
-	public double spriteXPos;
-	public double spriteYPos;
-	public double spriteZPos;
-	public double spriteDir;
-	public double spriteDist;
+	public float spriteXPos;
+	public float spriteYPos;
+	public float spriteZPos;
+	public float spriteDir;
+	public float spriteDist;
 	public String spritename;
 	public String spriteId;
 	public String behaviorScript;
 
-	public Sprite(double sx, double sy, double sz, double spriteDirection, String spritename, String spriteId, String behavior_script) {
+	public Sprite(float sx, float sy, float sz, float spriteDirection, String spritename, String spriteId, String behavior_script) {
 		spriteXPos = sx;
 		spriteYPos = sy;
 		spriteZPos = sz;

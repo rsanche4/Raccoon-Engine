@@ -1,11 +1,11 @@
 
 public class Wall {
-    double x1, z1, x2, z2;
+    float x1, z1, x2, z2;
 	int sectorid;
     String wallTexture;
-    double wallBrightness;
+    float wallBrightness;
     
-    public Wall(double x1, double z1, double x2, double z2, int sectorId, String wallTexture, double wallBrightness) {
+    public Wall(float x1, float z1, float x2, float z2, int sectorId, String wallTexture, float wallBrightness) {
     	this.x1 = x1;
     	this.z1 = z1;
     	this.x2 = x2;

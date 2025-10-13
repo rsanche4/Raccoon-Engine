@@ -15,7 +15,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +22,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.swing.JFrame;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 // GPU acceleration imports
 import com.jogamp.opengl.GL;
@@ -38,8 +35,8 @@ import com.jogamp.common.nio.Buffers;
 
 public class Main extends JFrame implements Runnable, GLEventListener {
 	private static final long serialVersionUID = 1L;
-	public static double MAX_FPS = 30.0;
-	public static double currentFPS = 0;
+	public static float MAX_FPS = 30.0f;
+	public static float currentFPS = 0;
 	private static String game_title;
 	private static String game_version;
 	public static int SCREEN_W = 800;
@@ -258,8 +255,8 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 
 	public void run() {
 	    long lastTime = System.nanoTime();
-	    final double ns = 1000000000.0 / MAX_FPS;
-	    double delta = 0;
+	    final float ns = 1000000000.0f / MAX_FPS;
+	    float delta = 0;
 	    requestFocus();
 	    int frame_num = 0;
 	    

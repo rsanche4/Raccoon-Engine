@@ -1,21 +1,6 @@
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.luaj.vm2.Globals;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
-import org.luaj.vm2.lib.jse.JsePlatform;
 
 public class Screen {
 
@@ -23,39 +8,45 @@ public class Screen {
 	public static int[] gamepixels;
 	public static String skybox;
 	public static float skybox_brightness;
-	public static double atomic_xz_unit = 100;
+	public static float atomic_xz_unit = 100.0f;
 	public static Map<Integer, Sector> sectorMap;
 	public static Map<String, Wall> wallMap;
 	public static Map<String, Portal> portalMap;
 	public static boolean is_menu = true;
 	private int half_screen_height = Main.game_height/2;
-	public static boolean fog_occlusion = true;
-	private double[] depth_buffer;
+	private float[] depth_buffer;
 	public static int fog_r = 0x10;
-	public static int fog_g = 0x10;    
+	public static int fog_g = 0x10;
 	public static int fog_b = 0x10;
-	public static double fog_start = 5.0;
-	public static double fog_end = 25.0;
+	public static float fog_start = 5.0f;
+	public static float fog_end = 25.0f;
 	private int skybox_refresh_val = 0x1000000;
 	public static Sound current_bgm;
 	public static Sound current_sfe;
 	
-	double camera_mid_side_a = Camera.retina_dist;
-	double camera_mid_side_b = Main.game_width / 2.0 / atomic_xz_unit;
-	double total_fov = 2 * Math.atan(camera_mid_side_b / camera_mid_side_a);
-	double deltatheta = total_fov / Main.game_width;
+	float camera_mid_side_a = Camera.retina_dist;
+	float camera_mid_side_b = Main.game_width / 2.0f / atomic_xz_unit;
+	float total_fov = (float) (2 * Math.atan(camera_mid_side_b / camera_mid_side_a));
+	float deltatheta = total_fov / Main.game_width;
 	int ray_num_first = (Main.game_width/2);
 	int ray_num_last = (Main.game_width/2) - (Main.game_width-1);
-	double r = euclid_dist(0, 0, Camera.retina_dist, (Main.game_width/2));
+	float r = euclid_dist(0, 0, Camera.retina_dist, (Main.game_width/2));
 	int max_count = 100;
+	
+	private final int[] ZEROS; // allocate once at init
+	private final float[] MAX_DEPTHS;
 
-	public Screen(int[] pixels, int[] gamepixels) {
-		this.pixels = pixels;
-		this.gamepixels = gamepixels;
-		this.depth_buffer = new double[gamepixels.length];
+	public Screen(int[] pixels_arg, int[] gamepixels_arg) {
+		pixels = pixels_arg;
+		gamepixels = gamepixels_arg;
+		this.depth_buffer = new float[gamepixels.length];
+		ZEROS = new int[gamepixels.length];
+		MAX_DEPTHS = new float[depth_buffer.length];
+		Arrays.fill(ZEROS, 0x000000); // redundant but I'm paranoid
+		Arrays.fill(MAX_DEPTHS, fog_end);
 	}
 	
-	public static int update_player_sector(double player_x, double player_z) {
+	public static int update_player_sector(float player_x, float player_z) {
 		// kinda terrible, can optimize but im too lazy
 		for (int i=1; i<=Screen.sectorMap.size(); i++) {
 	        Sector sector = Screen.sectorMap.get(i);
@@ -67,58 +58,47 @@ public class Screen {
 	}
 
 	public void update(int frame_num) {
-	    Arrays.fill(gamepixels, 0x000000);
-	    Arrays.fill(depth_buffer, Integer.MAX_VALUE);
-
+	    System.arraycopy(ZEROS, 0, gamepixels, 0, gamepixels.length); // About 20% faster than doing Arrays.fill
+	    System.arraycopy(MAX_DEPTHS, 0, depth_buffer, 0, depth_buffer.length);
 	    if (!is_menu) {
 	        Camera.player_sector = update_player_sector(Camera.player_x, Camera.player_z);
-
-	        // Create a latch that counts down once per ray
 	        CountDownLatch latch = new CountDownLatch(Main.game_width);
-
 	        for (int x = 0; x < Main.game_width; x++) {
 	            final int rayNum = x;
 	            Main.executorThreads.submit(() -> {
 	                try {
 	                    cast_ray_and_render_screen_column(rayNum);
 	                } finally {
-	                    latch.countDown(); // Always decrement, even if an error occurs
+	                    latch.countDown();
 	                }
 	            });
 	        }
-
-	        // Wait for all rays to finish before continuing
 	        try {
-	            latch.await(); // Blocks until all rays are done
+	            latch.await();
 	        } catch (InterruptedException e) {
 	            Thread.currentThread().interrupt();
 	        }
-
-	        // Now it's safe to draw skybox
 	        if (skybox != null) {
 	            draw_sky(Camera.direction_rad, Main.allTextures.get(skybox).pixels);
 	        }
-	        
-	        // Now finally, draw the sprites
 	        draw_sprites();
 	    }
-
 	    ReApi.run_user_scripts();
 	    up_res();
 	}
 	
 	private void draw_sprites() {
-		double ray_angle_first = Camera.direction_rad + ray_num_first * deltatheta;
-		double ray_angle_last = Camera.direction_rad + ray_num_last * deltatheta;
-        double screen_leftend_location_x = r*Math.cos(ray_angle_first)+Camera.player_x;
-        double screen_leftend_location_z = r*Math.sin(ray_angle_first)+Camera.player_z;
-        double screen_rightend_location_x = r*Math.cos(ray_angle_last)+Camera.player_x;
-        double screen_rightend_location_z = r*Math.sin(ray_angle_last)+Camera.player_z;
+		float ray_angle_first = Camera.direction_rad + ray_num_first * deltatheta;
+		float ray_angle_last = Camera.direction_rad + ray_num_last * deltatheta;
+        float screen_leftend_location_x = (float) (r*Math.cos(ray_angle_first)+Camera.player_x);
+        float screen_leftend_location_z = (float) (r*Math.sin(ray_angle_first)+Camera.player_z);
+        float screen_rightend_location_x = (float) (r*Math.cos(ray_angle_last)+Camera.player_x);
+        float screen_rightend_location_z = (float) (r*Math.sin(ray_angle_last)+Camera.player_z);
         
         // implicit line equation form passing through camera points Ax+Bz+C>0
-        double A = screen_leftend_location_z-screen_rightend_location_z;
-        double B = screen_rightend_location_x-screen_leftend_location_x;
-        double C = screen_leftend_location_x*screen_rightend_location_z-screen_rightend_location_x*screen_leftend_location_z;
+        float A = screen_leftend_location_z-screen_rightend_location_z;
+        float B = screen_rightend_location_x-screen_leftend_location_x;
+        float C = screen_leftend_location_x*screen_rightend_location_z-screen_rightend_location_x*screen_leftend_location_z;
         
 		for (Map.Entry<String, Sprite> entry : Main.allSprites.entrySet()) {
                 Sprite entity = entry.getValue();
@@ -133,13 +113,13 @@ public class Screen {
 	private void cast_ray_and_render_screen_column(int x) {
 		int ray_num = (Main.game_width/2) - x;
 
-		double ray_angle = Camera.direction_rad + ray_num * deltatheta;
+		float ray_angle = Camera.direction_rad + ray_num * deltatheta;
 
-		double startx = Camera.player_x;
-		double startz = Camera.player_z;
+		float startx = Camera.player_x;
+		float startz = Camera.player_z;
 
-		double dirThetaX = Math.signum(Math.cos(ray_angle));
-		double dirThetaZ = Math.signum(Math.sin(ray_angle));
+		float dirThetaX = (float) Math.signum(Math.cos(ray_angle));
+		float dirThetaZ = (float) Math.signum(Math.sin(ray_angle));
 
 		int counter = 0;
 		int ray_sector = Camera.player_sector;
@@ -150,47 +130,47 @@ public class Screen {
 		
 		while (counter<max_count) {
 			counter+=1;
-			double dx_1;
-			double dz_1;
-			double dx_2;
-			double dz_2;
+			float dx_1;
+			float dz_1;
+			float dx_2;
+			float dz_2;
 			if (dirThetaX>0) {
-				dx_1 = Math.floor(startx+1)-startx;
+				dx_1 = (float) (Math.floor(startx+1)-startx);
 			} else {
-				dx_1 = Math.ceil(startx-1)-startx;
+				dx_1 = (float) (Math.ceil(startx-1)-startx);
 			}
 
-			dz_1 = dirThetaZ*Math.abs(dx_1*Math.tan(ray_angle));
+			dz_1 = (float) (dirThetaZ*Math.abs(dx_1*Math.tan(ray_angle)));
 
-			double dist_horizontal = euclid_dist(startx, startz, startx+dx_1, startz+dz_1);
+			float dist_horizontal = euclid_dist(startx, startz, startx+dx_1, startz+dz_1);
 
 			if (dirThetaZ > 0) {
-				dz_2 = Math.floor(startz + 1) - startz;
+				dz_2 = (float) (Math.floor(startz + 1) - startz);
 			} else {
-				dz_2 = Math.ceil(startz - 1) - startz;
+				dz_2 = (float) (Math.ceil(startz - 1) - startz);
 			}
-			dx_2 = dirThetaX * Math.abs(dz_2 / Math.tan(ray_angle));
+			dx_2 = (float) (dirThetaX * Math.abs(dz_2 / Math.tan(ray_angle)));
 
-			double dist_vertical = euclid_dist(startx, startz, startx + dx_2, startz + dz_2);
+			float dist_vertical = euclid_dist(startx, startz, startx + dx_2, startz + dz_2);
 
 			String wallkey;
 			// Pick the closer intersection
-			double decimal_value_wall_hit;
+			float decimal_value_wall_hit;
 			if (dist_horizontal < dist_vertical) {
 				startx = startx + dx_1;
 				startz = startz + dz_1;
-				wallkey = makeWallKey(startx, Math.floor(startz), startx, Math.floor(startz+1));
-				double abs_startz = Math.abs(startz);
-				decimal_value_wall_hit = abs_startz-Math.floor(abs_startz);
+				wallkey = makeWallKey(startx, (float)Math.floor(startz), startx, (float)Math.floor(startz+1));
+				float abs_startz = Math.abs(startz);
+				decimal_value_wall_hit = (float) (abs_startz-Math.floor(abs_startz));
 			} else {
 				startx = startx + dx_2;
 				startz = startz + dz_2;
-				wallkey = makeWallKey(Math.floor(startx), startz, Math.floor(startx+1), startz);
-				double abs_startx = Math.abs(startx);
-				decimal_value_wall_hit = abs_startx-Math.floor(abs_startx);
+				wallkey = makeWallKey((float)Math.floor(startx), startz, (float)Math.floor(startx+1), startz);
+				float abs_startx = Math.abs(startx);
+				decimal_value_wall_hit = (float) (abs_startx-Math.floor(abs_startx));
 			}
 
-			double full_euclid_dist = euclid_dist(Camera.player_x, Camera.player_z, startx, startz);
+			float full_euclid_dist = euclid_dist(Camera.player_x, Camera.player_z, startx, startz);
 			if (wallMap.containsKey(wallkey)) {
 
 				Wall wallhit = wallMap.get(wallkey);
@@ -201,9 +181,8 @@ public class Screen {
 				int dy_walltop_clipped = clip_column(dy_walltop);
 				int dy_wallbottom_clipped = clip_column(dy_wallbottom);
 				
-				double fl_h = Camera.player_y-sector_info.floor_height;
-				double cl_h = sector_info.ceil_height-Camera.player_y;
-				// Draw depending on the sector
+				float fl_h = Camera.player_y-sector_info.floor_height;
+				float cl_h = sector_info.ceil_height-Camera.player_y;
 				for (int y=0; y < dy_walltop_clipped; y++) {
 					draw_horizontal_plane(x, y, cl_h, half_screen_height - y, ray_angle, full_euclid_dist, startx, startz, sector_info.ceilTexture, sector_info.ceilBrightness);
 				}
@@ -251,8 +230,8 @@ public class Screen {
 				int dy_wall_bottom_top_clipped = clip_column(dy_wall_bottom_top);
 				int dy_wall_bottom_bottom_clipped = clip_column(dy_wall_bottom_bottom);
 				
-				double fl_h = Camera.player_y-cur_sector.floor_height;
-				double cl_h = cur_sector.ceil_height-Camera.player_y;
+				float fl_h = Camera.player_y-cur_sector.floor_height;
+				float cl_h = cur_sector.ceil_height-Camera.player_y;
 				
 				for (int y=0; y < dy_wall_top_top_clipped; y++) {
 					draw_horizontal_plane(x, y, cl_h, half_screen_height - y, ray_angle, full_euclid_dist, startx, startz, cur_sector.ceilTexture, cur_sector.ceilBrightness);
@@ -284,21 +263,21 @@ public class Screen {
 		}
 	}
 
-	public static double euclid_dist(double x1, double z1, double x2, double z2) {
-		return Math.sqrt((z2-z1)*(z2-z1)+(x2-x1)*(x2-x1));
+	public static float euclid_dist(float x1, float z1, float x2, float z2) {
+		return (float) Math.sqrt((z2-z1)*(z2-z1)+(x2-x1)*(x2-x1));
 	} 
 
-	public static String makeWallKey(double x1, double z1, double x2, double z2) {
+	public static String makeWallKey(float x1, float z1, float x2, float z2) {
 		// Normalize so the smaller point comes first
 		if (x1 > x2 || (x1 == x2 && z1 > z2)) {
-			double tmpX = x1, tmpZ = z1;
+			float tmpX = x1, tmpZ = z1;
 			x1 = x2; z1 = z2;
 			x2 = tmpX; z2 = tmpZ;
 		}
 		return x1 + "," + z1 + "," + x2 + "," + z2;
 	}
 
-	private void draw_sky(double dir, int[] skybox_picture) {
+	private void draw_sky(float dir, int[] skybox_picture) {
 		int skybox_width = Main.game_width * 4;  
 		int skybox_height = Main.game_height; 
 
@@ -307,18 +286,15 @@ public class Screen {
 
 		for (int y = 0; y < Main.game_height; y++) {
 			for (int x = 0; x < Main.game_width; x++) {
-				// subtract offsetX instead of adding to reverse direction
 				if (gamepixels[y * Main.game_width + x]!=skybox_refresh_val && gamepixels[y * Main.game_width + x]!=0x000000) {
 					continue;
 				}
 
-				int skyX = (x - offsetX + skybox_width) % skybox_width; // add skybox_width to prevent negative wrap
+				int skyX = (x - offsetX + skybox_width) % skybox_width;
 				int skyY = y * skybox_height / Main.game_height; 
 
 				int skyIndex = skyY * skybox_width + skyX;
 				int color = skybox_picture[skyIndex];
-
-				// apply brightness
 				int r = (int)(((color >> 16) & 0xFF) * skybox_brightness);
 				int g = (int)(((color >> 8) & 0xFF) * skybox_brightness);
 				int b = (int)((color & 0xFF) * skybox_brightness);
@@ -350,59 +326,59 @@ public class Screen {
 				}
 	}
 
-	private int project_column(double wallhit_x, double wallhit_y, double wallhit_z, int column_size, double ray_angle) {
-		double dy = ((wallhit_y-Camera.player_y)/(euclid_dist(Camera.player_x, Camera.player_z, wallhit_x, wallhit_z)*Math.cos(ray_angle-Camera.direction_rad)))*Camera.retina_dist;
+	private int project_column(float wallhit_x, float wallhit_y, float wallhit_z, int column_size, float ray_angle) {
+		float dy = (float) (((wallhit_y-Camera.player_y)/(euclid_dist(Camera.player_x, Camera.player_z, wallhit_x, wallhit_z)*Math.cos(ray_angle-Camera.direction_rad)))*Camera.retina_dist);
 		int dy_from_middle = (int)(dy*atomic_xz_unit);
 		return dy_from_middle;
 	}
 	
-	private double reverse_project(double fl_h, int screen_y_offset, double ray_angle) {
-		double dy = screen_y_offset/atomic_xz_unit;
-		double perp_dist = (fl_h*Camera.retina_dist)/dy;
-		return perp_dist / Math.cos(ray_angle - Camera.direction_rad);
+	private float reverse_project(float fl_h, int screen_y_offset, float ray_angle) {
+		float dy = screen_y_offset/atomic_xz_unit;
+		float perp_dist = (fl_h*Camera.retina_dist)/dy;
+		return (float) (perp_dist / Math.cos(ray_angle - Camera.direction_rad));
 	}
 	
-	private double figure_out_x_tile(double full_euclid_distance, double full_euclid_minus_perp_dist, double wallhit_x) {
-		double x2 = Camera.player_x - wallhit_x;
-		double x_delta = full_euclid_minus_perp_dist * x2 / full_euclid_distance;
+	private float figure_out_x_tile(float full_euclid_distance, float full_euclid_minus_perp_dist, float wallhit_x) {
+		float x2 = Camera.player_x - wallhit_x;
+		float x_delta = full_euclid_minus_perp_dist * x2 / full_euclid_distance;
 		return wallhit_x+x_delta;
 	}
 	
-	private double figure_out_z_tile(double full_euclid_distance, double full_euclid_minus_perp_dist, double wallhit_z) {
-		double z2 = Camera.player_z - wallhit_z;
-		double z_delta = full_euclid_minus_perp_dist * z2 / full_euclid_distance;
+	private float figure_out_z_tile(float full_euclid_distance, float full_euclid_minus_perp_dist, float wallhit_z) {
+		float z2 = Camera.player_z - wallhit_z;
+		float z_delta = full_euclid_minus_perp_dist * z2 / full_euclid_distance;
 		return wallhit_z+z_delta;
 	}
 	
-	private int get_texture_tile_color(double tilehit_x, double tilehit_z, String floorTexture, double floorBrightness, int x, int y) {
-	    double localX = tilehit_x - Math.floor(tilehit_x);
-	    double localZ = tilehit_z - Math.floor(tilehit_z);
+	private int get_texture_tile_color(float tilehit_x, float tilehit_z, String floorTexture, float floorBrightness, int x, int y) {
+	    float localX = (float) (tilehit_x - Math.floor(tilehit_x));
+	    float localZ = (float) (tilehit_z - Math.floor(tilehit_z));
 	    Texture texture_floor_obj = Main.allTextures.get(floorTexture);
 	    int u = (int)(localX * texture_floor_obj.IMG_WID) % texture_floor_obj.IMG_WID;
 	    int v = (int)(localZ * texture_floor_obj.IMG_HEI) % texture_floor_obj.IMG_HEI;
 	    return adjustBrightness(texture_floor_obj.pixels[v * texture_floor_obj.IMG_WID + u], floorBrightness, x, y);
 	}
 
-	private void draw_horizontal_plane(int x, int y, double height_offset, int screen_y_offset, double ray_angle, double full_euclid_dist, double startx, double startz, String planeTexture, double planeBrightness) {
+	private void draw_horizontal_plane(int x, int y, float height_offset, int screen_y_offset, float ray_angle, float full_euclid_dist, float startx, float startz, String planeTexture, float planeBrightness) {
 		if (gamepixels[y * Main.game_width + x]==0x000000) {
 			if (planeTexture.contentEquals("black.png")) {
 				gamepixels[y * Main.game_width + x] = skybox_refresh_val;
 				return;
 			}
-			double perp_dist = reverse_project(height_offset, screen_y_offset, ray_angle);							
-			double full_euclid_minus_perp_dist = full_euclid_dist-perp_dist;
-			double tilex = figure_out_x_tile(full_euclid_dist, full_euclid_minus_perp_dist, startx);
-			double tilez = figure_out_z_tile(full_euclid_dist, full_euclid_minus_perp_dist, startz);
+			float perp_dist = reverse_project(height_offset, screen_y_offset, ray_angle);							
+			float full_euclid_minus_perp_dist = full_euclid_dist-perp_dist;
+			float tilex = figure_out_x_tile(full_euclid_dist, full_euclid_minus_perp_dist, startx);
+			float tilez = figure_out_z_tile(full_euclid_dist, full_euclid_minus_perp_dist, startz);
 			depth_buffer[y * Main.game_width + x] = perp_dist;
 			gamepixels[y * Main.game_width + x] = get_texture_tile_color(tilex, tilez, planeTexture, planeBrightness, x, y);
 		}
 	}
 	
-	private void draw_wall_texture(int x, int y, double decimal_value_wall_hit, int dy_walltop, int dy_wallbottom, String wallTexture, double wallBrightness, int wall_column_pixel_size, double full_euclid_dist) {
+	private void draw_wall_texture(int x, int y, float decimal_value_wall_hit, int dy_walltop, int dy_wallbottom, String wallTexture, float wallBrightness, int wall_column_pixel_size, float full_euclid_dist) {
 		if (gamepixels[y * Main.game_width + x]==0x000000) {
 			Texture texture_wall_obj = Main.allTextures.get(wallTexture);
 			int u = (int)Math.round(decimal_value_wall_hit*texture_wall_obj.IMG_WID); // similar to u v mapping so the idea is u is the x along texture where, and v is going to be the y of that texture where
-			int v = (int)Math.round((((double)y-(double)dy_walltop)/((double)wall_column_pixel_size))*texture_wall_obj.IMG_HEI);
+			int v = (int)Math.round((((float)y-(float)dy_walltop)/((float)wall_column_pixel_size))*texture_wall_obj.IMG_HEI);
 			u = Math.max(0, Math.min(texture_wall_obj.IMG_WID - 1, u));
 		    v = Math.max(0, Math.min(texture_wall_obj.IMG_HEI - 1, v));
 		    int texture_color = texture_wall_obj.pixels[v * texture_wall_obj.IMG_WID + u];
@@ -413,20 +389,17 @@ public class Screen {
 		}
 	}
 	
-	private int adjustBrightness(int color, double brightness, int x, int y) {
+	private int adjustBrightness(int color, float brightness, int x, int y) {
 	    int r = Math.min(255, (int)(((color >> 16) & 0xFF) * brightness));
 	    int g = Math.min(255, (int)(((color >> 8) & 0xFF) * brightness));
 	    int b = Math.min(255, (int)((color & 0xFF) * brightness));
 	    
-	    if (fog_occlusion) {
-	        double distance = depth_buffer[y * Main.game_width + x];
-	        double fog_factor = Math.min(1.0, Math.max(0.0, (distance - fog_start) / (fog_end - fog_start)));
-	        r = (int)(r * (1 - fog_factor) + fog_r * fog_factor);
-	        g = (int)(g * (1 - fog_factor) + fog_g * fog_factor);
-	        b = (int)(b * (1 - fog_factor) + fog_b * fog_factor);
-	    }
-	    
-	    // Ensure not total black pixel
+	    float distance = depth_buffer[y * Main.game_width + x];
+	    float fog_factor = Math.min(1.0f, Math.max(0.0f, (distance - fog_start) / (fog_end - fog_start)));
+	    r = (int)(r * (1 - fog_factor) + fog_r * fog_factor);
+	    g = (int)(g * (1 - fog_factor) + fog_g * fog_factor);
+	    b = (int)(b * (1 - fog_factor) + fog_b * fog_factor);
+
 	    int pixel_color = (r << 16) | (g << 8) | b;
 	    if (pixel_color==0x000000) {
 	    	return 0x000001;
