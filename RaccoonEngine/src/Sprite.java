@@ -3,17 +3,18 @@ public class Sprite {
 	public float spriteXPos;
 	public float spriteYPos;
 	public float spriteZPos;
-	public float spriteDir;
-	public float spriteDist;
+	public float sprite_length;
+	public float sprite_brightness;
 	public String spritename;
 	public String spriteId;
 	public String behaviorScript;
 
-	public Sprite(float sx, float sy, float sz, float spriteDirection, String spritename, String spriteId, String behavior_script) {
+	public Sprite(float sx, float sy, float sz, float sprite_length, float sprite_brightness, String spritename, String spriteId, String behavior_script) {
 		spriteXPos = sx;
 		spriteYPos = sy;
 		spriteZPos = sz;
-		spriteDir = spriteDirection;
+		this.sprite_length = sprite_length;
+		this.sprite_brightness = sprite_brightness;
 		this.spritename = spritename;
 		this.spriteId = spriteId;
 		behaviorScript = behavior_script;

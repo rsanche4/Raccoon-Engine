@@ -14,6 +14,7 @@ public class Screen {
 	public static Map<String, Portal> portalMap;
 	public static boolean is_menu = true;
 	private int half_screen_height = Main.game_height/2;
+	private int half_screen_width = Main.game_width/2;
 	private float[] depth_buffer;
 	public static int fog_r = 0x10;
 	public static int fog_g = 0x10;
@@ -30,7 +31,7 @@ public class Screen {
 	float deltatheta = total_fov / Main.game_width;
 	int ray_num_first = (Main.game_width/2);
 	int ray_num_last = (Main.game_width/2) - (Main.game_width-1);
-	float r = euclid_dist(0, 0, Camera.retina_dist, (Main.game_width/2));
+	float r_to_screen = euclid_dist(0, 0, Camera.retina_dist, (Main.game_width/2));
 	int max_count = 100;
 	
 	private final int[] ZEROS; // allocate once at init
@@ -87,31 +88,69 @@ public class Screen {
 	    up_res();
 	}
 	
-	private void draw_sprites() {
-		float ray_angle_first = Camera.direction_rad + ray_num_first * deltatheta;
-		float ray_angle_last = Camera.direction_rad + ray_num_last * deltatheta;
-        float screen_leftend_location_x = (float) (r*Math.cos(ray_angle_first)+Camera.player_x);
-        float screen_leftend_location_z = (float) (r*Math.sin(ray_angle_first)+Camera.player_z);
-        float screen_rightend_location_x = (float) (r*Math.cos(ray_angle_last)+Camera.player_x);
-        float screen_rightend_location_z = (float) (r*Math.sin(ray_angle_last)+Camera.player_z);
-        
-        // implicit line equation form passing through camera points Ax+Bz+C>0
-        float A = screen_leftend_location_z-screen_rightend_location_z;
-        float B = screen_rightend_location_x-screen_leftend_location_x;
-        float C = screen_leftend_location_x*screen_rightend_location_z-screen_rightend_location_x*screen_leftend_location_z;
-        
+	private void draw_sprites() {        
 		for (Map.Entry<String, Sprite> entry : Main.allSprites.entrySet()) {
-                Sprite entity = entry.getValue();
-                if (A*entity.spriteXPos+B*entity.spriteZPos+C>0) {
-                	// we are in front of camera, draw sprite, check the angle between us and the sprite, and based on that draw the direction, also check which direction is the sprite actually 
-                	// looking at so we do it relative and it all makes sense TODO project, all different parts ensure it all good and use depth buffer etc, projecting 
-                	// for example the four corners will account for perspective well, they are always facing us though so keep that in mind
-                }
+			Sprite entity = entry.getValue();
+
+			// Vectorize
+			float vectorx = entity.spriteXPos - Camera.player_x;
+			float vectorz = entity.spriteZPos - Camera.player_z;
+			float vectory = entity.spriteYPos - Camera.player_y;
+
+			// Rotate to camera space
+			float cam_x = (float)(vectorx * Math.cos(-Camera.direction_rad) - vectorz * Math.sin(-Camera.direction_rad));
+			// Behind camera check
+			if (cam_x <= 0) {
+				continue;
+			}
+			float cam_z = (float)(vectorx * Math.sin(-Camera.direction_rad) + vectorz * Math.cos(-Camera.direction_rad));
+
+			// Project to screen
+			float screen_offset_x = (cam_z / cam_x) * Camera.retina_dist;
+			float screen_offset_y = (vectory / cam_x) * Camera.retina_dist;
+
+			int screen_sprite_x = half_screen_width - (int)(screen_offset_x * atomic_xz_unit);
+			int screen_sprite_y = half_screen_height - (int)(screen_offset_y * atomic_xz_unit);
+
+			// Get sprite size
+			int screen_sprite_length = (int)(entity.sprite_length / cam_x * atomic_xz_unit);
+
+			int half = screen_sprite_length / 2;
+			int startX = screen_sprite_x - half;
+			int endX = screen_sprite_x + half;
+			int startY = screen_sprite_y - half;
+			int endY = screen_sprite_y + half;
+			
+			int startXog = startX;
+			int endXog = endX;
+			int startYog = startY;
+			int endYog = endY;
+			
+			// Clamp and draw
+			startX = Math.max(0, startX);
+			startY = Math.max(0, startY);
+			endX = Math.min(Main.game_width - 1, endX);
+			endY = Math.min(Main.game_height - 1, endY);
+
+			for (int y = startY; y <= endY; y++) {
+				for (int x = startX; x <= endX; x++) {
+					if (depth_buffer[y * Main.game_width + x]>cam_x) {
+						// Adjust brightness and draw sprite
+						float u = (float)(x - startXog) / (endXog - startXog);
+			            float v = (float)(y - startYog) / (endYog - startYog);
+			            int color = get_texture_sprite_color(u, v, entity.spritename);
+			            if (color!=0x000000) {
+			            	depth_buffer[y * Main.game_width + x] = cam_x;
+			            	gamepixels[y * Main.game_width + x] = adjustBrightness(color, entity.sprite_brightness, x, y);
+			            }
+					}
+				}
+			}
         }
 	}
 	
 	private void cast_ray_and_render_screen_column(int x) {
-		int ray_num = (Main.game_width/2) - x;
+		int ray_num = half_screen_width - x;
 
 		float ray_angle = Camera.direction_rad + ray_num * deltatheta;
 
@@ -175,8 +214,8 @@ public class Screen {
 
 				Wall wallhit = wallMap.get(wallkey);
 				Sector sector_info = sectorMap.get(wallhit.sectorid); 
-				int dy_walltop = half_screen_height - project_column(startx, sector_info.ceil_height, startz, Main.game_height, ray_angle);
-				int dy_wallbottom = half_screen_height - project_column(startx, sector_info.floor_height, startz, Main.game_height, ray_angle);
+				int dy_walltop = half_screen_height - project_column(startx, sector_info.ceil_height, startz, ray_angle);
+				int dy_wallbottom = half_screen_height - project_column(startx, sector_info.floor_height, startz, ray_angle);
 
 				int dy_walltop_clipped = clip_column(dy_walltop);
 				int dy_wallbottom_clipped = clip_column(dy_wallbottom);
@@ -211,17 +250,17 @@ public class Screen {
 				Sector next_sector = sectorMap.get(ray_sector);
 
 				if (cur_sector.floor_height < next_sector.floor_height) {
-					dy_wall_bottom_bottom = half_screen_height - project_column(startx, cur_sector.floor_height, startz, Main.game_height, ray_angle);
-					dy_wall_bottom_top = half_screen_height - project_column(startx, next_sector.floor_height, startz, Main.game_height, ray_angle);
+					dy_wall_bottom_bottom = half_screen_height - project_column(startx, cur_sector.floor_height, startz, ray_angle);
+					dy_wall_bottom_top = half_screen_height - project_column(startx, next_sector.floor_height, startz, ray_angle);
 				} else {
-					dy_wall_bottom_bottom = half_screen_height - project_column(startx, cur_sector.floor_height, startz, Main.game_height, ray_angle);
+					dy_wall_bottom_bottom = half_screen_height - project_column(startx, cur_sector.floor_height, startz, ray_angle);
 					dy_wall_bottom_top = dy_wall_bottom_bottom;
 				}
 				if (cur_sector.ceil_height > next_sector.ceil_height) {
-					dy_wall_top_bottom = half_screen_height - project_column(startx, next_sector.ceil_height, startz, Main.game_height, ray_angle);
-					dy_wall_top_top = half_screen_height - project_column(startx, cur_sector.ceil_height, startz, Main.game_height, ray_angle);
+					dy_wall_top_bottom = half_screen_height - project_column(startx, next_sector.ceil_height, startz, ray_angle);
+					dy_wall_top_top = half_screen_height - project_column(startx, cur_sector.ceil_height, startz, ray_angle);
 				} else {
-					dy_wall_top_bottom = half_screen_height - project_column(startx, cur_sector.ceil_height, startz, Main.game_height, ray_angle);
+					dy_wall_top_bottom = half_screen_height - project_column(startx, cur_sector.ceil_height, startz, ray_angle);
 					dy_wall_top_top = dy_wall_top_bottom;
 				}
 				
@@ -326,7 +365,7 @@ public class Screen {
 				}
 	}
 
-	private int project_column(float wallhit_x, float wallhit_y, float wallhit_z, int column_size, float ray_angle) {
+	private int project_column(float wallhit_x, float wallhit_y, float wallhit_z, float ray_angle) {
 		float dy = (float) (((wallhit_y-Camera.player_y)/(euclid_dist(Camera.player_x, Camera.player_z, wallhit_x, wallhit_z)*Math.cos(ray_angle-Camera.direction_rad)))*Camera.retina_dist);
 		int dy_from_middle = (int)(dy*atomic_xz_unit);
 		return dy_from_middle;
@@ -348,6 +387,15 @@ public class Screen {
 		float z2 = Camera.player_z - wallhit_z;
 		float z_delta = full_euclid_minus_perp_dist * z2 / full_euclid_distance;
 		return wallhit_z+z_delta;
+	}
+	
+	private int get_texture_sprite_color(float spritex, float spritey, String spriteTexture) {
+		float localX = (float) (spritex - Math.floor(spritex));
+	    float localY = (float) (spritey - Math.floor(spritey));
+	    Texture texture_sprite_obj = Main.allTextures.get(spriteTexture);
+	    int u = (int)(localX * texture_sprite_obj.IMG_WID) % texture_sprite_obj.IMG_WID;
+	    int v = (int)(localY * texture_sprite_obj.IMG_HEI) % texture_sprite_obj.IMG_HEI;
+	    return texture_sprite_obj.pixels[v * texture_sprite_obj.IMG_WID + u];
 	}
 	
 	private int get_texture_tile_color(float tilehit_x, float tilehit_z, String floorTexture, float floorBrightness, int x, int y) {

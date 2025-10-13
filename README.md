@@ -22,7 +22,7 @@
   - [14. API Reference](#14-api-reference)
 - [Gameplay and Distribution](#gameplay-and-distribution)
   - [15. Publishing Your Game!](#15-publishing-your-game)
-  - [16. Check Out Tutorial!](#16-check-out-tutorial)
+  - [16. Check Out Walkthrough!](#16-check-out-walkthrough)
 - [Final Bits](#final-bits)
   - [17. Known Limitations and Constraints](#17-known-limitations-and-constraints)
   - [18. License Info](#18-license-info)
@@ -46,9 +46,7 @@ I am Rafael Sanchez, a slightly sleep-deprived but highly passionate nerd with a
 
 ### 4. Installation Guide
 
-Depending on what you would like to do, there will be different ways to run the raccoon engine. If you are here to learn about how a game engine works, want to edit the raccoon engine source code, or simply want to run it yourself and compile from scratch, then you are going to need an IDE for Java to run like "Eclipse IDE for Java Developers" which can be downloaded from their official website. Since this is a Java application, this would download also the Java Development Kit, which should let you edit and run Java programs. From Eclipse, you would then proceed to open the project or folder RaccoonEngineSrc from the IDE "Open Projects from File System" option. Then run the program! The good thing about this approach is that you have direct access to the source code, so you can edit the engine as you see fit. But only do this if you know what you are doing!
-
-On the other hand, if you are only a developer interested in making games and using the engine to develop games, then you only need to head over to the folders in this directory that contain the executables for the Raccoon Engine. These are platform specific, so make sure you pick the correct folder (iOS for Mac, Win for Windows, Unix for Linux), and simply run the executables inside. That's it! That executable is your game's binary. All you need to do to make your game is edit the Data/ folder, as that contains pretty much all you are going to need to make your game: sprites, textures, music, scripts, etc.
+To run the Raccoon Engine and compile from scratch, you are going to need an IDE for Java to run like "Eclipse IDE for Java Developers" which can be downloaded from their official website. Since this is a Java application, this would download also the Java Development Kit, which should let you edit and run Java programs. From Eclipse, you would then proceed to open the project or folder RaccoonEngine from the IDE "Open Projects from File System" option. Then run the program! With this, you have direct access to the source code, so you can edit the engine as you see fit. However, you should only need to do this to run your application, but not edit the engine files themselves. All of your game development will be using all the files in the Data/ folder, editting the assets there, using the editor, and scripting all the events using the .lua files etc.
 
 ---
 
@@ -128,25 +126,27 @@ In Progress...
 
 ### 11. Control Scheme
 
-| Key           | Action / Description                      |
-|---------------|-------------------------------------------|
-| Arrow Left    | Turn / move camera/player left            |
-| Arrow Right   | Turn / move camera/player right           |
-| Arrow Up      | Move forward                              |
-| Arrow Down    | Move backward                             |
-| Enter         | Confirm/Menu                              |
-| Space         | Interact                                  |
-| Ctrl          | Shoot / Use Item                          |
-| Comma (,)     | Strafe left                               |
-| Period (.)    | Strafe right                              |
-| 1             | Switch to first item / weapon             |
-| 2             | Switch to second item / weapon            |
-| 3             | Switch to third item / weapon             |
-| 4             | Switch to fourth item / weapon            |
-| Page Up       | Jump                                      |
-| Page Down     | Crouch                                    |
-| F4            | Toggle fullscreen                         |
-| Escape        | Exit game                                 |
+| Key           | Action / Description       |
+|---------------|----------------------------|
+| *Arrow Left   | Turn left                  |
+| *Arrow Right  | Turn right                 |
+| *Arrow Up     | Move forward               |
+| *Arrow Down   | Move backward              |
+| Enter         | Confirm                    |
+| Ctrl          | Interact #1                |
+| Space         | Interact #2                |
+| *Comma (,)    | Strafe left                |
+| *Period (.)   | Strafe right               |
+| 1             | Extra Buttons #1           |
+| 2             | Extra Buttons #2           |
+| 3             | Extra Buttons #3           |
+| 4             | Extra Buttons #4           |
+| *Page Up      | Jump                       |
+| *Page Down    | Crouch                     |
+| *F4           | Toggle fullscreen          |
+| *Escape       | Exit game                  |
+
+Note*: These buttons have a hardcoded functionality in the engine. These means that you cannot change what they do. The majority of these are just movement buttons. But the "interact" are up to you how you want to use them. For example, 1-4 could be used for switching to different items, space could be used for interacting with other objects, etc!
 
 ### 12. Scripting Your Game
 
@@ -162,7 +162,18 @@ The `config.cfg` file can be found in the `Data/` folder. It contains the follow
 
 ### 14. API Reference
 
-In Progress...
+This section documents the core scripting API available to the Lua files you will use to build most of your game logic. These methods provide control over maps, player movement, entities, UI rendering, audio, gameplay parameters, etc.
+
+#### `void log(String msg)`
+
+**Description:**  
+Logs a message to the console for debugging purposes.
+
+**Parameters:**
+- `msg` (String): The message to log
+
+**Returns:**  
+None (void)
 
 ---
 
@@ -172,7 +183,7 @@ In Progress...
 
 In Progress...
 
-### 16. Check Out Tutorial!
+### 16. Check Out Walkthrough!
 
 In Progress...
 

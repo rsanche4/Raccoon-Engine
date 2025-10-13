@@ -35,8 +35,7 @@ public class ReApi {
                 chunk.call(LuaValue.valueOf(entity.spriteXPos));
                 chunk.call(LuaValue.valueOf(entity.spriteYPos));
                 chunk.call(LuaValue.valueOf(entity.spriteZPos));
-                chunk.call(LuaValue.valueOf(entity.spriteDir));
-                chunk.call(LuaValue.valueOf(entity.spriteDist));
+                chunk.call(LuaValue.valueOf(entity.sprite_brightness));
                 chunk.call(LuaValue.valueOf(entity.spritename));
                 chunk.call(LuaValue.valueOf(entity.spriteId));
             } catch (Exception e) {
@@ -422,29 +421,29 @@ public class ReApi {
     	Main.MAX_FPS = max_fps;
     }
     
-    public void playBGM(String bgm_path, boolean loop) {
-		Screen.current_bgm = new Sound("data/bgm/"+bgm_path, loop);
+    public void playBGM(String bgm_path, boolean loop, float volume) {
+		Screen.current_bgm = new Sound("data/bgm/"+bgm_path, loop, volume);
 	}
 	
 	public void stopBGM() {
 		Screen.current_bgm.stopSound();
 	}
 	
-	public void playSE(String bgm_path, boolean loop) {
-		Screen.current_sfe = new Sound("data/se/"+bgm_path, loop);
+	public void playSE(String bgm_path, boolean loop, float volume) {
+		Screen.current_sfe = new Sound("data/se/"+bgm_path, loop, volume);
 	}
 	
 	public void stopSE() {
 		Screen.current_sfe.stopSound();
 	}
 	
-	public void addSprite(float sx, float sy, float sz, float sprite_dir, String spriteTextureName, String spriteId, String behavior_script) {
-		Sprite entity = new Sprite(sx, sy, sz, sprite_dir, spriteTextureName, spriteId, behavior_script);
+	public void addSprite(float sx, float sy, float sz, float sprite_length, float sprite_brightness, String spriteTextureName, String spriteId, String behavior_script) {
+		Sprite entity = new Sprite(sx, sy, sz, sprite_length, sprite_brightness, spriteTextureName, spriteId, behavior_script);
 		Main.allSprites.put(spriteId, entity);
 	}
 	
-	public boolean updateSprite(float sx, float sy, float sz, float sprite_dir, String spriteTextureName, String spriteId, String behavior_script) {
-		Sprite entity = new Sprite(sx, sy, sz, sprite_dir, spriteTextureName, spriteId, behavior_script);
+	public boolean updateSprite(float sx, float sy, float sz, float sprite_length, float sprite_brightness, String spriteTextureName, String spriteId, String behavior_script) {
+		Sprite entity = new Sprite(sx, sy, sz, sprite_length, sprite_brightness, spriteTextureName, spriteId, behavior_script);
 		if (Main.allSprites.replace(spriteId, entity)==null) {
 			return false;
 		}
