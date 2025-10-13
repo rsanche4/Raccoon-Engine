@@ -359,6 +359,7 @@ The editor assumes the user follows these rules (no automatic validation):
 7. **Unique Edges**: Each wall segment appears in at most 2 sectors
 
 ### Example Complete Map
+```
 [SECTORS]
 1 -2 2 floor.png 1.0 ceiling.png 1.0
 2 -2 2 floor.png 1.0 ceiling.png 1.0
@@ -376,7 +377,7 @@ The editor assumes the user follows these rules (no automatic validation):
 [PORTALS]
 -5 5 0 5 1 2 wall.png 1.0 transparent.png 1.0 wall.png 1.0
 0 5 5 5 2 3 wall.png 1.0 door.png 0.8 wall.png 1.0
-
+```
 This example shows:
 - 3 connected sectors
 - Each sector with configured properties
