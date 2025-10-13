@@ -46,7 +46,9 @@ I am Rafael Sanchez, a slightly sleep-deprived but highly passionate nerd with a
 
 ### 4. Installation Guide
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Depending on what you would like to do, there will be different ways to run the raccoon engine. If you are here to learn about how a game engine works, want to edit the raccoon engine source code, or simply want to run it yourself and compile from scratch, then you are going to need an IDE for Java to run like "Eclipse IDE for Java Developers" which can be downloaded from their official website. Since this is a Java application, this would download also the Java Development Kit, which should let you edit and run Java programs. From Eclipse, you would then proceed to open the project or folder RaccoonEngineSrc from the IDE "Open Projects from File System" option. Then run the program! The good thing about this approach is that you have direct access to the source code, so you can edit the engine as you see fit. But only do this if you know what you are doing!
+
+On the other hand, if you are only a developer interested in making games and using the engine to develop games, then you only need to head over to the folders in this directory that contain the executables for the Raccoon Engine. These are platform specific, so make sure you pick the correct folder (iOS for Mac, Win for Windows, Unix for Linux), and simply run the executables inside. That's it! That executable is your game's binary. All you need to do to make your game is edit the Data/ folder, as that contains pretty much all you are going to need to make your game: sprites, textures, music, scripts, etc.
 
 ---
 
@@ -106,19 +108,19 @@ https://youtu.be/eoXn6nwV694 -> A great video explaining the main concepts behin
 
 ### 7. Editor Usage Guide
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+In Progress...
 
 ### 8. Map Structure
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+In Progress...
 
 ### 9. Textures & Skyboxes
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+In Progress...
 
 ### 10. Collision Handling
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+In Progress...
 
 ---
 
@@ -126,11 +128,29 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
 ### 11. Control Scheme
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. In this, when user presses F4 you should able to full screen so add that. or not. toggle
+| Key           | Action / Description                      |
+|---------------|-------------------------------------------|
+| Arrow Left    | Turn / move camera/player left            |
+| Arrow Right   | Turn / move camera/player right           |
+| Arrow Up      | Move forward                              |
+| Arrow Down    | Move backward                             |
+| Enter         | Confirm/Menu                              |
+| Space         | Interact                                  |
+| Ctrl          | Shoot / Use Item                          |
+| Comma (,)     | Strafe left                               |
+| Period (.)    | Strafe right                              |
+| 1             | Switch to first item / weapon             |
+| 2             | Switch to second item / weapon            |
+| 3             | Switch to third item / weapon             |
+| 4             | Switch to fourth item / weapon            |
+| Page Up       | Jump                                      |
+| Page Down     | Crouch                                    |
+| F4            | Toggle fullscreen                         |
+| Escape        | Exit game                                 |
 
 ### 12. Scripting Your Game
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+In Progress...
 
 ### 13. The `config.cfg` File
 
@@ -142,7 +162,7 @@ The `config.cfg` file can be found in the `Data/` folder. It contains the follow
 
 ### 14. API Reference
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+In Progress...
 
 ---
 
@@ -150,11 +170,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
 ### 15. Publishing Your Game!
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+In Progress...
 
 ### 16. Check Out Tutorial!
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+In Progress...
 
 ---
 
