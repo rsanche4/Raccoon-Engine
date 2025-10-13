@@ -46,7 +46,53 @@ I am Rafael Sanchez, a slightly sleep-deprived but highly passionate nerd with a
 
 ### 4. Installation Guide
 
-To run the Raccoon Engine and compile from scratch, you are going to need an IDE for Java to run like "Eclipse IDE for Java Developers" which can be downloaded from their official website. Since this is a Java application, this would download also the Java Development Kit, which should let you edit and run Java programs. From Eclipse, you would then proceed to open the project or folder RaccoonEngine from the IDE "Open Projects from File System" option. Then run the program! With this, you have direct access to the source code, so you can edit the engine as you see fit. However, you should only need to do this to run your application, but not edit the engine files themselves. All of your game development will be using all the files in the Data/ folder, editting the assets there, using the editor, and scripting all the events using the .lua files etc.
+#### Prerequisites
+
+- **Java Development Kit (JDK)** - Install the latest JDK for your operating system
+- **Eclipse IDE for Java Developers** - Download from [eclipse.org](https://www.eclipse.org/downloads/)
+
+#### Installation Steps
+
+#### 1. Open the Project
+
+1. Launch Eclipse IDE
+2. Go to **File -> Open Projects from File System**
+3. Select the `RaccoonEngine` folder
+4. Click **Finish**
+
+#### 2. Configure Libraries
+
+1. Right-click the project in Eclipse -> **Build Path -> Configure Build Path**
+2. Go to the **Libraries** tab
+3. Click **Add External JARs**
+4. Navigate to the `lib/` folder in the project directory
+5. Select all `.jar` files and click **Open**
+6. Click **Apply and Close**
+
+#### 3. Set VM Arguments
+
+Raccoon Engine uses JOGL (OpenGL bindings for Java), which requires specific VM arguments:
+
+1. Go to **Run -> Run Configurations**
+2. Select your main class configuration
+3. Click the **Arguments** tab
+4. In the **VM arguments** field, paste:
+
+`--add-exports java.base/java.lang=ALL-UNNAMED`
+
+`--add-exports java.desktop/sun.awt=ALL-UNNAMED`
+
+`--add-exports java.desktop/sun.java2d=ALL-UNNAMED`
+
+5. Click **Apply** then **Run**
+
+#### 4. Run the Engine
+
+Click the **Run** button (green play icon).
+
+### Development Workflow
+
+**Important:** You should not need to modify the engine source code. This is only for you to run the engine as a developer. All game development happens in the `Data/` folder and the Raccoon Editor. The engine source is available for reference and advanced customization only.
 
 ---
 
@@ -170,10 +216,45 @@ This section documents the core scripting API available to the Lua files you wil
 Logs a message to the console for debugging purposes.
 
 **Parameters:**
-- `msg` (String): The message to log
+- `msg` (String): The message to log.
 
 **Returns:**  
 None (void)
+
+#### `void add_script(String script_name)`
+
+**Description:**  
+Adds a general world script to the active scripts array.
+
+**Parameters:**
+- `script_name` (String): The name of the script. Ex: hello.lua.
+
+**Returns:**
+None (void)
+
+#### `void endme(int script_index)`
+
+**Description:**  
+Finishes the execution of the script itself.
+
+**Parameters:**
+- `script_index` (int): The index of the script. This is given to you as an argument to your lua script, so just pass that to the function.
+
+**Returns:**
+None (void)
+
+#### `void endit(String script_name)`
+
+**Description:**
+Finishes the execution of another script provided its name.
+
+**Parameters:**
+- `script_name` (String): The name of the script to finish. Ex: hello.lua.
+
+**Returns:**
+None (void)
+
+In Progress
 
 ---
 
