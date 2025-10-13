@@ -152,19 +152,19 @@ https://youtu.be/eoXn6nwV694 -> A great video explaining the main concepts behin
 
 ### 7. Editor Usage Guide
 
-In Progress...
+Since this section is too long, I decided to split it into a different file called `RaccoonEditor.md`. I suggest you take a look at that file instead if you want to learn more about how to use the editor! The main goal of the editor is to create the map structure and map file that will be read by the engine to render your wonderful scenes. Have fun!
 
 ### 8. Map Structure
 
-In Progress...
+Inside the editor documentation file you will also find guides on the structure of a map. It is surprisingly simple, although with some restrictions given the design choices of the engine.
 
 ### 9. Textures & Skyboxes
 
-In Progress...
+There is no limits on the size of the textures that you want to display. It is recommended however that you do not include really huge texture files as they simply occupy more space. The same goes for skyboxes. The Skybox in particular does have 1 limitation: it needs to be 4 times the size of the game's width, and the same height as the game's. Since I decided to lock the engine at 640x480 for best performance and retro aesthetic, the skybox thus needs to be 4*640x480 in size, or 2560x480. This is important! If you for some reason give a skybox that has a different size, it is probable the engine will either crash or display some bizarre skybox.
 
 ### 10. Collision Handling
 
-In Progress...
+The collisions of the game are mainly handled very simply. If you are crouching, the rule is that you cannot "climb" to a sector that is higher than where you are. Otherwise you can simply walk up to any sector (as long as it's not much taller than you) and you can climb it up! This helps a lot when it comes to creating stairs, etc. Other than that, any texture that is displayed between sectors is also collidable. The only things that are non-solid would be sprites, so keep this in mind when you design your levels!
 
 ---
 
@@ -196,7 +196,9 @@ Note*: These buttons have a hardcoded functionality in the engine. These means t
 
 ### 12. Scripting Your Game
 
-In Progress...
+Scripting your game using this API gives you a high degree of control over virtually every aspect of the game world. You can manipulate player movement, adjust physics parameters like gravity and speed, spawn or remove entities dynamically, and even control the rendering of UI elements and text. The Lua scripts act as your interface to the engine, allowing you to implement gameplay logic, interactive events, or even entire quests without touching the underlying Java code. Because the API exposes functions for everything from map loading to sound management, you can prototype, test, and iterate quickly, which makes the development process much more fluid and creative. It feels like you're building a living world with your own set of rules, where the engine handles the heavy lifting of rendering, collisions, and input detection.
+
+At the same time, scripting requires careful planning and structure. Each script runs in the context of the active game world, meaning that you have to be aware of what other scripts are doing and how they interact. Proper use of sprite IDs, sector references, and event triggers is essential to avoid conflicts or unexpected behavior. The API encourages modularity: you can attach behavior scripts to individual entities, trigger sound effects or UI changes at specific moments, and adjust gameplay mechanics on the fly. The learning curve is not just about understanding each function-it's also about thinking in terms of dynamic systems and how player actions, environment, and scripted logic intertwine. Once you get used to this mindset, scripting becomes less about "coding" and more about orchestrating a living, interactive experience.
 
 ### 13. The `config.cfg` File
 
