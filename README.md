@@ -122,7 +122,7 @@ When a ray passes through a sector boundary (a portal), the engine continues int
 
 **Billboarded Sprites**
 
-Objects, enemies, and items are rendered as 2D images that always face the player. The engine calculates the sprite's distance and screen position, then scales and draws the appropriate image. To create a pseudo-3D effect, different sprite images are displayed based on the viewing angle (front, side, back views), giving objects a sense of dimensionality without true 3D geometry.
+Objects, enemies, and items are rendered as 2D images that always face the player. The engine calculates the sprite's distance and screen position, then scales and projects the appropriate image onto screenspace.
 
 **Texture Mapping**
 
@@ -160,7 +160,7 @@ Inside the editor documentation file you will also find guides on the structure 
 
 ### 9. Textures & Skyboxes
 
-There is no limits on the size of the textures that you want to display. It is recommended however that you do not include really huge texture files as they simply occupy more space. The same goes for skyboxes. The Skybox in particular does have 1 limitation: it needs to be 4 times the size of the game's width, and the same height as the game's. Since I decided to lock the engine at 640x480 for best performance and retro aesthetic, the skybox thus needs to be 4*640x480 in size, or 2560x480. This is important! If you for some reason give a skybox that has a different size, it is probable the engine will either crash or display some bizarre skybox.
+There is no limits on the size of the textures that you want to display. It is recommended however that you do not include really huge texture files as they simply occupy more space. The skybox in particular does have 1 limitation: it needs to be 4 times the size of the game's width, and the same height as the game's. Since I decided to lock the engine at 640x480 for best performance and retro aesthetic, the skybox thus needs to be 4*640x480 in size, or 2560x480. This is important! If you for some reason give a skybox that has a different size, it is probable the engine will either crash or display some bizarre skybox.
 
 ### 10. Collision Handling
 
