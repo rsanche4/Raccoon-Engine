@@ -19,10 +19,10 @@
   - [11. Control Scheme](#11-control-scheme)
   - [12. Scripting Your Game](#12-scripting-your-game)
   - [13. The `config.cfg` File](#13-the-configcfg-file)
-  - [14. API Reference](#14-api-reference)
+  - [14. REAPI](#14-reapi)
 - [Gameplay and Distribution](#gameplay-and-distribution)
   - [15. Publishing Your Game!](#15-publishing-your-game)
-  - [16. Check Out Walkthrough!](#16-check-out-walkthrough)
+  - [16. Check Out the Demo!](#16-check-out-the-demo)
 - [Final Bits](#final-bits)
   - [17. Known Limitations and Constraints](#17-known-limitations-and-constraints)
   - [18. License Info](#18-license-info)
@@ -208,55 +208,13 @@ The `config.cfg` file can be found in the `Data/` folder. It contains the follow
 
 **game_version**: The version number of your game. Set this to whatever versioning scheme you prefer (e.g., "1.0", "0.5 Beta", "Alpha Build 3").
 
-### 14. API Reference
+### 14. REAPI
 
-This section documents the core scripting API available to the Lua files you will use to build most of your game logic. These methods provide control over maps, player movement, entities, UI rendering, audio, gameplay parameters, etc.
+Since the source files are accessible, you can dive into the main section of the code where most of your scripting will take place: ReApi.java. This class contains all the functions available for developing your games.
 
-#### `void log(String msg)`
+To use them from Lua (or other scripts), simply locate the function you need in this class and call it with the appropriate arguments. For example, you can check init.lua to see how to log a message to the screen. Here's a quick example:
 
-**Description:**  
-Logs a message to the console for debugging purposes.
-
-**Parameters:**
-- `msg` (String): The message to log.
-
-**Returns:**  
-None (void)
-
-#### `void add_script(String script_name)`
-
-**Description:**  
-Adds a general world script to the active scripts array.
-
-**Parameters:**
-- `script_name` (String): The name of the script. Ex: hello.lua.
-
-**Returns:**
-None (void)
-
-#### `void endme(int script_index)`
-
-**Description:**  
-Finishes the execution of the script itself.
-
-**Parameters:**
-- `script_index` (int): The index of the script. This is given to you as an argument to your lua script, so just pass that to the function.
-
-**Returns:**
-None (void)
-
-#### `void endit(String script_name)`
-
-**Description:**
-Finishes the execution of another script provided its name.
-
-**Parameters:**
-- `script_name` (String): The name of the script to finish. Ex: hello.lua.
-
-**Returns:**
-None (void)
-
-In Progress
+`REAPI:log("Hello world!")`
 
 ---
 
@@ -264,11 +222,13 @@ In Progress
 
 ### 15. Publishing Your Game!
 
-In Progress...
+For Java, there are several ways to turn your game into an executable, with Launch4j being one popular option. Typically, this involves creating an executable JAR file or using scripts to handle the launch. While this process is beyond the scope of this guide, I'm happy to help if you need assistance-just send me an email! My contact information can be found at the end.
 
-### 16. Check Out Walkthrough!
+### 16. Check Out the Demo!
 
-In Progress...
+Let me show you what the engine looks like in the following Demo!!
+
+[![Watch the Demo](https://img.youtube.com/vi/pxAxZ3L9OsA/0.jpg)](https://www.youtube.com/watch?v=pxAxZ3L9OsA)
 
 ---
 
