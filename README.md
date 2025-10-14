@@ -212,7 +212,7 @@ The `config.cfg` file can be found in the `Data/` folder. It contains the follow
 
 Since the source files are accessible, you can dive into the main section of the code where most of your scripting will take place: ReApi.java. This class contains all the functions available for developing your games.
 
-To use them from Lua (or other scripts), simply locate the function you need in this class and call it with the appropriate arguments. For example, you can check init.lua to see how to log a message to the screen. Here's a quick example:
+To use them from Lua (or other scripts), simply locate the function you need in this class and call it with the appropriate arguments. For example, you can check init.lua to see how to log a message to the console (note that this is different from display a text UI to the actual game window. For that you would use displayText()!). Here's a quick example:
 
 `REAPI:log("Hello world!")`
 
