@@ -248,11 +248,7 @@ Because of the column-based rendering, true looking up and down would cause visu
 
 **Billboarded Sprites**
 
-There are no true 3D polygons for objects or enemies. Instead, sprites are "billboarded", or flat images always facing the player. To create the illusion of 3D, the engine displays different sprite images based on the viewing angle (front view, side view, back view, etc.), giving that classic pseudo-3D look without the complexity of polygon rendering.
-
-**No Sprite Stacking**
-
-Sprites cannot overlap or stack on top of each other in 3D space. This simplifies collision detection and reduces CPU overhead, but means you'll need to plan object placement carefully.
+There are no true 3D polygons for objects or enemies. Instead, sprites are "billboarded", or flat images always facing the player. To create the illusion of 3D, you could accomplish with the help of scripting the ability to change the sprite image being shown to a different one depending on the viewing angle (front view, side view, back view, etc.).
 
 **Grid-Aligned Walls Only**
 
