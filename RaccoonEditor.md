@@ -114,7 +114,7 @@ Once you've finished drawing all your sectors, click **FINALIZE MAP** (top right
 - **Floor Height**: Vertical position of the floor (default: -2)
 - **Ceiling Height**: Vertical position of the ceiling (default: 2)
 - **Floor Texture**: Texture filename for the floor (e.g., "floor.png")
-- **Floor Brightness**: Lighting multiplier for floor (0.0 to ∞, default: 1.0)
+- **Floor Brightness**: Lighting multiplier for floor (0.0 to inf, default: 1.0)
 - **Ceiling Texture**: Texture filename for ceiling (e.g., "ceiling.png")
 - **Ceiling Brightness**: Lighting multiplier for ceiling
 
@@ -129,7 +129,7 @@ Each wall is listed with its coordinates. Depending on type:
 - Shows which sector it connects to
 - **Bottom Texture**: Texture below the portal opening
 - **Bottom Brightness**: Lighting for bottom section
-- **Middle Texture**: Texture in the portal opening (use "transparent.png" for open passage)
+- **Middle Texture**: Texture in the portal opening (use "black.png" for open passage)
 - **Middle Brightness**: Lighting for middle section
 - **Top Texture**: Texture above the portal opening
 - **Top Brightness**: Lighting for top section
@@ -257,9 +257,12 @@ Click **SAVE MAP** (top right, appears after finalization).
 ### File Format
 
 The saved map uses a text-based format with three sections:
+
+```
 [SECTORS]
 [WALLS]
 [PORTALS]
+```
 
 ### Coordinate System
 - **Origin**: (0, 0) is at the center
@@ -279,7 +282,7 @@ SectorID FloorHeight CeilingHeight FloorTexture FloorBrightness CeilingTexture C
 **Example:**
 [SECTORS]
 1 -2 1 floor.png 1.2 ceiling.png 0.5
-2 -3 2 grass.png 1.2 sky.png 1.0
+2 -3 2 grass.png 1.2 black.png 1.0
 3 -2 2 floor.png 1.2 floor.png 0.5
 
 **Fields:**
@@ -320,7 +323,7 @@ X1 Y1 X2 Y2 SectorA SectorB BottomTexture BottomBrightness MiddleTexture MiddleB
 
 **Example:**
 [PORTALS]
--3 -7 -3 8 1 2 wall.png 1.0 transparent.png 1.0 wall.png 1.0
+-3 -7 -3 8 1 2 wall.png 1.0 black.png 1.0 wall.png 1.0
 -10 -7 -3 -7 2 3 wall.png 0.5 door.png 1.0 wall.png 0.5
 
 **Fields:**
@@ -329,7 +332,7 @@ X1 Y1 X2 Y2 SectorA SectorB BottomTexture BottomBrightness MiddleTexture MiddleB
 - `SectorB`: Second sector ID
 - `BottomTexture`: Texture for lower portion (below opening)
 - `BottomBrightness`: Lighting for bottom
-- `MiddleTexture`: Texture for passage itself (use "transparent.png" for open)
+- `MiddleTexture`: Texture for passage itself (use "black.png" for open)
 - `MiddleBrightness`: Lighting for middle
 - `TopTexture`: Texture for upper portion (above opening)
 - `TopBrightness`: Lighting for top
@@ -361,29 +364,27 @@ The editor assumes the user follows these rules (no automatic validation):
 ### Example Complete Map
 ```
 [SECTORS]
-1 -2 2 floor.png 1.0 ceiling.png 1.0
-2 -2 2 floor.png 1.0 ceiling.png 1.0
-3 -3 1 grass.png 0.8 sky.png 1.2
+1 -2 1 floor.png 1.2 floor.png 0.5
+2 -3 2 grass.png 1.2 black.png 1.0
+3 -2 2 floor.png 1.2 floor.png 0.5
+4 -1 2 floor.png 1.2 floor.png 0.5
 [WALLS]
--5 -5 -5 5 1 wall.png 1.0
--5 5 0 5 1 wall.png 1.0
-0 5 0 10 2 brick.png 0.9
-0 10 5 10 2 brick.png 0.9
-5 10 5 5 2 brick.png 0.9
-5 5 10 5 3 stone.png 1.1
-10 5 10 -5 3 stone.png 1.1
-10 -5 5 -5 3 stone.png 1.1
-5 -5 -5 -5 1 wall.png 1.0
+-3 8 10 8 1 wall4h.png 0.5
+10 -7 10 8 1 wall4h.png 1.0
+-10 8 -3 8 2 wall6h.png 0.5
+-10 -7 -10 8 2 wall6h.png 1.0
+-10 -10 -10 -7 3 wall3h_with_cuteanime.png 1.0
+-10 -10 -3 -10 3 wall3h.png 0.5
+-3 -10 10 -10 4 walled_fence.png 0.5
+10 -10 10 -7 4 wall3h_with_cuteanime2hd.png 1.0
 [PORTALS]
--5 5 0 5 1 2 wall.png 1.0 transparent.png 1.0 wall.png 1.0
-0 5 5 5 2 3 wall.png 1.0 door.png 0.8 wall.png 1.0
+-3 -7 -3 8 1 2 wall.png 1.0 fence2.png 1.0 wall.png 1.0
+-10 -7 -3 -7 2 3 wall.png 0.5 black.png 1.0 wall.png 0.5
+-3 -7 10 -7 1 4 wall.png 0.5 black.png 1.0 wall.png 1.0
+-3 -10 -3 -7 3 4 wall.png 1.0 black.png 1.0 wall.png 0.5
 ```
-This example shows:
-- 3 connected sectors
-- Each sector with configured properties
-- Outer walls surrounding the entire structure
-- 2 portals connecting the sectors
-- Various textures and brightness values
+
+Note: In the example provided here, black.png is basically used to say that there is no texture for that, which tells the engine to render the skybox!
 
 ---
 
