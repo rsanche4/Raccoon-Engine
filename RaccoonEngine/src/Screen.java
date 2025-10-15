@@ -21,7 +21,7 @@ public class Screen {
 	public static int fog_b = 0x10;
 	public static float fog_start = 5.0f;
 	public static float fog_end = 25.0f;
-	private int skybox_refresh_val = 0x1000000;
+	private int skybox_refresh_val = 16777216;
 	public static Sound current_bgm;
 	public static Sound current_sfe;
 	
@@ -36,6 +36,7 @@ public class Screen {
 	
 	private final int[] ZEROS; // allocate once at init
 	private final float[] MAX_DEPTHS;
+	private String transparentTex = "black.png";
 
 	public Screen(int[] pixels_arg, int[] gamepixels_arg) {
 		pixels = pixels_arg;
@@ -153,7 +154,7 @@ public class Screen {
 		int ray_num = half_screen_width - x;
 
 		float ray_angle = Camera.direction_rad + ray_num * deltatheta;
-
+		float tan_ray = (float) Math.tan(ray_angle);
 		float startx = Camera.player_x;
 		float startz = Camera.player_z;
 
@@ -179,8 +180,9 @@ public class Screen {
 				dx_1 = (float) (Math.ceil(startx-1)-startx);
 			}
 
-			dz_1 = (float) (dirThetaZ*Math.abs(dx_1*Math.tan(ray_angle)));
-
+			dz_1 = (float) (dirThetaZ*Math.abs(dx_1*tan_ray));
+			
+			// euclid_dist because of Clarity! And it doesn't actually cause that much of a bottleneck for our small levels
 			float dist_horizontal = euclid_dist(startx, startz, startx+dx_1, startz+dz_1);
 
 			if (dirThetaZ > 0) {
@@ -188,7 +190,7 @@ public class Screen {
 			} else {
 				dz_2 = (float) (Math.ceil(startz - 1) - startz);
 			}
-			dx_2 = (float) (dirThetaX * Math.abs(dz_2 / Math.tan(ray_angle)));
+			dx_2 = (float) (dirThetaX * Math.abs(dz_2 / tan_ray));
 
 			float dist_vertical = euclid_dist(startx, startz, startx + dx_2, startz + dz_2);
 
@@ -281,7 +283,7 @@ public class Screen {
 					draw_wall_texture(x, y, decimal_value_wall_hit, dy_wall_top_top, dy_wall_top_bottom, portalhit.portalTopTexture, portalhit.portalTopBrightness, column_pixel_size, full_euclid_dist);
 				}
 				
-				if (!portalhit.portalMiddleTexture.contentEquals("black.png")) {
+				if (!portalhit.portalMiddleTexture.contentEquals(transparentTex)) {
 					column_pixel_size = dy_wall_bottom_top-dy_wall_top_bottom;
 					for (int y=dy_wall_top_bottom_clipped; y < dy_wall_bottom_top_clipped; y++) {
 						draw_wall_texture(x, y, decimal_value_wall_hit, dy_wall_top_bottom, dy_wall_bottom_top, portalhit.portalMiddleTexture, portalhit.portalMiddleBrightness, column_pixel_size, full_euclid_dist);
@@ -409,7 +411,7 @@ public class Screen {
 
 	private void draw_horizontal_plane(int x, int y, float height_offset, int screen_y_offset, float ray_angle, float full_euclid_dist, float startx, float startz, String planeTexture, float planeBrightness) {
 		if (gamepixels[y * Main.game_width + x]==0x000000) {
-			if (planeTexture.contentEquals("black.png")) {
+			if (planeTexture.contentEquals(transparentTex)) { // String comparisons are a bit slower, but again, clarity!
 				gamepixels[y * Main.game_width + x] = skybox_refresh_val;
 				return;
 			}
