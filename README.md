@@ -50,6 +50,7 @@ I am Rafael Sanchez, a slightly sleep-deprived but highly passionate nerd with a
 
 - **Java Development Kit (JDK)** - Install the latest JDK for your operating system
 - **Eclipse IDE for Java Developers** - Download from [eclipse.org](https://www.eclipse.org/downloads/)
+- **Windows Operating System (Optional)** - The project has only natives-windows jogl jars for the graphics to run. However, you can download the specifics for your OS from their website.
 
 #### Installation Steps
 
