@@ -384,8 +384,6 @@ The editor assumes the user follows these rules (no automatic validation):
 -3 -10 -3 -7 3 4 wall.png 1.0 black.png 1.0 wall.png 0.5
 ```
 
-Note: In the example provided here, black.png is basically used to say that there is no texture for that, which tells the engine to render the skybox!
-
 ---
 
 ## Troubleshooting
