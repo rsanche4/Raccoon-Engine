@@ -65,12 +65,19 @@ public class ReApi {
         Main.active_scripts.remove(script_name);
     }
     
+    public String get_skybox() {
+    	return Screen.skybox;
+    }
+    
     public void set_skybox(String skyboxname, float brightness) {
     	Screen.skybox = skyboxname;
     	Screen.skybox_brightness = brightness;
     }
     
     public void load_map(String mapname) {
+    	Screen.sectorMap = new HashMap<>();
+        Screen.wallMap = new HashMap<>();
+        Screen.portalMap = new HashMap<>();
     	mapname = mapname.toLowerCase();
     	if (mapname.contentEquals("menu")) {
     		Screen.is_menu = true;
@@ -78,12 +85,8 @@ public class ReApi {
     	} else {
     		Screen.is_menu = false;
     	}
-    	
-        Screen.sectorMap = new HashMap<>();
-        Screen.wallMap = new HashMap<>();
-        Screen.portalMap = new HashMap<>();
 
-        String path = "data/maps/" + mapname; // relative path
+        String path = "data/maps/" + mapname;
 
         int selected = -1;
         try {
@@ -453,7 +456,6 @@ public class ReApi {
 	
 	public long debug_stats(String stat) {
 	    Runtime runtime = Runtime.getRuntime();
-	    
 	    // Memory stats (in MB)
 	    long maxMemory = runtime.maxMemory() / (1024 * 1024);
 	    long allocatedMemory = runtime.totalMemory() / (1024 * 1024);
@@ -470,7 +472,6 @@ public class ReApi {
 	    } else if (stat.contentEquals("active_threads")) {
 	        return Thread.activeCount();
 	    }
-	    
 	    // CPU & System stats
 	    else if (stat.contentEquals("cpu_cores")) {
 	        return runtime.availableProcessors();
@@ -481,7 +482,6 @@ public class ReApi {
 	    } else if (stat.contentEquals("max_fps")) {
 	    	return (long) Main.MAX_FPS;
 	    }
-	    
 	    // Texture & Resource stats
 	    else if (stat.contentEquals("texture_count")) {
 	        return Main.allTextures.size();
@@ -494,7 +494,6 @@ public class ReApi {
 	    } else if (stat.contentEquals("portal_count")) {
 	    	return Screen.portalMap.size();	   
 	    }
-	    
 	    // Screen/Display stats
 	    else if (stat.contentEquals("screen_width")) {
 	        return Main.SCREEN_W;
@@ -503,26 +502,20 @@ public class ReApi {
 	    } else if (stat.contentEquals("total_pixels")) {
 	        return (long) Main.SCREEN_W * Main.SCREEN_H;
 	    }
-	    
 	    // Memory percentage stats
 	    else if (stat.contentEquals("mem_usage_percent")) {
 	        return (usedMemory * 100) / maxMemory;
 	    } else if (stat.contentEquals("mem_allocated_percent")) {
 	        return (allocatedMemory * 100) / maxMemory;
 	    }
-	    
 	    // Script stats
 	    else if (stat.contentEquals("active_scripts")) {
 	        return Main.active_scripts.size();
 	    }
-	    
 	    // Advanced stats
 	    ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
 	    MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
 	    ClassLoadingMXBean classBean = ManagementFactory.getClassLoadingMXBean();
-
-	    
-	    
 	    if (stat.contentEquals("heap_memory_used")) {
 	        return (long) (memoryBean.getHeapMemoryUsage().getUsed() / (1024.0 * 1024.0)); // MB
 	    } else if (stat.contentEquals("heap_memory_max")) {
@@ -540,7 +533,6 @@ public class ReApi {
 	    } else if (stat.contentEquals("classes_unloaded")) {
 	        return classBean.getUnloadedClassCount();
 	    }
-	    
 		return -1;
 	}
 	
