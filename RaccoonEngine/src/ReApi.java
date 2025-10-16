@@ -413,6 +413,10 @@ public class ReApi {
     	return Main.currentFPS;
     }
     
+    public int get_frame_num() {
+    	return Main.frame_num;
+    }
+    
     public float get_max_fps() {
     	return Main.MAX_FPS;
     }
@@ -452,6 +456,22 @@ public class ReApi {
 	
 	public void removeSprite(String spriteId) {
 		Main.allSprites.remove(spriteId);
+	}
+	
+	public void printSystemStatsToConsole() {
+	    Runtime runtime = Runtime.getRuntime();
+	    long maxMemory = runtime.maxMemory() / (1024 * 1024); // MB
+	    long allocatedMemory = runtime.totalMemory() / (1024 * 1024);
+	    long freeMemory = runtime.freeMemory() / (1024 * 1024);
+	    long usedMemory = allocatedMemory - freeMemory;
+	    
+	    System.out.println("=== System Stats ===");
+	    System.out.println("FPS: " + Main.currentFPS);
+	    System.out.println("Used Memory: " + usedMemory + " MB");
+	    System.out.println("Free Memory: " + freeMemory + " MB");
+	    System.out.println("Total Memory: " + allocatedMemory + " MB");
+	    System.out.println("Max Memory: " + maxMemory + " MB");
+	    System.out.println("Active Threads: " + Thread.activeCount());
 	}
     
     public void addUIToScreen(String textureName, int pos_x, int pos_y, int opacity) {

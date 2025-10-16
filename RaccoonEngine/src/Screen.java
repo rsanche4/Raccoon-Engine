@@ -1,6 +1,5 @@
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 public class Screen {
 
@@ -29,9 +28,6 @@ public class Screen {
 	float camera_mid_side_b = Main.game_width / 2.0f / atomic_xz_unit;
 	float total_fov = (float) (2 * Math.atan(camera_mid_side_b / camera_mid_side_a));
 	float deltatheta = total_fov / Main.game_width;
-	int ray_num_first = (Main.game_width/2);
-	int ray_num_last = (Main.game_width/2) - (Main.game_width-1);
-	float r_to_screen = euclid_dist(0, 0, Camera.retina_dist, (Main.game_width/2));
 	int max_count = 100;
 	
 	private final int[] ZEROS; // allocate once at init
@@ -64,21 +60,8 @@ public class Screen {
 	    System.arraycopy(MAX_DEPTHS, 0, depth_buffer, 0, depth_buffer.length);
 	    if (!is_menu) {
 	        Camera.player_sector = update_player_sector(Camera.player_x, Camera.player_z);
-	        CountDownLatch latch = new CountDownLatch(Main.game_width);
 	        for (int x = 0; x < Main.game_width; x++) {
-	            final int rayNum = x;
-	            Main.executorThreads.submit(() -> {
-	                try {
-	                    cast_ray_and_render_screen_column(rayNum);
-	                } finally {
-	                    latch.countDown();
-	                }
-	            });
-	        }
-	        try {
-	            latch.await();
-	        } catch (InterruptedException e) {
-	            Thread.currentThread().interrupt();
+	        	cast_ray_and_render_screen_column(x);
 	        }
 	        if (skybox != null) {
 	            draw_sky(Camera.direction_rad, Main.allTextures.get(skybox).pixels);

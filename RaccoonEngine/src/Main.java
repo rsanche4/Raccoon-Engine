@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.swing.JFrame;
 
@@ -55,10 +53,7 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 	private int[] gamepixels = new int[game_width*game_height]; 
 	public static HashMap<String, Texture> allTextures = new HashMap<>();
 	public static HashMap<String, Sprite> allSprites = new HashMap<>();
-	
-	public static int cores = Runtime.getRuntime().availableProcessors();
-	public static ExecutorService executorThreads = Executors.newFixedThreadPool(cores);
-	
+	public static int frame_num = 0;
 	// GPU related variables
 	private static GLCanvas canvas;
 	private int textureId;
@@ -258,7 +253,6 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 	    final float ns = 1000000000.0f / MAX_FPS;
 	    float delta = 0;
 	    requestFocus();
-	    int frame_num = 0;
 	    
 	    int frames = 0;
 	    long lastFpsTime = System.nanoTime();
