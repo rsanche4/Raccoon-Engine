@@ -163,8 +163,8 @@ public class Screen {
 
 			dz_1 = (float) (dirThetaZ*Math.abs(dx_1*tan_ray));
 			
-			// euclid_dist because of Clarity! And it doesn't actually cause that much of a bottleneck for our small levels
-			float dist_horizontal = euclid_dist(startx, startz, startx+dx_1, startz+dz_1);
+			// manhattan_dist because of Clarity! And it doesn't actually cause that much of a bottleneck for our small levels
+			float dist_horizontal = manhattan_dist(startx, startz, startx+dx_1, startz+dz_1);
 
 			if (dirThetaZ > 0) {
 				dz_2 = (float) (Math.floor(startz + 1) - startz);
@@ -173,7 +173,7 @@ public class Screen {
 			}
 			dx_2 = (float) (dirThetaX * Math.abs(dz_2 / tan_ray));
 
-			float dist_vertical = euclid_dist(startx, startz, startx + dx_2, startz + dz_2);
+			float dist_vertical = manhattan_dist(startx, startz, startx + dx_2, startz + dz_2);
 
 			String wallkey;
 			// Pick the closer intersection
@@ -288,6 +288,10 @@ public class Screen {
 	public static float euclid_dist(float x1, float z1, float x2, float z2) {
 		return (float) Math.sqrt((z2-z1)*(z2-z1)+(x2-x1)*(x2-x1));
 	} 
+	
+	public static float manhattan_dist(float x1, float z1, float x2, float z2) {
+		return Math.abs(z2-z1)+Math.abs(x2-x1);
+	}
 
 	public static String makeWallKey(float x1, float z1, float x2, float z2) {
 		// Normalize so the smaller point comes first

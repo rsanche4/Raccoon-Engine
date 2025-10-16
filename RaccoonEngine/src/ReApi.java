@@ -267,6 +267,10 @@ public class ReApi {
     	return Screen.euclid_dist(x1, y1, x2, y2);
     }
     
+    public float manhattan_distance(float x1, float y1, float x2, float y2) {
+    	return Screen.manhattan_dist(x1, y1, x2, y2);
+    }
+    
     public float get_move_speed() {
     	return Camera.MOVE_SPEED;
     }
