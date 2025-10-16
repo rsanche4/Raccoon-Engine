@@ -1,5 +1,9 @@
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.management.ClassLoadingMXBean;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.ThreadMXBean;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -14,6 +18,7 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 public class ReApi {
 
     private static final ReApi apiInstance = new ReApi();
+    private static HashMap<String, Object> user_temp_variables = new HashMap<>();
 
     public static void run_user_scripts() {
         for (int i = 0; i < Main.active_scripts.size(); i++) {
@@ -408,18 +413,6 @@ public class ReApi {
             default: return true; // consider default as released
         }
     }
-
-    public float get_fps() {
-    	return Main.currentFPS;
-    }
-    
-    public int get_frame_num() {
-    	return Main.frame_num;
-    }
-    
-    public float get_max_fps() {
-    	return Main.MAX_FPS;
-    }
     
     public void set_max_fps(float max_fps) {
     	Main.MAX_FPS = max_fps;
@@ -458,20 +451,105 @@ public class ReApi {
 		Main.allSprites.remove(spriteId);
 	}
 	
-	public void printSystemStatsToConsole() {
+	public long debug_stats(String stat) {
 	    Runtime runtime = Runtime.getRuntime();
-	    long maxMemory = runtime.maxMemory() / (1024 * 1024); // MB
+	    
+	    // Memory stats (in MB)
+	    long maxMemory = runtime.maxMemory() / (1024 * 1024);
 	    long allocatedMemory = runtime.totalMemory() / (1024 * 1024);
 	    long freeMemory = runtime.freeMemory() / (1024 * 1024);
 	    long usedMemory = allocatedMemory - freeMemory;
+	    if (stat.contentEquals("used_mem")) {
+	        return usedMemory;
+	    } else if (stat.contentEquals("total_mem")) {
+	        return allocatedMemory;
+	    } else if (stat.contentEquals("max_mem")) {
+	        return maxMemory;
+	    } else if (stat.contentEquals("free_mem")) {
+	        return freeMemory;
+	    } else if (stat.contentEquals("active_threads")) {
+	        return Thread.activeCount();
+	    }
 	    
-	    System.out.println("=== System Stats ===");
-	    System.out.println("FPS: " + Main.currentFPS);
-	    System.out.println("Used Memory: " + usedMemory + " MB");
-	    System.out.println("Free Memory: " + freeMemory + " MB");
-	    System.out.println("Total Memory: " + allocatedMemory + " MB");
-	    System.out.println("Max Memory: " + maxMemory + " MB");
-	    System.out.println("Active Threads: " + Thread.activeCount());
+	    // CPU & System stats
+	    else if (stat.contentEquals("cpu_cores")) {
+	        return runtime.availableProcessors();
+	    } else if (stat.contentEquals("fps")) {
+	        return (long) Main.currentFPS;
+	    } else if (stat.contentEquals("frame_num")) {
+	    	return Main.frame_num;
+	    } else if (stat.contentEquals("max_fps")) {
+	    	return (long) Main.MAX_FPS;
+	    }
+	    
+	    // Texture & Resource stats
+	    else if (stat.contentEquals("texture_count")) {
+	        return Main.allTextures.size();
+	    } else if (stat.contentEquals("sprite_count")) {
+	        return Main.allSprites.size();
+	    } else if (stat.contentEquals("sector_count")) {
+	    	return Screen.sectorMap.size();	    
+	    } else if (stat.contentEquals("wall_count")) {
+	    	return Screen.wallMap.size();
+	    } else if (stat.contentEquals("portal_count")) {
+	    	return Screen.portalMap.size();	   
+	    }
+	    
+	    // Screen/Display stats
+	    else if (stat.contentEquals("screen_width")) {
+	        return Main.SCREEN_W;
+	    } else if (stat.contentEquals("screen_height")) {
+	        return Main.SCREEN_H;
+	    } else if (stat.contentEquals("total_pixels")) {
+	        return (long) Main.SCREEN_W * Main.SCREEN_H;
+	    }
+	    
+	    // Memory percentage stats
+	    else if (stat.contentEquals("mem_usage_percent")) {
+	        return (usedMemory * 100) / maxMemory;
+	    } else if (stat.contentEquals("mem_allocated_percent")) {
+	        return (allocatedMemory * 100) / maxMemory;
+	    }
+	    
+	    // Script stats
+	    else if (stat.contentEquals("active_scripts")) {
+	        return Main.active_scripts.size();
+	    }
+	    
+	    // Advanced stats
+	    ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
+	    MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+	    ClassLoadingMXBean classBean = ManagementFactory.getClassLoadingMXBean();
+
+	    
+	    
+	    if (stat.contentEquals("heap_memory_used")) {
+	        return (long) (memoryBean.getHeapMemoryUsage().getUsed() / (1024.0 * 1024.0)); // MB
+	    } else if (stat.contentEquals("heap_memory_max")) {
+	        return (long) (memoryBean.getHeapMemoryUsage().getMax() / (1024.0 * 1024.0)); // MB
+	    } else if (stat.contentEquals("non_heap_memory_used")) {
+	        return (long) (memoryBean.getNonHeapMemoryUsage().getUsed() / (1024.0 * 1024.0)); // MB
+	    } else if (stat.contentEquals("thread_peak_count")) {
+	        return threadBean.getPeakThreadCount();
+	    } else if (stat.contentEquals("thread_total_started")) {
+	        return threadBean.getTotalStartedThreadCount();
+	    } else if (stat.contentEquals("classes_loaded")) {
+	        return classBean.getLoadedClassCount();
+	    } else if (stat.contentEquals("classes_total_loaded")) {
+	        return classBean.getTotalLoadedClassCount();
+	    } else if (stat.contentEquals("classes_unloaded")) {
+	        return classBean.getUnloadedClassCount();
+	    }
+	    
+		return -1;
+	}
+	
+	public void writeVar(String key, Object val) {
+		user_temp_variables.put(key, val);
+	}
+	
+	public Object readVar(String key) {
+		return user_temp_variables.get(key);
 	}
     
     public void addUIToScreen(String textureName, int pos_x, int pos_y, int opacity) {

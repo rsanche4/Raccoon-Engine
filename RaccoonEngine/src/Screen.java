@@ -5,8 +5,8 @@ public class Screen {
 
 	private static int[] pixels;
 	public static int[] gamepixels;
-	public static String skybox;
-	public static float skybox_brightness;
+	public static String skybox = "default_sky.png";
+	public static float skybox_brightness = 1.0f;
 	public static float atomic_xz_unit = 100.0f;
 	public static Map<Integer, Sector> sectorMap;
 	public static Map<String, Wall> wallMap;
@@ -63,9 +63,7 @@ public class Screen {
 	        for (int x = 0; x < Main.game_width; x++) {
 	        	cast_ray_and_render_screen_column(x);
 	        }
-	        if (skybox != null) {
-	            draw_sky(Camera.direction_rad, Main.allTextures.get(skybox).pixels);
-	        }
+	        draw_sky(Camera.direction_rad, Main.allTextures.get(skybox).pixels);
 	        draw_sprites();
 	    }
 	    ReApi.run_user_scripts();

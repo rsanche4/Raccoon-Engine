@@ -25,7 +25,6 @@ public class Camera implements KeyListener {
 	private boolean jumping_down_flag = false;
 	private boolean crouching_in_progress = false;
 	private float buffer_dist = 0.2f;
-	private float epsilon = 0.0001f;
 
 	public Camera() {
 		direction_rad = 0;
@@ -277,12 +276,6 @@ public class Camera implements KeyListener {
 		}
 		else if (left) {
 			direction_rad = (float) ((direction_rad + TURN_SPEED) % (2*Math.PI));
-		}
-		// Prevent perfectly axis-aligned angles
-		if (direction_rad < epsilon) {
-		    direction_rad += epsilon;
-		} else if (Math.abs(direction_rad-Math.PI) < epsilon) {
-		    direction_rad += epsilon;
 		}
 		
 		if (forward) {			
