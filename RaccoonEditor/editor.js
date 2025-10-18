@@ -604,7 +604,8 @@ function classifyWalls() {
                     middleTexture: 'transparent.png',
                     middleBrightness: 1.0,
                     topTexture: 'wall.png',
-                    topBrightness: 1.0
+                    topBrightness: 1.0,
+                    solid: 0
                 };
             }
         }
@@ -694,6 +695,8 @@ function openConfigPanel(sectorIdx) {
                 <input type="text" class="portal-top-texture" data-key="${key}" value="${wallData.topTexture}">
                 <label>Top Brightness:</label>
                 <input type="number" class="portal-top-brightness" data-key="${key}" value="${wallData.topBrightness}" step="0.1" min="0">
+                <label>Solid (1) or Passthrough (0):</label>
+                <input type="number" class="portal-solid" data-key="${key}" value="${wallData.solid}" min="0" max="1" step="1">
             `;
         }
         
@@ -729,6 +732,7 @@ function saveConfiguration() {
     const portalMiddleBrightnesses = document.querySelectorAll('.portal-middle-brightness');
     const portalTopTextures = document.querySelectorAll('.portal-top-texture');
     const portalTopBrightnesses = document.querySelectorAll('.portal-top-brightness');
+    const portalSolids = document.querySelectorAll('.portal-solid');
     
     portalBottomTextures.forEach((input, idx) => {
         const key = input.dataset.key;
@@ -738,6 +742,7 @@ function saveConfiguration() {
         sector.wallData[key].middleBrightness = parseFloat(portalMiddleBrightnesses[idx].value);
         sector.wallData[key].topTexture = portalTopTextures[idx].value;
         sector.wallData[key].topBrightness = parseFloat(portalTopBrightnesses[idx].value);
+        sector.wallData[key].solid = parseInt(portalSolids[idx].value);
     });
     
     sector.configured = true;
@@ -778,7 +783,7 @@ function saveMap() {
             
             if (wallData.type === 'portal' && !processedPortals.has(key)) {
                 const coords = key.split(',').map(Number);
-                output += `${coords[0]} ${coords[1]} ${coords[2]} ${coords[3]} ${sector.id} ${wallData.otherSector} ${wallData.bottomTexture} ${wallData.bottomBrightness} ${wallData.middleTexture} ${wallData.middleBrightness} ${wallData.topTexture} ${wallData.topBrightness}\n`;
+                output += `${coords[0]} ${coords[1]} ${coords[2]} ${coords[3]} ${sector.id} ${wallData.otherSector} ${wallData.bottomTexture} ${wallData.bottomBrightness} ${wallData.middleTexture} ${wallData.middleBrightness} ${wallData.topTexture} ${wallData.topBrightness} ${wallData.solid}\n`;
                 processedPortals.add(key);
             }
         }
@@ -849,7 +854,8 @@ function parseMapFile(content) {
                 middleTexture: parts[8],
                 middleBrightness: parseFloat(parts[9]),
                 topTexture: parts[10],
-                topBrightness: parseFloat(parts[11])
+                topBrightness: parseFloat(parts[11]),
+                solid: parts[12] !== undefined ? parseInt(parts[12]) : 0
             });
         }
     }
@@ -988,6 +994,7 @@ function loadMapInFinalizedMode(mapData) {
             sectorA.wallData[key].middleBrightness = portal.middleBrightness;
             sectorA.wallData[key].topTexture = portal.topTexture;
             sectorA.wallData[key].topBrightness = portal.topBrightness;
+            sectorA.wallData[key].solid = portal.solid;
         }
         
         if (sectorB && sectorB.wallData[key]) {
@@ -997,6 +1004,7 @@ function loadMapInFinalizedMode(mapData) {
             sectorB.wallData[key].middleBrightness = portal.middleBrightness;
             sectorB.wallData[key].topTexture = portal.topTexture;
             sectorB.wallData[key].topBrightness = portal.topBrightness;
+            sectorB.wallData[key].solid = portal.solid;
         }
     }
     

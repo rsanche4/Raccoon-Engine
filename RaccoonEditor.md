@@ -323,8 +323,8 @@ X1 Y1 X2 Y2 SectorA SectorB BottomTexture BottomBrightness MiddleTexture MiddleB
 
 **Example:**
 [PORTALS]
--3 -7 -3 8 1 2 wall.png 1.0 black.png 1.0 wall.png 1.0
--10 -7 -3 -7 2 3 wall.png 0.5 door.png 1.0 wall.png 0.5
+-3 -7 -3 8 1 2 wall.png 1.0 black.png 1.0 wall.png 1.0 1
+-10 -7 -3 -7 2 3 wall.png 0.5 door.png 1.0 wall.png 0.5 0
 
 **Fields:**
 - `X1 Y1 X2 Y2`: Shared wall coordinates (normalized)
@@ -336,6 +336,7 @@ X1 Y1 X2 Y2 SectorA SectorB BottomTexture BottomBrightness MiddleTexture MiddleB
 - `MiddleBrightness`: Lighting for middle
 - `TopTexture`: Texture for upper portion (above opening)
 - `TopBrightness`: Lighting for top
+- `isSolid`: Can we pass through this portal or should it be a solid portal? 1 for solid, 0 for pass through.
 
 **Portal Rendering:**
 The three textures allow for:
@@ -378,10 +379,10 @@ The editor assumes the user follows these rules (no automatic validation):
 -3 -10 10 -10 4 walled_fence.png 0.5
 10 -10 10 -7 4 wall3h_with_cuteanime2hd.png 1.0
 [PORTALS]
--3 -7 -3 8 1 2 wall.png 1.0 fence2.png 1.0 wall.png 1.0
--10 -7 -3 -7 2 3 wall.png 0.5 black.png 1.0 wall.png 0.5
--3 -7 10 -7 1 4 wall.png 0.5 black.png 1.0 wall.png 1.0
--3 -10 -3 -7 3 4 wall.png 1.0 black.png 1.0 wall.png 0.5
+-3 -7 -3 8 1 2 wall.png 1.0 fence2.png 1.0 wall.png 1.0 1
+-10 -7 -3 -7 2 3 wall.png 0.5 black.png 1.0 wall.png 0.5 0
+-3 -7 10 -7 1 4 wall.png 0.5 black.png 1.0 wall.png 1.0 0
+-3 -10 -3 -7 3 4 wall.png 1.0 black.png 1.0 wall.png 0.5 0
 ```
 
 ---
