@@ -11,6 +11,7 @@ public class Screen {
 	public static Map<Integer, Sector> sectorMap;
 	public static Map<String, Wall> wallMap;
 	public static Map<String, Portal> portalMap;
+	public static Map<Integer, Boolean> portalCollisionData;
 	public static boolean is_menu = true;
 	private int half_screen_height = Main.game_height/2;
 	private int half_screen_width = Main.game_width/2;
@@ -150,7 +151,7 @@ public class Screen {
 		int dy_wall_top_top;
 		
 		while (counter<max_count) {
-			counter+=1;
+			counter++;
 			float dx_1;
 			float dz_1;
 			float dx_2;
@@ -173,7 +174,7 @@ public class Screen {
 			}
 			dx_2 = (float) (dirThetaX * Math.abs(dz_2 / tan_ray));
 
-			float dist_vertical = manhattan_dist(startx, startz, startx + dx_2, startz + dz_2);
+			float dist_vertical = manhattan_dist(startx, startz, startx+dx_2, startz+dz_2);
 
 			String wallkey;
 			// Pick the closer intersection

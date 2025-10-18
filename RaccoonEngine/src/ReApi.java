@@ -78,6 +78,7 @@ public class ReApi {
     	Screen.sectorMap = new HashMap<>();
         Screen.wallMap = new HashMap<>();
         Screen.portalMap = new HashMap<>();
+        Screen.portalCollisionData = new HashMap<>();
     	mapname = mapname.toLowerCase();
     	if (mapname.contentEquals("menu")) {
     		Screen.is_menu = true;
@@ -98,8 +99,6 @@ public class ReApi {
                 if (line.equals("[PORTALS]")) { selected = 2; continue; }
 
                 String[] parts = line.split("\\s+");
-
-                boolean sectors_finished = false;
                 
                 switch (selected) {
                     case 0 -> { // SECTORS
@@ -117,17 +116,7 @@ public class ReApi {
                         
                         Screen.sectorMap.put(secid, curr_sector);
                     }
-                    case 1 -> { // WALLS
-                    	
-                    	// if we are here, that means we collected all sectors, which means init the collision for them all
-                    	if (!sectors_finished) {
-                    		int sector_count = Screen.sectorMap.size();
-                    		sectors_finished = true;
-                    		for (int sectori=1; sectori <= sector_count; sectori++) {
-                    			Screen.sectorMap.get(sectori).init_collisions(sector_count);
-                    		}
-                    	}
-                    	
+                    case 1 -> { // WALLS                    	
                         float x1 = Float.parseFloat(parts[0]);
                         float z1 = Float.parseFloat(parts[1]);
                         float x2 = Float.parseFloat(parts[2]);
@@ -180,6 +169,7 @@ public class ReApi {
                         float middlebrightness = Float.parseFloat(parts[9]);
                         String topTexture = parts[10];
                         float topbrightness = Float.parseFloat(parts[11]);
+                        boolean isSolid = Integer.parseInt(parts[12])==1 ? true : false;
                         
                         // Normalize coordinates so start < end
                         if (x1 > x2 || (x1 == x2 && z1 > z2)) {
@@ -194,19 +184,9 @@ public class ReApi {
                             sectorA = sectorB;
                             sectorB = tmp;
                         }
-
-                        Sector sectA = Screen.sectorMap.get(sectorA);
-                    	Sector sectB = Screen.sectorMap.get(sectorB);
-                        // store collision based on portals rendering
-                        if (!middleTexture.contentEquals("black.png")) {
-                        	Screen.sectorMap.get(sectA.sectorId).collision_data[sectB.sectorId-1] = true;
-                        	Screen.sectorMap.get(sectB.sectorId).collision_data[sectA.sectorId-1] = true;
-                        } else if (sectA.floor_height > sectB.floor_height && sectA.floor_height-sectB.floor_height>1) {
-                    		Screen.sectorMap.get(sectB.sectorId).collision_data[sectA.sectorId-1] = true;
-                    	} else if (sectA.floor_height < sectB.floor_height && sectB.floor_height-sectA.floor_height>1) {
-                    		Screen.sectorMap.get(sectA.sectorId).collision_data[sectB.sectorId-1] = true;
-                    	}
                         
+                        Screen.portalCollisionData.put(Integer.parseInt(sectorA + "" + sectorB), isSolid);
+                   
                         // Horizontal portals (z fixed)
                         if (z1 == z2) {
                         	Screen.sectorMap.get(sectorA).update_sector_boundary(z1, 0);

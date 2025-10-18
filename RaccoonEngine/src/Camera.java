@@ -226,7 +226,15 @@ public class Camera implements KeyListener {
 		}
 	}
 
-	private boolean is_collision(Sector cur_sector, float val_to_add_x, float val_to_add_z) {
+	private boolean isPortalSolid(int sectorA, int sectorB) {
+		int key = Integer.parseInt(sectorA+""+sectorB);
+		if (Screen.portalCollisionData.containsKey(key)) {
+			return Screen.portalCollisionData.get(key);
+		}
+		return false;
+	}
+	
+	private boolean is_collision(float val_to_add_x, float val_to_add_z) {
 		float temp_x = player_x;
 		float temp_z = player_z;
 		
@@ -234,11 +242,12 @@ public class Camera implements KeyListener {
 		temp_z += val_to_add_z;
 		
 		int possible_sector = Screen.update_player_sector(temp_x, temp_z);
-		
-		if ((possible_sector<0) || (pgdn && Screen.sectorMap.get(possible_sector).floor_height>cur_sector.floor_height)) {
+		int sectorA = Math.min(possible_sector, player_sector);
+		int sectorB = Math.max(possible_sector, player_sector);
+		if ((possible_sector<0) || (isPortalSolid(sectorA, sectorB)) || (Screen.sectorMap.get(possible_sector).floor_height>=player_y) || (player_y>=Screen.sectorMap.get(possible_sector).ceil_height)) {
 			return true;
 		}
-		if (possible_sector>=0 && !cur_sector.collision_data[possible_sector-1]) {
+		if (possible_sector>0) {
 			return false;
 		}
 		return true;
@@ -266,8 +275,6 @@ public class Camera implements KeyListener {
 			}
 		}
 		
-		Sector cur_sector = Screen.sectorMap.get(player_sector);
-
 		if (right) {
 			direction_rad = (float) ((direction_rad - TURN_SPEED) % (2*Math.PI));
 			if (direction_rad < 0) {
@@ -279,39 +286,39 @@ public class Camera implements KeyListener {
 		}
 		
 		if (forward) {			
-			if (!is_collision(cur_sector, (float)Math.cos(direction_rad) * (MOVE_SPEED + buffer_dist), 0)) {
+			if (!is_collision((float)Math.cos(direction_rad) * (MOVE_SPEED + buffer_dist), 0)) {
 				player_x += Math.cos(direction_rad) * MOVE_SPEED;
 			}
-			if (!is_collision(cur_sector, 0, (float)Math.sin(direction_rad) * (MOVE_SPEED + buffer_dist))) {
+			if (!is_collision(0, (float)Math.sin(direction_rad) * (MOVE_SPEED + buffer_dist))) {
 				player_z += Math.sin(direction_rad) * MOVE_SPEED;
 			}
 		}
 		else if (back) {
-			if (!is_collision(cur_sector, (float) -Math.cos(direction_rad) * (MOVE_SPEED + buffer_dist), 0)) {
+			if (!is_collision((float) -Math.cos(direction_rad) * (MOVE_SPEED + buffer_dist), 0)) {
 				player_x -= Math.cos(direction_rad) * MOVE_SPEED;
 			}
-			if (!is_collision(cur_sector, 0, (float) -Math.sin(direction_rad) * (MOVE_SPEED + buffer_dist))) {
+			if (!is_collision(0, (float) -Math.sin(direction_rad) * (MOVE_SPEED + buffer_dist))) {
 				player_z -= Math.sin(direction_rad) * MOVE_SPEED;
 			}
 		}
 		if (straferight) {
-			if (!is_collision(cur_sector, (float)Math.cos(direction_rad - Math.PI/2) * (MOVE_SPEED + buffer_dist), 0)) {
+			if (!is_collision((float)Math.cos(direction_rad - Math.PI/2) * (MOVE_SPEED + buffer_dist), 0)) {
 				player_x += Math.cos(direction_rad - Math.PI/2) * MOVE_SPEED;
 			}
-			if (!is_collision(cur_sector, 0, (float)Math.sin(direction_rad - Math.PI/2) * (MOVE_SPEED + buffer_dist))) {
+			if (!is_collision(0, (float)Math.sin(direction_rad - Math.PI/2) * (MOVE_SPEED + buffer_dist))) {
 				player_z += Math.sin(direction_rad - Math.PI/2) * MOVE_SPEED;
 			}
 		}
 		else if (strafeleft) {
-			if (!is_collision(cur_sector, (float)Math.cos(direction_rad + Math.PI/2) * (MOVE_SPEED + buffer_dist), 0)) {
+			if (!is_collision((float)Math.cos(direction_rad + Math.PI/2) * (MOVE_SPEED + buffer_dist), 0)) {
 				player_x += Math.cos(direction_rad + Math.PI/2) * MOVE_SPEED;
 			}
-			if (!is_collision(cur_sector, 0, (float)Math.sin(direction_rad + Math.PI/2) * (MOVE_SPEED + buffer_dist))) {
+			if (!is_collision(0, (float)Math.sin(direction_rad + Math.PI/2) * (MOVE_SPEED + buffer_dist))) {
 				player_z += Math.sin(direction_rad + Math.PI/2) * MOVE_SPEED;
 			}
 		}
 
-		float sector_h = cur_sector.floor_height;
+		float sector_h = Screen.sectorMap.get(player_sector).floor_height;
 		float player_h_limit = sector_h+player_height;
 		float player_f_limit = sector_h+crouch_diff_height;
 		float move_up_speed = JUMP_UP_SPEED*gravity_up_multiplier;
