@@ -255,9 +255,11 @@ The engine uses a strict grid-based system where all walls must be aligned horiz
 
 **Sector Count Considerations**
 
-Try to keep your world under reasonable amount of sectors for optimal performance. If your map grows larger (for example more than 100 sectors), consider splitting it into separate map files and using teleporters or level transitions to move the player between them.
+Try to keep your world under reasonable amount of sectors and walls for optimal performance. If your map grows larger (for example more than 100 sectors), consider splitting it into separate map files and using teleporters or level transitions to move the player between them.
 
-Note: These limitations aren't bugs! They're design choices that make the engine fast, understandable, and give it that distinctive retro feel!
+**The Void Glitch**
+
+So this is a documented glitch that happened also similarly with Doom, however in my case it has to do with how I step through the world and check for wall information. Long story short, if you or the rays you cast hit an exact coordinate (Ex: 7.0 8.0), the engine gets confused as to what edge does it belong to (7.1 8 for example belongs to the walls at 7 8 and 8 8), and thus the ray simply fails to check for anything, so the skybox is rendered in that column, and the next ray is casted without problems. Similarly, when you are standing exactly between two sectors, the engine might get slightly confused as to which sectors you belong to. I decided to leave this as it doesn't break any game whatsoever, and it can be easily solved by using an epsilon when initializing the game. Also, they rarely happen, and when they do is only for a split second. Of course, these artifacts were part of original game engines back in the 90s, and thus in the spirit of a true retro enthusiast, I have decided to leave The Void Glitch as a feature, and not a bug! Haha After all, these limitations aren't bugs! They're design choices that make the engine fast, understandable, and give it that distinctive retro feel!
 
 ### 18. License Info
 

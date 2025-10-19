@@ -74,6 +74,14 @@ public class ReApi {
     	Screen.skybox_brightness = brightness;
     }
     
+    public void set_skybox_offset(int offset) {
+    	Screen.sky_offset = offset;
+    }
+    
+    public int get_skybox_offset() {
+    	return Screen.sky_offset;
+    }
+    
     public void load_map(String mapname) {
     	Screen.sectorMap = new HashMap<>();
         Screen.wallMap = new HashMap<>();
@@ -479,7 +487,11 @@ public class ReApi {
 	    	return Screen.portalMap.size();	   
 	    }
 	    // Screen/Display stats
-	    else if (stat.contentEquals("screen_width")) {
+	    else if (stat.contentEquals("game_width")) {
+	        return Main.game_width;
+	    } else if (stat.contentEquals("game_height")) {
+	        return Main.game_height;
+	    } else if (stat.contentEquals("screen_width")) {
 	        return Main.SCREEN_W;
 	    } else if (stat.contentEquals("screen_height")) {
 	        return Main.SCREEN_H;

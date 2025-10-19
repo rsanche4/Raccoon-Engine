@@ -244,7 +244,7 @@ public class Camera implements KeyListener {
 		int possible_sector = Screen.update_player_sector(temp_x, temp_z);
 		int sectorA = Math.min(possible_sector, player_sector);
 		int sectorB = Math.max(possible_sector, player_sector);
-		if ((possible_sector<0) || (isPortalSolid(sectorA, sectorB)) || (Screen.sectorMap.get(possible_sector).floor_height>=player_y) || (player_y>=Screen.sectorMap.get(possible_sector).ceil_height)) {
+		if ((possible_sector<0) || (sectorA!=sectorB && isPortalSolid(sectorA, sectorB)) || (Screen.sectorMap.get(possible_sector).floor_height>=player_y) || (player_y>=Screen.sectorMap.get(possible_sector).ceil_height)) {
 			return true;
 		}
 		if (possible_sector>0) {
@@ -355,7 +355,6 @@ public class Camera implements KeyListener {
 				player_y -= move_dn_speed;
 			}
 		}
-		
 
 		// Reset all "once" flags after processing
 		if (left_once_flag) {

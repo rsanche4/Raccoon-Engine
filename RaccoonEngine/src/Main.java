@@ -53,7 +53,7 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 	private int[] gamepixels = new int[game_width*game_height]; 
 	public static HashMap<String, Texture> allTextures = new HashMap<>();
 	public static HashMap<String, Sprite> allSprites = new HashMap<>();
-	public static int frame_num = 0;
+	public static long frame_num = 0;
 	// GPU related variables
 	private static GLCanvas canvas;
 	private int textureId;
@@ -265,7 +265,10 @@ public class Main extends JFrame implements Runnable, GLEventListener {
 	        while (delta >= 1) {
 	            screen.update(frame_num);
 	            camera.update(this);
-	            frame_num = (frame_num + 1) % 1000;
+	            frame_num++; // no need to wrap around because by the time this reaches its limit, 
+	            // the Sun would have consumed planet Earth, the solar system would have collapse, humanity ended,
+	            // and still there would 4 billion years left until the long limit is reached and program crashes. 
+	            // Thus, no need for an extra wrap around instructions :)
 	            delta--;
 	            
 	            // Move rendering inside the delta loop

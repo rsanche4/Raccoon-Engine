@@ -24,7 +24,7 @@ public class Screen {
 	private int skybox_refresh_val = 16777216;
 	public static Sound current_bgm;
 	public static Sound current_sfe;
-	
+	public static int sky_offset = 0;
 	float camera_mid_side_a = Camera.retina_dist;
 	float camera_mid_side_b = Main.game_width / 2.0f / atomic_xz_unit;
 	float total_fov = (float) (2 * Math.atan(camera_mid_side_b / camera_mid_side_a));
@@ -56,7 +56,7 @@ public class Screen {
 		return -1;
 	}
 
-	public void update(int frame_num) {
+	public void update(long frame_num) {
 	    System.arraycopy(ZEROS, 0, gamepixels, 0, gamepixels.length); // About 20% faster than doing Arrays.fill
 	    System.arraycopy(MAX_DEPTHS, 0, depth_buffer, 0, depth_buffer.length);
 	    if (!is_menu) {
@@ -309,8 +309,8 @@ public class Screen {
 		int skybox_height = Main.game_height; 
 
 		// dir is in radians (0..2PI), convert to horizontal offset in the skybox
-		int offsetX = (int)((dir / (2 * Math.PI)) * skybox_width) % skybox_width;
-
+		int offsetX = ((int)((dir / (2 * Math.PI)) * skybox_width)+sky_offset) % skybox_width;
+		
 		for (int y = 0; y < Main.game_height; y++) {
 			for (int x = 0; x < Main.game_width; x++) {
 				if (gamepixels[y * Main.game_width + x]!=skybox_refresh_val && gamepixels[y * Main.game_width + x]!=0x000000) {
