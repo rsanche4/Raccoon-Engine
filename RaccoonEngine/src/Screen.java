@@ -29,7 +29,7 @@ public class Screen {
 	float camera_mid_side_b = Main.game_width / 2.0f / atomic_xz_unit;
 	float total_fov = (float) (2 * Math.atan(camera_mid_side_b / camera_mid_side_a));
 	float deltatheta = total_fov / Main.game_width;
-	int max_count = 100;
+	public static int max_count = 100;
 	
 	private final int[] ZEROS; // allocate once at init
 	private final float[] MAX_DEPTHS;
@@ -282,6 +282,24 @@ public class Screen {
 				}
 
 				continue;
+			}
+		}
+		// Eliminate Phantom Ray through copying last ray. Not the best solution, but it does the trick!
+		if (counter>=max_count) {
+			if (x>0) {
+				int prev_ray = x-1;
+				for (int y=0; y < Main.game_height; y++) {
+					if (gamepixels[y * Main.game_width + prev_ray]!=skybox_refresh_val) {
+						gamepixels[y * Main.game_width + x]=gamepixels[y * Main.game_width + prev_ray];
+					}
+				}	
+			} else {
+				cast_ray_and_render_screen_column(1);
+				for (int y=0; y < Main.game_height; y++) {
+					if (gamepixels[y * Main.game_width + 1]!=skybox_refresh_val) {
+						gamepixels[y * Main.game_width + x]=gamepixels[y * Main.game_width + 1];
+					}
+				}
 			}
 		}
 	}

@@ -82,6 +82,14 @@ public class ReApi {
     	return Screen.sky_offset;
     }
     
+    public void set_max_ray_steps(int max_count) {
+    	Screen.max_count = max_count;
+    }
+    
+    public int get_max_ray_steps() {
+    	return Screen.max_count;
+    }
+    
     public void load_map(String mapname) {
     	Screen.sectorMap = new HashMap<>();
         Screen.wallMap = new HashMap<>();

@@ -127,6 +127,11 @@ function handleZoom(e) {
 }
 
 function handleKeyDown(e) {
+    // Don't intercept keys if user is typing in an input field
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+    }
+    
     if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault();
         
@@ -178,33 +183,11 @@ function handleMouseDown(e) {
         
         const gridPos = screenToGrid(e.clientX, e.clientY);
         
-        // Check if clicking on a completed shape to select it
-        const clickPos = {x: e.clientX, y: e.clientY};
-        let clickedShape = null;
-        
-        for (let i = 0; i < completedShapes.length; i++) {
-            if (isPointInShape(clickPos, completedShapes[i])) {
-                clickedShape = i;
-                break;
-            }
-        }
-        
-        if (clickedShape !== null) {
-            selectedShape = clickedShape;
-            draw();
-            return;
-        }
-        
-        // Deselect if clicking elsewhere (but not starting vertex)
+        // Check if clicking on starting vertex to complete shape
         const clickingStartVertex = shapeStartVertex && 
             gridPos.x === shapeStartVertex.x && 
             gridPos.y === shapeStartVertex.y &&
             currentShape.length > 0;
-        
-        if (selectedShape !== null && !clickingStartVertex) {
-            selectedShape = null;
-            // Don't return here, allow drawing to proceed
-        }
         
         if (clickingStartVertex) {
             completedShapes.push([...currentShape]);
@@ -223,6 +206,31 @@ function handleMouseDown(e) {
             return;
         }
         
+        // Only check for shape selection if we're not currently drawing
+        if (currentShape.length === 0) {
+            const clickPos = {x: e.clientX, y: e.clientY};
+            let clickedShape = null;
+            
+            for (let i = 0; i < completedShapes.length; i++) {
+                if (isPointInShape(clickPos, completedShapes[i])) {
+                    clickedShape = i;
+                    break;
+                }
+            }
+            
+            if (clickedShape !== null) {
+                selectedShape = clickedShape;
+                draw();
+                return;
+            }
+        }
+        
+        // Deselect if clicking elsewhere while a shape is selected
+        if (selectedShape !== null) {
+            selectedShape = null;
+        }
+        
+        // Start or continue drawing
         if (currentShape.length > 0) {
             const lastLine = currentShape[currentShape.length - 1];
             lineStart = {x: lastLine.x2, y: lastLine.y2};
