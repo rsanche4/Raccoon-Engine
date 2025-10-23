@@ -62,7 +62,7 @@ public class Screen {
 	    if (!is_menu) {
 	        Camera.player_sector = update_player_sector(Camera.player_x, Camera.player_z);
 	        for (int x = 0; x < Main.game_width; x++) {
-	        	cast_ray_and_render_screen_column(x);
+	        	cast_ray_and_render_screen_column(x, true);
 	        }
 	        draw_sky(Camera.direction_rad, Main.allTextures.get(skybox).pixels);
 	        draw_sprites();
@@ -132,7 +132,7 @@ public class Screen {
         }
 	}
 	
-	private void cast_ray_and_render_screen_column(int x) {
+	private void cast_ray_and_render_screen_column(int x, boolean remove_ray_glitch) {
 		int ray_num = half_screen_width - x;
 
 		float ray_angle = Camera.direction_rad + ray_num * deltatheta;
@@ -285,7 +285,7 @@ public class Screen {
 			}
 		}
 		// Eliminate Phantom Ray through copying last ray. Not the best solution, but it does the trick!
-		if (counter>=max_count) {
+		if (remove_ray_glitch && counter>=max_count) {
 			if (x>0) {
 				int prev_ray = x-1;
 				for (int y=0; y < Main.game_height; y++) {
@@ -294,7 +294,7 @@ public class Screen {
 					}
 				}	
 			} else {
-				cast_ray_and_render_screen_column(1);
+				cast_ray_and_render_screen_column(1, false);
 				for (int y=0; y < Main.game_height; y++) {
 					if (gamepixels[y * Main.game_width + 1]!=skybox_refresh_val) {
 						gamepixels[y * Main.game_width + x]=gamepixels[y * Main.game_width + 1];
