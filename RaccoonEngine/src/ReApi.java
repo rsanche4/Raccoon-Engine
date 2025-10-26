@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
@@ -33,16 +34,22 @@ public class ReApi {
         }
         for (Map.Entry<String, Sprite> entry : Main.allSprites.entrySet()) {
             try {
-                Globals globals = JsePlatform.standardGlobals();
-                globals.set("REAPI", CoerceJavaToLua.coerce(apiInstance));
-                Sprite entity = entry.getValue();
-                LuaValue chunk = globals.load(new FileReader("data/scripts/" + entity.behaviorScript), "");
-                chunk.call(LuaValue.valueOf(entity.spriteXPos));
-                chunk.call(LuaValue.valueOf(entity.spriteYPos));
-                chunk.call(LuaValue.valueOf(entity.spriteZPos));
-                chunk.call(LuaValue.valueOf(entity.sprite_brightness));
-                chunk.call(LuaValue.valueOf(entity.spritename));
-                chunk.call(LuaValue.valueOf(entity.spriteId));
+            	Globals globals = JsePlatform.standardGlobals();
+            	globals.set("REAPI", CoerceJavaToLua.coerce(apiInstance));
+            	Sprite entity = entry.getValue();
+            	LuaValue chunk = globals.load(new FileReader("data/scripts/" + entity.behaviorScript), "");
+            	Varargs va = LuaValue.varargsOf(new LuaValue[] {
+            			LuaValue.valueOf(entity.spriteXPos),
+            			LuaValue.valueOf(entity.spriteYPos),
+            			LuaValue.valueOf(entity.spriteZPos),
+            			LuaValue.valueOf(entity.sprite_length),
+            			LuaValue.valueOf(entity.sprite_brightness),
+            			LuaValue.valueOf(entity.spritename),
+            			LuaValue.valueOf(entity.spriteId)
+            	});
+
+            	// Single call with all args
+            	chunk.invoke(va);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -437,19 +444,10 @@ public class ReApi {
 		Screen.current_sfe.stopSound();
 	}
 	
-	public void addSprite(float sx, float sy, float sz, float sprite_length, float sprite_brightness, String spriteTextureName, String spriteId, String behavior_script) {
-		Sprite entity = new Sprite(sx, sy, sz, sprite_length, sprite_brightness, spriteTextureName, spriteId, behavior_script);
-		Main.allSprites.put(spriteId, entity);
+	public void upsertSprite(float sx, float sy, float sz, float sprite_length, float sprite_brightness, String spriteTextureName, String spriteId, String behavior_script) {
+		Main.allSprites.put(spriteId, new Sprite(sx, sy, sz, sprite_length, sprite_brightness, spriteTextureName, spriteId, behavior_script));
 	}
-	
-	public boolean updateSprite(float sx, float sy, float sz, float sprite_length, float sprite_brightness, String spriteTextureName, String spriteId, String behavior_script) {
-		Sprite entity = new Sprite(sx, sy, sz, sprite_length, sprite_brightness, spriteTextureName, spriteId, behavior_script);
-		if (Main.allSprites.replace(spriteId, entity)==null) {
-			return false;
-		}
-		return true;
-	}
-	
+		
 	public void removeSprite(String spriteId) {
 		Main.allSprites.remove(spriteId);
 	}
@@ -548,6 +546,48 @@ public class ReApi {
 		return user_temp_variables.get(key);
 	}
     
+	public float decodeCoordinatefromPathString(String path_comma_sep, int axis) {
+	    String[] parts = path_comma_sep.split(",");
+	    return Float.parseFloat(parts[axis]);
+	}
+	
+	public String basicGreedyForgetfulNoCollisionPathfindToward(float source_x, float source_y, float source_z, float targetx, float targety, float targetz, float speed) {
+		float z_dif = Math.abs(targetz-source_z);
+		float y_dif = Math.abs(targety-source_y);
+		float x_dif = Math.abs(targetx-source_x);
+		if (z_dif<Camera.buffer_dist && y_dif<Camera.buffer_dist && x_dif<Camera.buffer_dist) {
+			return source_x + "," + source_y + "," + source_z;
+		}
+		int z_dir = 0;
+		if (z_dif<Camera.buffer_dist) {
+			z_dir = 0;
+		} else if (targetz > source_z) {
+			z_dir = 1;
+		} else if (targetz < source_z) {
+			z_dir = -1;
+		}
+		int y_dir = 0;
+		if (y_dif<Camera.buffer_dist) {
+			y_dir = 0;
+		} else if (targety > source_y) {
+			y_dir = 1;
+		} else if (targety < source_y) {
+			y_dir = -1;
+		}
+		int x_dir = 0;
+		if (x_dif<Camera.buffer_dist) {
+			x_dir = 0;
+		} else if (targetx > source_x) {
+			x_dir = 1;
+		} else if (targetx < source_x) {
+			x_dir = -1;
+		}
+		float newx = source_x + (x_dir*speed);
+        float newy = source_y + (y_dir*speed);
+        float newz = source_z + (z_dir*speed);
+        return newx + "," + newy + "," + newz;
+	}
+	
     public void addUIToScreen(String textureName, int pos_x, int pos_y, int opacity) {
 	    Texture texture = Main.allTextures.get(textureName);
 	    if (texture == null) return;
@@ -558,7 +598,9 @@ public class ReApi {
 	            int screenY = pos_y + y;
 	            if (screenX >= 0 && screenX < Main.game_width && screenY >= 0 && screenY < Main.game_height) {
 	                int srcPixel = texture.pixels[y * texture.IMG_WID + x];
-	                if ((srcPixel & 0xFF000000) != 0 || srcPixel != 0x000000) {
+	                if (srcPixel==0xFF000000) {
+	                	continue;
+	                } else {
 	                    int screenIndex = screenY * Main.game_width + screenX;
 	                    int dstPixel = Screen.gamepixels[screenIndex];
 	                    int Rb = (dstPixel >> 16) & 0xFF;

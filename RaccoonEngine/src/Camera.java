@@ -24,7 +24,7 @@ public class Camera implements KeyListener {
 	private float jump_diff_height = player_height/4;
 	private boolean jumping_down_flag = false;
 	private boolean crouching_in_progress = false;
-	private float buffer_dist = 0.2f;
+	public static float buffer_dist = 0.2f;
 
 	public Camera() {
 		direction_rad = 0;

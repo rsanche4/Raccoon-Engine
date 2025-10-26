@@ -1,9 +1,14 @@
 local script_index = ...
 
 REAPI:log("Running Init Script from Lua!!")
-REAPI:set_player_pos(0, 0, 4)
-REAPI:load_map("level_test.txt")
+REAPI:set_player_pos(0, 0, 0)
+REAPI:set_move_speed(1)
+REAPI:load_map("cityblock.txt")
 REAPI:add_script("show_debug.lua")
-REAPI:addSprite(3.51, -0.76, -8.48, 5.0, 1.0, "raccoony_sprite.png", "raccoony", "behave.lua")
---REAPI:playBGM("gray.wav", true)
+REAPI:add_script("show_ui.lua")
+REAPI:set_max_ray_steps(500)
+REAPI:set_fog_settings(15,10,0, 15,50)
+REAPI:upsertSprite(0, -0.4, 1, 30.0, 1.0, "streetlamp.png", "streetlamp", "behave.lua")
+REAPI:upsertSprite(0, -0.4, 10, 30.0, 1.0, "pepe.png", "pepe", "behavepepe.lua")
+REAPI:playBGM("bgm.wav", true)
 REAPI:endme(script_index)
