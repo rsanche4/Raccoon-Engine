@@ -1,0 +1,8 @@
+[SECTORS]
+1 -2 2 floor.png 1 ceiling.png 1
+[WALLS]
+-10 -9 -10 9 1 wall.png 1
+-10 -9 9 -9 1 wall.png 1
+9 -9 9 9 1 wall.png 1
+-10 9 9 9 1 wall.png 1
+[PORTALS]

@@ -50,7 +50,6 @@ I am Rafael Sanchez, a slightly sleep-deprived but highly passionate nerd with a
 
 - **Java Development Kit (JDK)** - Install the latest JDK for your operating system
 - **Eclipse IDE for Java Developers** - Download from [eclipse.org](https://www.eclipse.org/downloads/)
-- **Windows Operating System (Optional)** - The project has only natives-windows jogl jars for the graphics to run. However, you can download the specifics for your OS from their website.
 
 #### Installation Steps
 
@@ -70,24 +69,7 @@ I am Rafael Sanchez, a slightly sleep-deprived but highly passionate nerd with a
 5. Select all `.jar` files and click **Open**
 6. Click **Apply and Close**
 
-#### 3. Set VM Arguments
-
-Raccoon Engine uses JOGL (OpenGL bindings for Java), which requires specific VM arguments:
-
-1. Go to **Run -> Run Configurations**
-2. Select your main class configuration
-3. Click the **Arguments** tab
-4. In the **VM arguments** field, paste:
-
-`--add-exports java.base/java.lang=ALL-UNNAMED`
-
-`--add-exports java.desktop/sun.awt=ALL-UNNAMED`
-
-`--add-exports java.desktop/sun.java2d=ALL-UNNAMED`
-
-5. Click **Apply** then **Run**
-
-#### 4. Run the Engine
+#### 3. Run the Engine
 
 Click the **Run** button (green play icon).
 
@@ -101,7 +83,7 @@ Click the **Run** button (green play icon).
 
 ### 5. Why Java?
 
-You might be wondering why I chose Java for a raycasting game engine instead of the more typical choices like C++ or C. Honestly, Java is just good enough for this type of project. Raycasting engines aren't pushing the bleeding edge of performance. The techniques used in Wolfenstein 3D worked on early 90s hardware, so modern Java on today's machines handles it without breaking a sweat. Not to mention good old Minecraft was also written in Java originally, so nothing like paying homage to the legend! On top of that, Java isn't limited to just software rendering. With libraries like LWJGL (Lightweight Java Game Library) or JOGL, you can access OpenGL directly from Java. This opens up possibilities for hardware-accelerated graphics while still enjoying Java's ecosystem. It's the best of both worlds: high-level language convenience with low-level graphics power when you need it.
+You might be wondering why I chose Java for a raycasting game engine instead of the more typical choices like C++ or C. Honestly, Java is just good enough for this type of project. Raycasting engines aren't pushing the bleeding edge of performance. The techniques used in Wolfenstein 3D worked on early 90s hardware, so modern Java on today's machines handles it without breaking a sweat. Not to mention good old Minecraft was also written in Java originally, so nothing like paying homage to the legend!
 
 ### 6. Core Concepts Explained
 
@@ -225,9 +207,9 @@ For Java, there are several ways to turn your game into an executable, with Laun
 
 ### 16. Check Out the Demo!
 
-Let me show you what the engine looks like in the following Demo!!
+If you are curious to see videos of me fooling around in my engine, (as well as a bit of a devlog), feel free to check out the Raccoon Engine's youtube channel!
 
-[![Watch the Demo](https://img.youtube.com/vi/pxAxZ3L9OsA/0.jpg)](https://www.youtube.com/watch?v=pxAxZ3L9OsA)
+[![Watch the Demo](https://img.youtube.com/vi/pxAxZ3L9OsA/0.jpg)](https://www.youtube.com/@raccoony38)
 
 ---
 
