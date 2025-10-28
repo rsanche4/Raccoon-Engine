@@ -15,7 +15,3 @@ public class Wall {
     	this.wallBrightness = wallBrightness;
     }
 }
-
-
-
-
