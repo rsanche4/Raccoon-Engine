@@ -237,11 +237,7 @@ The engine uses a strict grid-based system where all walls must be aligned horiz
 
 **Sector Count and Map Size Considerations**
 
-Try to keep your world under reasonable amount of sectors and walls for optimal performance. If your map grows larger (for example more than 100 sectors or more than 100 units long), consider splitting it into separate map files and using teleporters or level transitions to move the player between them.
-
-**The Void Glitch**
-
-So this is a documented glitch that happened also similarly with Doom, however in my case it has to do with the boundaries between sectors. My theory is that when you are standing exactly between two sectors, something happens with the math only when you are exactly looking at 0 degrees exactly (which rarely happens after the player moves or we add an epsilon). The engine might get slightly confused as to which sectors you belong to, or how to render things effectively, because we instead see what appears to be a bizarre void of black, with warped texture floors and ceiling. I decided to leave this as it doesn't break any game whatsoever, it rarely happens, and it looks kinda cool! Of course, these artifacts were part of original game engines back in the 90s also, and thus in the spirit of a true retro enthusiast, I have decided to leave The Void Glitch as a feature, and not a bug! Haha After all, these limitations aren't bugs! They're design choices that make the engine fast, understandable, and give it that distinctive retro feel! (Note: if you do not want this glitch to happen at all, it can be easily avoided by simply not starting your game looking exactly at 0 direction. You can start with a small epsilon like 0.001)
+Try to keep your world under a reasonable size. I was testing some big worlds, and as soon as we hit more than 200 units in length (which is a considerable length) the frame rate starts dropping. So just keep that in mind. This explains for example why in DOOM most levels are usually not super huge, especially when being out doors. If your map grows larger (for example more than 100 sectors or more than 100~ units long), consider splitting it into separate map files and using teleporters or level transitions to move the player between them seamlessly.
 
 ### 18. License Info
 

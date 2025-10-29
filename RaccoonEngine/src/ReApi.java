@@ -266,11 +266,11 @@ public class ReApi {
     	return Camera.player_sector;
     }
     
-    public float euclidean_distance(float x1, float y1, float x2, float y2) {
+    public float euclidean_distance_2D(float x1, float y1, float x2, float y2) {
     	return Screen.euclid_dist(x1, y1, x2, y2);
     }
     
-    public float manhattan_distance(float x1, float y1, float x2, float y2) {
+    public float manhattan_distance_2D(float x1, float y1, float x2, float y2) {
     	return Screen.manhattan_dist(x1, y1, x2, y2);
     }
     
@@ -431,6 +431,10 @@ public class ReApi {
     public void playBGM(String bgm_path, boolean loop, float volume) {
 		Screen.current_bgm = new Sound("data/bgm/"+bgm_path, loop, volume);
 	}
+    
+    public void changeBGMVol(float volume) {
+    	Screen.current_bgm.setVolume(volume);
+    }
 	
 	public void stopBGM() {
 		Screen.current_bgm.stopSound();

@@ -157,5 +157,5 @@ REAPI:displayText(string.format("Resolution: %dx%d (%d pixels)",
     stats_cache.total_pixels or 0), 10, y, font)
 y = y + 10
 
-local game_width = REAPI:debug_stats("game_width")
-REAPI:set_skybox_offset(current_frame%(game_width*4))
+--local game_width = REAPI:debug_stats("game_width")
+--REAPI:set_skybox_offset(current_frame%(game_width*4))
