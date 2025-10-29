@@ -3,36 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raccoon Level Editor</title>
+    <title>Manhattan Partition Level Editor</title>
     <link rel="stylesheet" href="editor_style.css">
 </head>
 <body>
     <div id="menu">
-        <h1>RACCOON LEVEL EDITOR</h1>
-        <button id="newMapBtn">NEW MAP</button>
-        <button id="loadMapBtn">LOAD MAP</button>
-    </div>
-
-    <div id="loadDialog">
-        <h2>Load Map State</h2>
-        <p>How would you like to load the map?</p>
-        <button id="loadDrawingBtn">DRAWING MODE</button>
-        <button id="loadFinalizedBtn">FINALIZED MODE</button>
-        <button id="cancelLoadBtn">CANCEL</button>
+        <h1>MANHATTAN LEVEL EDITOR</h1>
+        <button class="button" id="newProjectBtn">NEW PROJECT</button>
+        <button class="button" id="loadProjectBtn">LOAD PROJECT</button>
     </div>
 
     <div id="editor">
         <canvas id="canvas"></canvas>
+        
         <div id="info">
             <div>Zoom: <span id="zoomLevel">1.0</span>x</div>
             <div>Position: (<span id="mouseX">0</span>, <span id="mouseY">0</span>)</div>
-            <div>Shapes: <span id="lineCount">0</span></div>
-            <div>Current Lines: <span id="currentLines">0</span></div>
+            <div>Rectangles: <span id="rectCount">0</span></div>
+            <div>Mode: <span id="modeText">Drawing</span></div>
         </div>
-        <button id="finalizeBtn">FINALIZE MAP</button>
-        <button id="saveBtn">SAVE MAP</button>
+        
+        <button id="saveProjectBtn" class="button top-button">SAVE PROJECT</button>
+        <button id="worldBoundaryBtn" class="button top-button">DEFINE WORLD BOUNDARY</button>
+        <button id="downloadBtn" class="button top-button">DOWNLOAD MAP.TXT</button>
+        
+        <div id="loadingBar">
+            <h2>MANHATTAN PARTITIONING</h2>
+            <div>Processing...</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        
         <div id="configPanel">
-            <h2>Configure Sector <span id="sectorNum"></span></h2>
+            <h2 id="configTitle">Configure Rectangle</h2>
+            
+            <h3>Floor/Ceiling Properties</h3>
             <label>Floor Height:</label>
             <input type="number" id="floorHeight" value="-2" step="0.1">
             <label>Ceiling Height:</label>
@@ -45,10 +49,11 @@
             <input type="text" id="ceilingTexture" value="ceiling.png">
             <label>Ceiling Brightness:</label>
             <input type="number" id="ceilingBrightness" value="1.0" step="0.1" min="0">
-            <div id="wallsContainer"></div>
+            
+            <div id="wallsConfig"></div>
+            
             <div class="button-group">
-                <button id="saveConfig">SAVE</button>
-                <button id="cancelConfig">CANCEL</button>
+                <button id="saveConfig" class="button">SAVE</button>
             </div>
         </div>
     </div>
