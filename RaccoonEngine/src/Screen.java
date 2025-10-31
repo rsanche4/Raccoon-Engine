@@ -344,6 +344,7 @@ public class Screen {
 				int g = (int)(((color >> 8) & 0xFF) * skybox_brightness);
 				int b = (int)((color & 0xFF) * skybox_brightness);
 				gamepixels[y * Main.game_width + x] = (r << 16) | (g << 8) | b;
+				depth_buffer[y * Main.game_width + x] = fog_end;
 			}
 		}
 	}
@@ -419,6 +420,7 @@ public class Screen {
 				gamepixels[y * Main.game_width + x] = skybox_refresh_val;
 				return;
 			}
+			// Note: This is slow, but intuitive and at 320x240 res which is what I want doesn't cause much of a bottleneck at all.
 			float perp_dist = reverse_project(height_offset, screen_y_offset, ray_angle);							
 			float full_euclid_minus_perp_dist = full_euclid_dist-perp_dist;
 			float tilex = figure_out_x_tile(full_euclid_dist, full_euclid_minus_perp_dist, startx);

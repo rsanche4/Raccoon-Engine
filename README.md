@@ -143,7 +143,7 @@ Inside the editor documentation file you will also find guides on the structure 
 
 ### 9. Textures & Skyboxes
 
-There is no limits on the size of the textures that you want to display. It is recommended however that you do not include really huge texture files as they simply occupy more space. The skybox in particular does have 1 limitation: it needs to be 4 times the size of the game's width, and the same height as the game's. Since I decided to lock the engine at 640x480 for best performance and retro aesthetic, the skybox thus needs to be 4*640x480 in size, or 2560x480. This is important! If you for some reason give a skybox that has a different size, it is probable the engine will either crash or display some bizarre skybox.
+There is no limits on the size of the textures that you want to display. It is recommended however that you do not include really huge texture files as they simply occupy more space. The skybox in particular does have 1 limitation: it needs to be 4 times the size of the game's width, and the same height as the game's. Since I decided to lock the engine at 320x240 for best performance and retro aesthetic, the skybox thus needs to be 4*320x240 in size, or 1280x240. This is important! If you for some reason give a skybox that has a different size, it is probable the engine will either crash or display some bizarre skybox.
 
 ### 10. Collision Handling
 
@@ -238,6 +238,10 @@ The engine uses a strict grid-based system where all walls must be aligned horiz
 **Sector Count and Map Size Considerations**
 
 Try to keep your world under a reasonable size. I was testing some big worlds, and as soon as we hit more than 200 units in length (which is a considerable length) the frame rate starts dropping. So just keep that in mind. This explains for example why in DOOM most levels are usually not super huge, especially when being out doors. If your map grows larger (for example more than 100 sectors or more than 100~ units long), consider splitting it into separate map files and using teleporters or level transitions to move the player between them seamlessly.
+
+**Performance Considerations**
+
+The current implementation works well at low resolutions. My primary goals were transparency, educational value, and creating a functional engine that captures the spirit of 90s boomer shooters, and for those purposes, this approach works great. However, if you're aiming for higher resolutions and modern performance, you'll want to move beyond 2.5D raycasting entirely (and beyond Java). Consider using OpenGL, native C or C++, with proper 3D rendering on the GPU rather than software rendering, 4D transformation matrices, and more sophisticated rendering techniques. For example, understanding the fundamentals of raytracing is a great start! This engine prioritizes clarity and understandability over complex optimizations. If you're looking to build the next Unreal Engine with high-resolution graphics, this isn't the right starting point. But if you're after that retro boomer shooter aesthetic, or just appreciate the straightforward charm of old-school graphics, then this engine should serve you well.
 
 ### 18. License Info
 

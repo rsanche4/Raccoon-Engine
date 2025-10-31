@@ -30,8 +30,8 @@ public class Main extends JFrame implements Runnable {
 	private static String game_version;
 	public static int SCREEN_W = 800;
 	public static int SCREEN_H = 600;
-	public static int game_width = 640;
-	public static int game_height = 480;
+	public static int game_width = 320;
+	public static int game_height = 240;
 	public static ArrayList<String> active_scripts = new ArrayList<>();
 	public static int USER_SCREEN_SIZE_W;
 	public static int USER_SCREEN_SIZE_H;
