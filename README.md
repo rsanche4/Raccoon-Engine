@@ -147,7 +147,7 @@ There is no limits on the size of the textures that you want to display. It is r
 
 ### 10. Collision Handling
 
-The collisions of the game are mainly handled very simply. If you are crouching, the rule is that you cannot "climb" to a sector that is higher than where you are. Otherwise you can simply walk up to any sector (as long as it's not much taller than you) and you can climb it up! This helps a lot when it comes to creating stairs, etc. Other than that, any texture that is displayed between sectors is also collidable. The only things that are non-solid would be sprites, so keep this in mind when you design your levels!
+The collisions of the game are mainly handled very simply. If you are crouching, the rule is that you cannot "climb" to a sector that is higher than where you are. Otherwise you can simply walk up to any sector (as long as it's not much taller than you) and you can climb it up! This helps a lot when it comes to creating stairs, etc. Other than that, any texture that is displayed between sectors has the option of being passthrough or solid. This information is the map info data when crafting levels and this determines which portals you can go through and which you cannot. Things that are always non-solid would be sprites, so keep this in mind when you design your levels!
 
 ---
 
