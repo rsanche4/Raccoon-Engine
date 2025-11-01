@@ -358,6 +358,14 @@ public class ReApi {
     	return Screen.fog_end;
     }
     
+    public void toggle_plane_texture(boolean planeToggle) {
+    	Screen.plane_texture = planeToggle;
+    }
+    
+    public boolean get_toggle_plane_texture() {
+    	return Screen.plane_texture;
+    }
+    
     public boolean is_key_pressed_once(String keyname) {
         keyname = keyname.toLowerCase();
         switch (keyname) {

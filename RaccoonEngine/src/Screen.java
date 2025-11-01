@@ -30,7 +30,7 @@ public class Screen {
 	float total_fov = (float) (2 * Math.atan(camera_mid_side_b / camera_mid_side_a));
 	float deltatheta = total_fov / Main.game_width;
 	public static int max_count = 100;
-	
+	public static boolean plane_texture = true;
 	private final int[] ZEROS; // allocate once at init
 	private final float[] MAX_DEPTHS;
 	private String transparentTex = "black.png";
@@ -206,9 +206,11 @@ public class Screen {
 				
 				float fl_h = Camera.player_y-sector_info.floor_height;
 				float cl_h = sector_info.ceil_height-Camera.player_y;
+				
+				
 				for (int y=0; y < dy_walltop_clipped; y++) {
 					draw_plane_texture(x, y, cl_h, half_screen_height - y, ray_angle, full_euclid_dist, startx, startz, sector_info.ceilTexture, sector_info.ceilBrightness);
-				}
+				}	
 				
 				int column_pixel_size = dy_wallbottom-dy_walltop;
 				for (int y=dy_walltop_clipped; y < dy_wallbottom_clipped; y++) {
@@ -321,7 +323,7 @@ public class Screen {
 		}
 		return x1 + "," + z1 + "," + x2 + "," + z2;
 	}
-
+	
 	private void draw_sky(float dir, int[] skybox_picture) {
 		int skybox_width = Main.game_width * 4;  
 		int skybox_height = Main.game_height; 
@@ -420,7 +422,11 @@ public class Screen {
 			float tilex = figure_out_tile(full_euclid_dist, full_euclid_minus_perp_dist, startx, Camera.player_x);
 			float tilez = figure_out_tile(full_euclid_dist, full_euclid_minus_perp_dist, startz, Camera.player_z);
 			depth_buffer[y * Main.game_width + x] = perp_dist;
-			gamepixels[y * Main.game_width + x] = get_texture_tile_color(tilex, tilez, planeTexture, planeBrightness, x, y);
+			if (plane_texture) {
+				gamepixels[y * Main.game_width + x] = get_texture_tile_color(tilex, tilez, planeTexture, planeBrightness, x, y);
+			} else {
+				gamepixels[y * Main.game_width + x] = Main.allTextures.get(planeTexture).pixels[0]; // Get the first pixel, simplifying
+			}
 		}
 	}
 	
