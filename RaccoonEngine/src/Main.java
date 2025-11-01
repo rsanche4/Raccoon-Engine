@@ -151,37 +151,43 @@ public class Main extends JFrame implements Runnable {
 	}
 
 	public void run() {
-		long lastTime = System.nanoTime();
-		final float ns = 1000000000.0f / MAX_FPS;
-		float delta = 0;
-		requestFocus();
+	    long lastTime = System.nanoTime();
+	    final float ns = 1000000000.0f / MAX_FPS;
+	    float delta = 0;
+	    requestFocus();
 
-		int frames = 0;
-		long lastFpsTime = System.nanoTime();
+	    int frames = 0;
+	    long lastFpsTime = System.nanoTime();
 
-		while (running) {
-			long now = System.nanoTime();
-			delta = delta + ((now - lastTime) / ns);
-			lastTime = now;
+	    while (running) {
+	        long now = System.nanoTime();
+	        delta = delta + ((now - lastTime) / ns);
+	        lastTime = now;
 
-			while (delta >= 1) {
-				screen.update(frame_num);
-				camera.update(this);
-				frame_num++;
-				delta--;
-			}
+	        while (delta >= 1) {
+	            screen.update(frame_num);
+	            camera.update(this);
+	            frame_num++;
+	            delta--;
+	            
+	            render();
+	            frames++;
+	        }
 
-			// Render after update
-			render();
-			frames++;
+	        // Calculate FPS every second
+	        if (now - lastFpsTime >= 1000000000) {
+	            currentFPS = frames;
+	            frames = 0;
+	            lastFpsTime = now;
+	        }
 
-			// Calculate FPS every second
-			if (now - lastFpsTime >= 1000000000) {
-				currentFPS = frames;
-				frames = 0;
-				lastFpsTime = now;
-			}
-		}
+	        // Sleep to prevent CPU spinning
+	        try {
+	            Thread.sleep(5);
+	        } catch (InterruptedException e) {
+	            e.printStackTrace();
+	        }
+	    }
 	}
 
 	public static void main(String[] args) {
