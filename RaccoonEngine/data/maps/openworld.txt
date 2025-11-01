@@ -10,16 +10,16 @@
 9 -2 3 grass.png 1 black.png 1
 [WALLS]
 -88 -59 -2 -59 1 wall.png 1
--88 -59 -88 -2 1 wall.png 1
--88 -2 -88 2 2 wall.png 1
+-88 -59 -88 -2 1 wall.png 0.8
+-88 -2 -88 2 2 wall.png 0.8
 -88 109 -2 109 3 wall.png 1
--88 2 -88 109 3 wall.png 1
+-88 2 -88 109 3 wall.png 0.8
 -2 -59 2 -59 4 wall.png 1
 -2 109 2 109 6 wall.png 1
 2 -59 166 -59 7 wall.png 1
-166 -59 166 -2 7 wall.png 1
-166 -2 166 2 8 wall.png 1
-166 2 166 109 9 wall.png 1
+166 -59 166 -2 7 wall.png 0.8
+166 -2 166 2 8 wall.png 0.8
+166 2 166 109 9 wall.png 0.8
 2 109 166 109 9 wall.png 1
 [PORTALS]
 -2 -59 -2 -2 1 4 black.png 1 black.png 1 black.png 1 0

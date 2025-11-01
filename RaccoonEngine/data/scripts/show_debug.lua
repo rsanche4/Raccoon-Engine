@@ -134,28 +134,28 @@ REAPI:displayText(string.format("Active Scripts: %d",
 y = y + 10
 
 -- Separator
-y = y + 5
-REAPI:displayText("=== CLASSES ===", 10, y, font)
-y = y + 10
+--y = y + 5
+--REAPI:displayText("=== CLASSES ===", 10, y, font)
+--y = y + 10
 
 -- Class loading stats
-REAPI:displayText(string.format("Loaded: %d | Total: %d | Unloaded: %d", 
-    stats_cache.classes_loaded or 0,
-    stats_cache.classes_total_loaded or 0,
-    stats_cache.classes_unloaded or 0), 10, y, font)
-y = y + 10
+--REAPI:displayText(string.format("Loaded: %d | Total: %d | Unloaded: %d", 
+--    stats_cache.classes_loaded or 0,
+--    stats_cache.classes_total_loaded or 0,
+--    stats_cache.classes_unloaded or 0), 10, y, font)
+--y = y + 10
 
 -- Separator
-y = y + 5
-REAPI:displayText("=== DISPLAY ===", 10, y, font)
-y = y + 10
+--y = y + 5
+--REAPI:displayText("=== DISPLAY ===", 10, y, font)
+--y = y + 10
 
 -- Display info
-REAPI:displayText(string.format("Resolution: %dx%d (%d pixels)", 
-    stats_cache.screen_width or 0, 
-    stats_cache.screen_height or 0,
-    stats_cache.total_pixels or 0), 10, y, font)
-y = y + 10
+--REAPI:displayText(string.format("Resolution: %dx%d (%d pixels)", 
+--    stats_cache.screen_width or 0, 
+--    stats_cache.screen_height or 0,
+--    stats_cache.total_pixels or 0), 10, y, font)
+--y = y + 10
 
 --local game_width = REAPI:debug_stats("game_width")
 --REAPI:set_skybox_offset(current_frame%(game_width*4))

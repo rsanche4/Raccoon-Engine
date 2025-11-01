@@ -207,7 +207,7 @@ public class Screen {
 				float fl_h = Camera.player_y-sector_info.floor_height;
 				float cl_h = sector_info.ceil_height-Camera.player_y;
 				for (int y=0; y < dy_walltop_clipped; y++) {
-					draw_horizontal_plane(x, y, cl_h, half_screen_height - y, ray_angle, full_euclid_dist, startx, startz, sector_info.ceilTexture, sector_info.ceilBrightness);
+					draw_plane_texture(x, y, cl_h, half_screen_height - y, ray_angle, full_euclid_dist, startx, startz, sector_info.ceilTexture, sector_info.ceilBrightness);
 				}
 				
 				int column_pixel_size = dy_wallbottom-dy_walltop;
@@ -216,7 +216,7 @@ public class Screen {
 				}
 
 				for (int y=dy_wallbottom_clipped; y < Main.game_height; y++) {
-					draw_horizontal_plane(x, y, fl_h, y - half_screen_height, ray_angle, full_euclid_dist, startx, startz, sector_info.floorTexture, sector_info.floorBrightness);
+					draw_plane_texture(x, y, fl_h, y - half_screen_height, ray_angle, full_euclid_dist, startx, startz, sector_info.floorTexture, sector_info.floorBrightness);
 				}
 
 				break;
@@ -257,7 +257,7 @@ public class Screen {
 				float cl_h = cur_sector.ceil_height-Camera.player_y;
 				
 				for (int y=0; y < dy_wall_top_top_clipped; y++) {
-					draw_horizontal_plane(x, y, cl_h, half_screen_height - y, ray_angle, full_euclid_dist, startx, startz, cur_sector.ceilTexture, cur_sector.ceilBrightness);
+					draw_plane_texture(x, y, cl_h, half_screen_height - y, ray_angle, full_euclid_dist, startx, startz, cur_sector.ceilTexture, cur_sector.ceilBrightness);
 				}
 				
 				int column_pixel_size = dy_wall_top_bottom-dy_wall_top_top;
@@ -278,7 +278,7 @@ public class Screen {
 				}
 
 				for (int y=dy_wall_bottom_bottom_clipped; y < Main.game_height; y++) {
-					draw_horizontal_plane(x, y, fl_h, y - half_screen_height, ray_angle, full_euclid_dist, startx, startz, cur_sector.floorTexture, cur_sector.floorBrightness);
+					draw_plane_texture(x, y, fl_h, y - half_screen_height, ray_angle, full_euclid_dist, startx, startz, cur_sector.floorTexture, cur_sector.floorBrightness);
 				}
 
 				continue;
@@ -384,16 +384,10 @@ public class Screen {
 		return (float) (perp_dist / Math.cos(ray_angle - Camera.direction_rad));
 	}
 	
-	private float figure_out_x_tile(float full_euclid_distance, float full_euclid_minus_perp_dist, float wallhit_x) {
-		float x2 = Camera.player_x - wallhit_x;
+	private float figure_out_tile(float full_euclid_distance, float full_euclid_minus_perp_dist, float wallhit_x, float player_x) {
+		float x2 = player_x - wallhit_x;
 		float x_delta = full_euclid_minus_perp_dist * x2 / full_euclid_distance;
 		return wallhit_x+x_delta;
-	}
-	
-	private float figure_out_z_tile(float full_euclid_distance, float full_euclid_minus_perp_dist, float wallhit_z) {
-		float z2 = Camera.player_z - wallhit_z;
-		float z_delta = full_euclid_minus_perp_dist * z2 / full_euclid_distance;
-		return wallhit_z+z_delta;
 	}
 	
 	private int get_texture_sprite_color(float spritex, float spritey, String spriteTexture) {
@@ -414,17 +408,17 @@ public class Screen {
 	    return adjustBrightness(texture_floor_obj.pixels[v * texture_floor_obj.IMG_WID + u], floorBrightness, x, y);
 	}
 
-	private void draw_horizontal_plane(int x, int y, float height_offset, int screen_y_offset, float ray_angle, float full_euclid_dist, float startx, float startz, String planeTexture, float planeBrightness) {
+	private void draw_plane_texture(int x, int y, float height_offset, int screen_y_offset, float ray_angle, float full_euclid_dist, float startx, float startz, String planeTexture, float planeBrightness) {
 		if (gamepixels[y * Main.game_width + x]==0x000000) {
 			if (planeTexture.contentEquals(transparentTex)) { // String comparisons are a bit slower, but again, clarity!
 				gamepixels[y * Main.game_width + x] = skybox_refresh_val;
 				return;
 			}
-			// Note: This is slow, but intuitive and at 320x240 res which is what I want doesn't cause much of a bottleneck at all.
-			float perp_dist = reverse_project(height_offset, screen_y_offset, ray_angle);							
+			// Note: This is slow, but intuitive and at 320x240 res which is what I want doesn't cause much of a bottleneck at all. Also it is easy to set the depth buffer info killing two birds with one stone!
+			float perp_dist = reverse_project(height_offset, screen_y_offset, ray_angle);
 			float full_euclid_minus_perp_dist = full_euclid_dist-perp_dist;
-			float tilex = figure_out_x_tile(full_euclid_dist, full_euclid_minus_perp_dist, startx);
-			float tilez = figure_out_z_tile(full_euclid_dist, full_euclid_minus_perp_dist, startz);
+			float tilex = figure_out_tile(full_euclid_dist, full_euclid_minus_perp_dist, startx, Camera.player_x);
+			float tilez = figure_out_tile(full_euclid_dist, full_euclid_minus_perp_dist, startz, Camera.player_z);
 			depth_buffer[y * Main.game_width + x] = perp_dist;
 			gamepixels[y * Main.game_width + x] = get_texture_tile_color(tilex, tilez, planeTexture, planeBrightness, x, y);
 		}
