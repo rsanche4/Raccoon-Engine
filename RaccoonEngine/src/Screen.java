@@ -425,7 +425,7 @@ public class Screen {
 			if (plane_texture) {
 				gamepixels[y * Main.game_width + x] = get_texture_tile_color(tilex, tilez, planeTexture, planeBrightness, x, y);
 			} else {
-				gamepixels[y * Main.game_width + x] = Main.allTextures.get(planeTexture).pixels[0]; // Get the first pixel, simplifying
+				gamepixels[y * Main.game_width + x] = adjustBrightness(Main.allTextures.get(planeTexture).pixels[0], planeBrightness, x, y); // Get the first pixel, simplifying
 			}
 		}
 	}
