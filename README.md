@@ -135,7 +135,7 @@ https://youtu.be/eoXn6nwV694 -> A great video explaining the main concepts behin
 
 ### 7. Editor Usage Guide
 
-Since this section is too long, I decided to split it into a different file called `RaccoonEditor.md`. I suggest you take a look at that file instead if you want to learn more about how to use the editor! The main goal of the editor is to create the map structure and map file that will be read by the engine to render your wonderful scenes. Have fun!
+Since this section is too long, I decided to split it into a different file called `RaccoonEditor.md` inside the raccoon editor folder. I suggest you take a look at that file instead if you want to learn more about how to use the editor! The main goal of the editor is to create the map structure and map file that will be read by the engine to render your wonderful scenes. Have fun!
 
 ### 8. Map Structure
 
