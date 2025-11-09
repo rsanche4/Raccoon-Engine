@@ -253,4 +253,8 @@ Raccoon Engine is released under the MIT License, one of the most permissive ope
 
 You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to [email me](mailto:rsanzek25@gmail.com)!
 
-Notes: The fix for a phantom ray glitch is a bit of a hack. Ideally we want to parallize the whole thing with threads, and this solution breaks down when we do that so fix that at the core. (Engine is fully capable and this hack doesn't affect performance much so this is more of somoething to do in the future)
+Notes: 
+- The fix for a phantom ray glitch is a bit of a hack. Ideally we want to parallize the whole thing with threads, and this solution breaks down when we do that so fix that at the core. (Engine is fully capable and this hack doesn't affect performance much so this is more of somoething to do in the future)
+- Like I said above, parallize! So do threading for each column we draw. This is primarily useful for big resolutions.
+- Add also the ability to just have images as sectors textures. This is useful for some type of worlds. that could be nice for some things sometimes. Also allow this for walls too. It's a nice interesting aesthetic.
+- Also ensure we can have an api where we can essentially change the floor or ceiling or world basically somehow so we can have different images or other textures we can swap with etc
