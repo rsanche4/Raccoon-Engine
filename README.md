@@ -253,6 +253,4 @@ Raccoon Engine is released under the MIT License, one of the most permissive ope
 
 You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to [email me](mailto:rsanzek25@gmail.com)!
 
-There are some things that I definately want to improve on in the future. Mainly, they are:
-- The fix for a phantom ray glitch is a bit of a hack. Ideally we want to parallize the whole thing with threads, and this solution breaks down when we do that so fix that at the core. (Engine is fully capable and this hack doesn't affect performance much so this is more of somoething to do in the future)
-- And also maybe switch to using a faster way to map textures to floors and ceilings. Doom used something called a visplane which was the most complex data type. So that might require more reading, etc.
+Notes: The fix for a phantom ray glitch is a bit of a hack. Ideally we want to parallize the whole thing with threads, and this solution breaks down when we do that so fix that at the core. (Engine is fully capable and this hack doesn't affect performance much so this is more of somoething to do in the future)
