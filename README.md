@@ -259,5 +259,5 @@ Notes:
 - Add also the ability to just have images as sectors textures. This is useful for some type of worlds. that could be nice for some things sometimes. Also allow this for walls too. It's a nice interesting aesthetic.
 - Also ensure we can have an api where we can essentially change the floor or ceiling or world basically somehow so we can have different images or other textures we can swap with etc
 - provide API to change the retina dist and also to change the size of atomic size unit xz variable
-- I should add also a pathfinding algorithm that is more advanced like A* for example to the API.
-- Finally the big debate: Switch over to C? This is HUGE because it involves rewriting the whole engine. C is way faster than Java, but it is not platform indepedent, no memory management, and it is a lot more low level. IF I do go to Steam, I have to do a C wrapper anyways. Java is honestly kind of tapping out when it comes to 3D performance. It doesn't have a problem but C is a lot faster. Sadly, this is a decision I will have to make at some point. But I like Java, and so far it works great, so I'm not sure.
+- I should add also a pathfinding algorithm (Greedy Best First Search is good enough)
+- Angle looks for the sprites (this is possible through scripting so figure it out for now)
