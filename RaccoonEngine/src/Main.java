@@ -19,19 +19,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JFrame;
 
 public class Main extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1L;
-	public static float MAX_FPS = 30.0f;
+	public static float MAX_FPS = 60.0f;
 	public static float currentFPS = 0;
 	private static String game_title;
 	private static String game_version;
 	public static int SCREEN_W = 800;
 	public static int SCREEN_H = 600;
-	public static int game_width = 320;
-	public static int game_height = 240;
+	public static int game_width = 640;
+	public static int game_height = 480;
 	public static ArrayList<String> active_scripts = new ArrayList<>();
 	public static int USER_SCREEN_SIZE_W;
 	public static int USER_SCREEN_SIZE_H;
@@ -45,6 +47,9 @@ public class Main extends JFrame implements Runnable {
 	public static HashMap<String, Texture> allTextures = new HashMap<>();
 	public static HashMap<String, Sprite> allSprites = new HashMap<>();
 	public static long frame_num = 0;
+	
+	public static int cores = Runtime.getRuntime().availableProcessors();
+	public static ExecutorService executorThreads = Executors.newFixedThreadPool(cores);
 	
 	// Canvas for rendering
 	private Canvas canvas;

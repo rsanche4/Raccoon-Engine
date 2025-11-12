@@ -241,9 +241,7 @@ Try to keep your world under a reasonable size. I was testing some big worlds, a
 
 **Performance Considerations**
 
-The current implementation works well at low resolutions. My primary goals were transparency, educational value, and creating a functional engine that captures the spirit of 90s boomer shooters, and for those purposes, this approach works great. However, you can change the resolution at which the game renders things to whatever you like. Since this is using CPU, you will encounter lag as you increase the res. For these reasons, I included an API call that lets you turn off texture mapping for floors and ceilings as this will speed up computations especially for outdoor scenes, giving you power on what you want to do! On top of that, you can also change the native resolution of the game by going to Main.java and changing the game_width and game_height values! So you can play around with this based on what works, etc. If you do this I'd also recommend changing the retina variable in Camera.java (Focal Point). The defaults are 320x240 and 4.
-
-Note: If you're aiming for higher resolutions and modern performance, you'll want to move beyond 2.5D raycasting entirely (and beyond Java). Consider using OpenGL, native C or C++, with proper 3D rendering on the GPU rather than software rendering, 4D transformation matrices, and more sophisticated rendering techniques. For example, understanding the fundamentals of raytracing is a great start! This engine prioritizes clarity and understandability over complex optimizations. If you're looking to build the next Unreal Engine with high-resolution graphics, this isn't the right starting point. But if you're after that retro boomer shooter aesthetic, or just appreciate the straightforward charm of old-school graphics, then this engine should serve you well.
+The current implementation works well at low resolutions. My primary goals were transparency, educational value, and creating a functional engine that captures the spirit of 90s boomer shooters, and for those purposes, this approach works great. However, you can change the resolution at which the game renders things to whatever you like. Since this is using CPU, you will encounter lag as you increase the res. For these reasons, I included an API call that lets you turn off texture mapping for floors and ceilings as this will speed up computations especially for outdoor scenes, giving you power on what you want to do! On top of that, you can also change the native resolution of the game by going to Main.java and changing the game_width and game_height values! So you can play around with this based on what works, etc. If you do this I'd also recommend changing the retina variable in Camera.java (Focal Point), otherwise as you increase resolution without teaking the FOV it will look a bit distorted.
 
 ### 18. License Info
 
@@ -254,10 +252,8 @@ Raccoon Engine is released under the MIT License, one of the most permissive ope
 You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to [email me](mailto:rsanzek25@gmail.com)!
 
 Notes: 
-- The fix for a phantom ray glitch is a bit of a hack. Ideally we want to parallize the whole thing with threads, and this solution breaks down when we do that so fix that at the core. (Engine is fully capable and this hack doesn't affect performance much so this is more of somoething to do in the future)
-- Like I said above, parallize! So do threading for each column we draw. This is primarily useful for big resolutions.
-- Add also the ability to just have images as sectors textures. This is useful for some type of worlds. that could be nice for some things sometimes. Also allow this for walls too. It's a nice interesting aesthetic.
+- Fix phantom ray glitch at the core
+- Add also the ability to just have images as sectors textures. So literally just an image skybox type thing, but just texture slapped behind.
 - Also ensure we can have an api where we can essentially change the floor or ceiling or world basically somehow so we can have different images or other textures we can swap with etc
-- provide API to change the retina dist and also to change the size of atomic size unit xz variable
 - I should add also a pathfinding algorithm (Greedy Best First Search is good enough)
 - Angle looks for the sprites (this is possible through scripting so figure it out for now)

@@ -17,7 +17,7 @@ public class Camera implements KeyListener {
 	public static float gravity_down_multiplier = 1;
 	public static float player_x, player_y, player_z;
 	public static int player_sector;
-	public static float retina_dist = 4;
+	public static float retina_dist = 800;
 	public static float player_height = 2;
 	private boolean jumping_in_progress = false;
 	private float crouch_diff_height = player_height/2;

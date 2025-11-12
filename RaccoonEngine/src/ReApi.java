@@ -358,6 +358,14 @@ public class ReApi {
     	return Screen.fog_end;
     }
     
+    public float get_retina_dist() {
+    	return Camera.retina_dist;
+    }
+    
+    public void set_retina_dist(float ret_dist) {
+    	Camera.retina_dist = ret_dist;
+    }
+    
     public void toggle_plane_texture(boolean planeToggle) {
     	Screen.plane_texture = planeToggle;
     }
@@ -563,7 +571,12 @@ public class ReApi {
 	    return Float.parseFloat(parts[axis]);
 	}
 	
-	public String basicGreedyForgetfulNoCollisionPathfindToward(float source_x, float source_y, float source_z, float targetx, float targety, float targetz, float speed) {
+	public String gbfs_pathfindToward(float source_x, float source_y, float source_z, float targetx, float targety, float targetz, float speed) {
+		// TODO
+		return "Implement";
+	}
+	
+	public String direct_PathfindToward(float source_x, float source_y, float source_z, float targetx, float targety, float targetz, float speed) {
 		float z_dif = Math.abs(targetz-source_z);
 		float y_dif = Math.abs(targety-source_y);
 		float x_dif = Math.abs(targetx-source_x);

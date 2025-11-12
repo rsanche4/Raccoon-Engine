@@ -1,5 +1,6 @@
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 public class Screen {
 
@@ -7,7 +8,6 @@ public class Screen {
 	public static int[] gamepixels;
 	public static String skybox = "default_sky.png";
 	public static float skybox_brightness = 1.0f;
-	public static float atomic_xz_unit = 100.0f;
 	public static Map<Integer, Sector> sectorMap;
 	public static Map<String, Wall> wallMap;
 	public static Map<String, Portal> portalMap;
@@ -26,7 +26,7 @@ public class Screen {
 	public static Sound current_sfe;
 	public static int sky_offset = 0;
 	float camera_mid_side_a = Camera.retina_dist;
-	float camera_mid_side_b = Main.game_width / 2.0f / atomic_xz_unit;
+	float camera_mid_side_b = Main.game_width / 2.0f;
 	float total_fov = (float) (2 * Math.atan(camera_mid_side_b / camera_mid_side_a));
 	float deltatheta = total_fov / Main.game_width;
 	public static int max_count = 100;
@@ -61,8 +61,21 @@ public class Screen {
 	    System.arraycopy(MAX_DEPTHS, 0, depth_buffer, 0, depth_buffer.length);
 	    if (!is_menu) {
 	        Camera.player_sector = update_player_sector(Camera.player_x, Camera.player_z);
+	        CountDownLatch latch = new CountDownLatch(Main.game_width);	        
 	        for (int x = 0; x < Main.game_width; x++) {
-	        	cast_ray_and_render_screen_column(x, true);
+	            final int rayNum = x;
+	            Main.executorThreads.submit(() -> {
+	                try {
+	                    cast_ray_and_render_screen_column(rayNum);
+	                } finally {
+	                    latch.countDown();
+	                }
+	            });
+	        }
+	        try {
+	            latch.await();
+	        } catch (InterruptedException e) {
+	            Thread.currentThread().interrupt();
 	        }
 	        draw_sky(Camera.direction_rad, Main.allTextures.get(skybox).pixels);
 	        draw_sprites();
@@ -92,11 +105,11 @@ public class Screen {
 			float screen_offset_x = (cam_z / cam_x) * Camera.retina_dist;
 			float screen_offset_y = (vectory / cam_x) * Camera.retina_dist;
 
-			int screen_sprite_x = half_screen_width - (int)(screen_offset_x * atomic_xz_unit);
-			int screen_sprite_y = half_screen_height - (int)(screen_offset_y * atomic_xz_unit);
+			int screen_sprite_x = half_screen_width - (int)(screen_offset_x);
+			int screen_sprite_y = half_screen_height - (int)(screen_offset_y);
 
 			// Get sprite size
-			int screen_sprite_length = (int)(entity.sprite_length / cam_x * atomic_xz_unit);
+			int screen_sprite_length = (int)(entity.sprite_length / cam_x);
 
 			int half = screen_sprite_length / 2;
 			int startX = screen_sprite_x - half;
@@ -132,7 +145,7 @@ public class Screen {
         }
 	}
 	
-	private void cast_ray_and_render_screen_column(int x, boolean remove_ray_glitch) {
+	private void cast_ray_and_render_screen_column(int x) {
 		int ray_num = half_screen_width - x;
 
 		float ray_angle = Camera.direction_rad + ray_num * deltatheta;
@@ -286,24 +299,6 @@ public class Screen {
 				continue;
 			}
 		}
-		// Eliminate Phantom Ray through copying last ray. Not the best solution, but it does the trick!
-		if (remove_ray_glitch && counter>=max_count) {
-			if (x>0) {
-				int prev_ray = x-1;
-				for (int y=0; y < Main.game_height; y++) {
-					if (gamepixels[y * Main.game_width + prev_ray]!=skybox_refresh_val) {
-						gamepixels[y * Main.game_width + x]=gamepixels[y * Main.game_width + prev_ray];
-					}
-				}	
-			} else {
-				cast_ray_and_render_screen_column(1, false);
-				for (int y=0; y < Main.game_height; y++) {
-					if (gamepixels[y * Main.game_width + 1]!=skybox_refresh_val) {
-						gamepixels[y * Main.game_width + x]=gamepixels[y * Main.game_width + 1];
-					}
-				}
-			}
-		}
 	}
 
 	public static float euclid_dist(float x1, float z1, float x2, float z2) {
@@ -376,12 +371,12 @@ public class Screen {
 
 	private int project_column(float wallhit_x, float wallhit_y, float wallhit_z, float ray_angle) {
 		float dy = (float) (((wallhit_y-Camera.player_y)/(euclid_dist(Camera.player_x, Camera.player_z, wallhit_x, wallhit_z)*Math.cos(ray_angle-Camera.direction_rad)))*Camera.retina_dist);
-		int dy_from_middle = (int)(dy*atomic_xz_unit);
+		int dy_from_middle = (int)(dy);
 		return dy_from_middle;
 	}
 	
 	private float reverse_project(float fl_h, int screen_y_offset, float ray_angle) {
-		float dy = screen_y_offset/atomic_xz_unit;
+		float dy = screen_y_offset;
 		float perp_dist = (fl_h*Camera.retina_dist)/dy;
 		return (float) (perp_dist / Math.cos(ray_angle - Camera.direction_rad));
 	}
