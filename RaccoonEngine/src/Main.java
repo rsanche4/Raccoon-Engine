@@ -81,15 +81,22 @@ public class Main extends JFrame implements Runnable {
 			}
 
 			camera = new Camera();
+			camera.setFrame(this); // Set the frame reference for mouse centering
 			screen = new Screen(pixels, gamepixels);
-			addKeyListener(camera);
 
 			// Setup Canvas
 			canvas = new Canvas();
 			canvas.setPreferredSize(new Dimension(SCREEN_W, SCREEN_H));
 			canvas.setMaximumSize(new Dimension(SCREEN_W, SCREEN_H));
 			canvas.setMinimumSize(new Dimension(SCREEN_W, SCREEN_H));
+			
+			// Add ALL listeners to the canvas (this is the key fix!)
 			canvas.addKeyListener(camera);
+			canvas.addMouseListener(camera);
+			canvas.addMouseMotionListener(camera);
+			
+			// Make canvas focusable so it receives input events
+			canvas.setFocusable(true);
 			
 			// Setup JFrame properties BEFORE making it visible
 			setTitle(game_title + " " + game_version.toString() + " | F4: Toggle Fullscreen | ESC: Quit");
@@ -103,6 +110,9 @@ public class Main extends JFrame implements Runnable {
 			
 			setLocationRelativeTo(null);
 			setVisible(true);
+			
+			// Request focus for the canvas after window is visible
+			canvas.requestFocus();
 			
 			// Create buffer strategy after window is visible
 			canvas.createBufferStrategy(2);
@@ -159,7 +169,9 @@ public class Main extends JFrame implements Runnable {
 	    long lastTime = System.nanoTime();
 	    final float ns = 1000000000.0f / MAX_FPS;
 	    float delta = 0;
-	    requestFocus();
+	    
+	    // Request focus for canvas at the start of the game loop
+	    canvas.requestFocus();
 
 	    int frames = 0;
 	    long lastFpsTime = System.nanoTime();

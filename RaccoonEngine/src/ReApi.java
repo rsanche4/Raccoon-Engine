@@ -290,12 +290,28 @@ public class ReApi {
     	Camera.TURN_SPEED = turn_speed;
     }
     
+    public void set_pitch_speed(int pitch_speed) {
+    	Camera.PITCH_SPEED = pitch_speed;
+    }
+    
+    public int get_pitch_speed() {
+    	return Camera.PITCH_SPEED;
+    }
+    
     public float get_jump_up_speed() {
     	return Camera.JUMP_UP_SPEED;
     }
     
     public void set_jump_up_speed(float move_up_speed) {
     	Camera.JUMP_UP_SPEED = move_up_speed;
+    }
+    
+    public void set_mouse_sensitivity(float sens_speed) {
+    	Camera.MOUSE_SENSITIVITY = sens_speed;
+    }
+    
+    public float get_mouse_sensitivity() {
+    	return Camera.MOUSE_SENSITIVITY;
     }
     
     public void set_gravity_up_multiplier(float grav_up_mult) {
@@ -377,21 +393,58 @@ public class ReApi {
     public boolean is_key_pressed_once(String keyname) {
         keyname = keyname.toLowerCase();
         switch (keyname) {
-            case "left": return Camera.left_once;
-            case "right": return Camera.right_once;
-            case "forward": return Camera.forward_once;
-            case "back": return Camera.back_once;
+            // Menu navigation
+            case "left":
+            case "menuleft": return Camera.menuleft_once;
+            case "right":
+            case "menuright": return Camera.menuright_once;
+            case "up":
+            case "menuup": return Camera.menuup_once;
+            case "down":
+            case "menudown": return Camera.menudown_once;
+            
+            // Movement
+            case "forward":
+            case "w": return Camera.forward_once;
+            case "back":
+            case "s": return Camera.back_once;
+            case "strafeleft":
+            case "a": return Camera.strafeleft_once;
+            case "straferight":
+            case "d": return Camera.straferight_once;
+            
+            // Actions
             case "enter": return Camera.enter_once;
-            case "space": return Camera.space_once;
-            case "ctrl": return Camera.ctrl_once;
-            case "strafeleft": return Camera.strafeleft_once;
-            case "straferight": return Camera.straferight_once;
-            case "first": return Camera.first_once;
-            case "second": return Camera.second_once;
-            case "third": return Camera.third_once;
-            case "pgup": return Camera.pgup_once;
-            case "pgdn": return Camera.pgdn_once;
-            case "fourth": return Camera.fourth_once;
+            case "space":
+            case "jump": return Camera.space_once;
+            case "ctrl":
+            case "crouch": return Camera.ctrl_once;
+            case "interact":
+            case "e": return Camera.interact_once;
+            case "reload":
+            case "r": return Camera.reload_once;
+            
+            // Weapon slots
+            case "first":
+            case "1": return Camera.first_once;
+            case "second":
+            case "2": return Camera.second_once;
+            case "third":
+            case "3": return Camera.third_once;
+            case "fourth":
+            case "4": return Camera.fourth_once;
+            
+            // Mouse
+            case "leftclick":
+            case "shoot":
+            case "attack": return Camera.leftclick_once;
+            
+            // General
+            case "esc":
+            case "escape": return Camera.esc_once;
+            case "f4":
+            case "fullscreen": return Camera.f4_once;
+            
             default: return false;
         }
     }
@@ -399,21 +452,58 @@ public class ReApi {
     public boolean is_key_pressed(String keyname) {
         keyname = keyname.toLowerCase();
         switch (keyname) {
-            case "left": return Camera.left;
-            case "right": return Camera.right;
-            case "forward": return Camera.forward;
-            case "back": return Camera.back;
+            // Menu navigation
+            case "left":
+            case "menuleft": return Camera.menuleft;
+            case "right":
+            case "menuright": return Camera.menuright;
+            case "up":
+            case "menuup": return Camera.menuup;
+            case "down":
+            case "menudown": return Camera.menudown;
+            
+            // Movement
+            case "forward":
+            case "w": return Camera.forward;
+            case "back":
+            case "s": return Camera.back;
+            case "strafeleft":
+            case "a": return Camera.strafeleft;
+            case "straferight":
+            case "d": return Camera.straferight;
+            
+            // Actions
             case "enter": return Camera.enter;
-            case "space": return Camera.space;
-            case "ctrl": return Camera.ctrl;
-            case "strafeleft": return Camera.strafeleft;
-            case "straferight": return Camera.straferight;
-            case "first": return Camera.first;
-            case "second": return Camera.second;
-            case "third": return Camera.third;
-            case "pgup": return Camera.pgup;
-            case "pgdn": return Camera.pgdn;
-            case "fourth": return Camera.fourth;
+            case "space":
+            case "jump": return Camera.space;
+            case "ctrl":
+            case "crouch": return Camera.ctrl;
+            case "interact":
+            case "e": return Camera.interact;
+            case "reload":
+            case "r": return Camera.reload;
+            
+            // Weapon slots
+            case "first":
+            case "1": return Camera.first;
+            case "second":
+            case "2": return Camera.second;
+            case "third":
+            case "3": return Camera.third;
+            case "fourth":
+            case "4": return Camera.fourth;
+            
+            // Mouse
+            case "leftclick":
+            case "shoot":
+            case "attack": return Camera.leftclick;
+            
+            // General
+            case "esc":
+            case "escape": return Camera.esc;
+            case "f4":
+            case "fullscreen": return Camera.f4;
+            
             default: return false;
         }
     }
@@ -421,21 +511,58 @@ public class ReApi {
     public boolean is_key_released(String keyname) {
         keyname = keyname.toLowerCase();
         switch (keyname) {
-            case "left": return !Camera.left;
-            case "right": return !Camera.right;
-            case "forward": return !Camera.forward;
-            case "back": return !Camera.back;
+            // Menu navigation
+            case "left":
+            case "menuleft": return !Camera.menuleft;
+            case "right":
+            case "menuright": return !Camera.menuright;
+            case "up":
+            case "menuup": return !Camera.menuup;
+            case "down":
+            case "menudown": return !Camera.menudown;
+            
+            // Movement
+            case "forward":
+            case "w": return !Camera.forward;
+            case "back":
+            case "s": return !Camera.back;
+            case "strafeleft":
+            case "a": return !Camera.strafeleft;
+            case "straferight":
+            case "d": return !Camera.straferight;
+            
+            // Actions
             case "enter": return !Camera.enter;
-            case "space": return !Camera.space;
-            case "ctrl": return !Camera.ctrl;
-            case "strafeleft": return !Camera.strafeleft;
-            case "straferight": return !Camera.straferight;
-            case "first": return !Camera.first;
-            case "second": return !Camera.second;
-            case "third": return !Camera.third;
-            case "pgup": return !Camera.pgup;
-            case "pgdn": return !Camera.pgdn;
-            case "fourth": return !Camera.fourth;
+            case "space":
+            case "jump": return !Camera.space;
+            case "ctrl":
+            case "crouch": return !Camera.ctrl;
+            case "interact":
+            case "e": return !Camera.interact;
+            case "reload":
+            case "r": return !Camera.reload;
+            
+            // Weapon slots
+            case "first":
+            case "1": return !Camera.first;
+            case "second":
+            case "2": return !Camera.second;
+            case "third":
+            case "3": return !Camera.third;
+            case "fourth":
+            case "4": return !Camera.fourth;
+            
+            // Mouse
+            case "leftclick":
+            case "shoot":
+            case "attack": return !Camera.leftclick;
+            
+            // General
+            case "esc":
+            case "escape": return !Camera.esc;
+            case "f4":
+            case "fullscreen": return !Camera.f4;
+            
             default: return true; // consider default as released
         }
     }

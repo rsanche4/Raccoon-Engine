@@ -13,7 +13,7 @@ public class Screen {
 	public static Map<String, Portal> portalMap;
 	public static Map<Integer, Boolean> portalCollisionData;
 	public static boolean is_menu = true;
-	private int half_screen_height = Main.game_height/2;
+	public static int half_screen_height = Main.game_height/2;
 	private int half_screen_width = Main.game_width/2;
 	private float[] depth_buffer;
 	public static int fog_r = 0x10;

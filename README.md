@@ -155,27 +155,57 @@ The collisions of the game are mainly handled very simply. If you are crouching,
 
 ### 11. Control Scheme
 
-| Key           | Action / Description       |
-|---------------|----------------------------|
-| *Arrow Left   | Turn left                  |
-| *Arrow Right  | Turn right                 |
-| *Arrow Up     | Move forward               |
-| *Arrow Down   | Move backward              |
-| Enter         | Confirm                    |
-| Ctrl          | Interact #1                |
-| Space         | Interact #2                |
-| *Comma (,)    | Strafe left                |
-| *Period (.)   | Strafe right               |
-| 1             | Extra Buttons #1           |
-| 2             | Extra Buttons #2           |
-| 3             | Extra Buttons #3           |
-| 4             | Extra Buttons #4           |
-| *Page Up      | Jump                       |
-| *Page Down    | Crouch                     |
-| *F4           | Toggle fullscreen          |
-| *Escape       | Exit game                  |
+**General**
 
-Note*: These buttons have a hardcoded functionality in the engine. These means that you cannot change what they do. The majority of these are just movement buttons. But the "interact" are up to you how you want to use them. For example, 1-4 could be used for switching to different items, space could be used for interacting with other objects, etc!
+Esc - Quit
+
+F4 - Fullscreen
+
+**Weapon / Item Slots**
+
+1 - First
+
+2 - Second
+
+3 - Third
+
+4 - Fourth
+
+**Movement & Actions**
+
+W - Forward
+
+A - Strafe Left
+
+S - Back
+
+D - Strafe Right
+
+E - Interact
+
+R - Reload
+
+Ctrl - Crouch
+
+Space - Jump
+
+**Menu Controls**
+
+Enter - Start / Confirm
+
+Up Arrow - Menu Up
+
+Down Arrow - Menu Down
+
+Left Arrow - Menu Left
+
+Right Arrow - Menu Right
+
+**Mouse**
+
+Left Click - Shoot / Throw / Hit
+
+Mouse Movement - Look Up / Down, Turn Left / Right
 
 ### 12. Scripting Your Game
 
@@ -257,3 +287,4 @@ Notes:
 - Also ensure we can have an api where we can essentially change the floor or ceiling or world basically somehow so we can have different images or other textures we can swap with etc
 - I should add also a pathfinding algorithm (Greedy Best First Search is good enough)
 - Angle looks for the sprites (this is possible through scripting so figure it out for now)
+- In texture file add the ability for wide textures. And editor. So like it doesnt just span one unit but we can specific the actual width of how many units in the world that texture will expand etc

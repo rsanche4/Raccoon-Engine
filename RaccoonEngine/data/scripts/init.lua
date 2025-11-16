@@ -3,10 +3,7 @@ local script_index = ...
 REAPI:log("Running Init Script from Lua!!")
 REAPI:set_player_pos(0.1, 1, 0.1)
 
-REAPI:set_move_speed(0.5)
---REAPI:set_turn_speed(1)
-
-REAPI:load_map("openworld.txt")
+REAPI:load_map("level_test.txt")
 --REAPI:set_skybox("day.png", 1)
 REAPI:add_script("show_debug.lua")
 --REAPI:add_script("show_ui.lua")
