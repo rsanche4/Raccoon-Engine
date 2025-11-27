@@ -31,6 +31,7 @@ public class Screen {
 	float deltatheta = total_fov / Main.game_width;
 	public static int max_count = 100;
 	public static boolean plane_texture = true;
+	public static boolean sky_texture_bool = true;
 	private final int[] ZEROS; // allocate once at init
 	private final float[] MAX_DEPTHS;
 	private String transparentTex = "black.png";
@@ -320,6 +321,19 @@ public class Screen {
 	}
 	
 	private void draw_sky(float dir, int[] skybox_picture) {
+		if (!sky_texture_bool) {
+			for (int y = 0; y < Main.game_height; y++) {
+				for (int x = 0; x < Main.game_width; x++) { 
+					if (gamepixels[y * Main.game_width + x]!=skybox_refresh_val && gamepixels[y * Main.game_width + x]!=0x000000) {
+						continue;
+					}
+					gamepixels[y * Main.game_width + x] = skybox_picture[0];
+					depth_buffer[y * Main.game_width + x] = fog_end;
+				}
+			}
+			return;
+		}
+		
 		int skybox_width = Main.game_width * 4;  
 		int skybox_height = Main.game_height; 
 

@@ -282,9 +282,13 @@ Raccoon Engine is released under the MIT License, one of the most permissive ope
 You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to [email me](mailto:rsanzek25@gmail.com)!
 
 Notes: 
-- Fix phantom ray glitch at the core
-- Add also the ability to just have images as sectors textures. So literally just an image skybox type thing, but just texture slapped behind.
-- Also ensure we can have an api where we can essentially change the floor or ceiling or world basically somehow so we can have different images or other textures we can swap with etc
-- I should add also a pathfinding algorithm (Greedy Best First Search is good enough)
-- Angle looks for the sprites (this is possible through scripting so figure it out for now)
-- In texture file add the ability for wide textures. And editor. So like it doesnt just span one unit but we can specific the actual width of how many units in the world that texture will expand etc
+Core:
+  - Fix phantom ray glitch at the core
+Nice:
+  - Add also the ability to just have images as sectors textures. So literally just an image skybox type thing, but just texture slapped behind.
+  - change sectors height dynamically
+  - find a way to get the textures array and just change it to something else maybe the wall ids thing
+  - In texture file add the ability for wide textures, a toggle which is a texture that expans the entire sector, not just repeated across units.
+Extras:
+  - I should add also a pathfinding algorithm (Greedy Best First Search is good enough)
+  - Angle looks for the sprites (this is possible through scripting so figure it out for now)

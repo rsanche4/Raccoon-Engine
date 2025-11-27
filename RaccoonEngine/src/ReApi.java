@@ -390,6 +390,14 @@ public class ReApi {
     	return Screen.plane_texture;
     }
     
+    public void toggle_sky_texture(boolean skyToggle) {
+    	Screen.sky_texture_bool = skyToggle;
+    }
+    
+    public boolean get_toggle_sky_texture() {
+    	return Screen.sky_texture_bool;
+    }
+    
     public boolean is_key_pressed_once(String keyname) {
         keyname = keyname.toLowerCase();
         switch (keyname) {

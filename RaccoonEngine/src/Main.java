@@ -7,6 +7,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 public class Main extends JFrame implements Runnable {
@@ -68,6 +70,7 @@ public class Main extends JFrame implements Runnable {
 		);
 
 		try {
+			
 			for (Path folder : dataFolders) {
 				Files.walkFileTree(folder, new SimpleFileVisitor<>() {
 					@Override
@@ -79,6 +82,9 @@ public class Main extends JFrame implements Runnable {
 					}
 				});
 			}
+			
+			BufferedImage icon = ImageIO.read(new File("data/gameicon.png"));
+	        setIconImage(icon);
 
 			camera = new Camera();
 			camera.setFrame(this); // Set the frame reference for mouse centering

@@ -59,7 +59,7 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener {
 	private boolean crouching_in_progress = false;
 	public static float buffer_dist = 0.2f;
 	private int pitch = 0;
-	private int max_pitch = 200;
+	private int max_pitch = 400;
 	private int min_pitch = -max_pitch;
 	private int half_screen_h = Screen.half_screen_height;
 	
