@@ -191,7 +191,6 @@ public class Screen {
 			float dist_vertical = manhattan_dist(startx, startz, startx+dx_2, startz+dz_2);
 
 			String wallkey;
-			// Pick the closer intersection fixing the phantom ray glitch by doing a whole number epsilon manip
 			float decimal_value_wall_hit;
 			if (dist_horizontal < dist_vertical) {
 				startx = startx + dx_1;
@@ -206,7 +205,9 @@ public class Screen {
 				startx = new_starts[0];
 				startz = new_starts[1];
 			}
-			if (isWholeNumber(startx)) {
+			if (isWholeNumber(startx) && isWholeNumber(startz)) {
+				continue;
+			} else if (isWholeNumber(startx)) {
 				wallkey = makeWallKey(startx, (float)Math.floor(startz), startx, (float)Math.floor(startz+1));
 				float abs_startz = Math.abs(startz);
 				decimal_value_wall_hit = (float) (abs_startz-Math.floor(abs_startz));
