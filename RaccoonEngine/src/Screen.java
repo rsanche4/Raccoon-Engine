@@ -191,22 +191,30 @@ public class Screen {
 			float dist_vertical = manhattan_dist(startx, startz, startx+dx_2, startz+dz_2);
 
 			String wallkey;
-			// Pick the closer intersection
+			// Pick the closer intersection fixing the phantom ray glitch by doing a whole number epsilon manip
 			float decimal_value_wall_hit;
 			if (dist_horizontal < dist_vertical) {
 				startx = startx + dx_1;
 				startz = startz + dz_1;
+				float[] new_starts = fixPhantomRay(startx, startz);
+				startx = new_starts[0];
+				startz = new_starts[1];
+			} else {
+				startx = startx + dx_2;
+				startz = startz + dz_2;
+				float[] new_starts = fixPhantomRay(startx, startz);
+				startx = new_starts[0];
+				startz = new_starts[1];
+			}
+			if (isWholeNumber(startx)) {
 				wallkey = makeWallKey(startx, (float)Math.floor(startz), startx, (float)Math.floor(startz+1));
 				float abs_startz = Math.abs(startz);
 				decimal_value_wall_hit = (float) (abs_startz-Math.floor(abs_startz));
 			} else {
-				startx = startx + dx_2;
-				startz = startz + dz_2;
 				wallkey = makeWallKey((float)Math.floor(startx), startz, (float)Math.floor(startx+1), startz);
 				float abs_startx = Math.abs(startx);
 				decimal_value_wall_hit = (float) (abs_startx-Math.floor(abs_startx));
 			}
-
 			float full_euclid_dist = euclid_dist(Camera.player_x, Camera.player_z, startx, startz);
 			if (wallMap.containsKey(wallkey)) {
 
@@ -234,7 +242,7 @@ public class Screen {
 				for (int y=dy_wallbottom_clipped; y < Main.game_height; y++) {
 					draw_plane_texture(x, y, fl_h, y - half_screen_height, ray_angle, full_euclid_dist, startx, startz, sector_info.floorTexture, sector_info.floorBrightness);
 				}
-
+				
 				break;
 			}
 
@@ -318,6 +326,52 @@ public class Screen {
 			x2 = tmpX; z2 = tmpZ;
 		}
 		return x1 + "," + z1 + "," + x2 + "," + z2;
+	}
+	
+	private boolean isWholeNumber(float number) {
+	    return number % 1 == 0;
+	}
+	
+	private float[] fixPhantomRay(float startx, float startz) {
+		float[] coords = new float[] {startx, startz};
+		if (isWholeNumber(startx) && isWholeNumber(startz)) {
+			// exact coordinates not allowed, check 4 walls to figure out where is the wallkey we want
+			coords[0] = fixPhantomRay_x(startx, startz, 0.001f);
+			if (coords[0]==startx) {
+				coords[1] = fixPhantomRay_z(startx, startz, 0.001f);
+			}
+		}
+		return coords;
+	}
+	
+	private float fixPhantomRay_x(float startx, float startz, float small_eps) {
+		float original_startx = startx;
+		startx = startx+small_eps;
+		String wallkey_candidateXp = makeWallKey((float)Math.floor(startx), startz, (float)Math.floor(startx+1), startz);
+		if (wallMap.containsKey(wallkey_candidateXp) || portalMap.containsKey(wallkey_candidateXp)) {
+			return startx;
+		}
+		startx = startx-2*small_eps;
+		String wallkey_candidateXm = makeWallKey((float)Math.floor(startx), startz, (float)Math.floor(startx+1), startz);
+		if (wallMap.containsKey(wallkey_candidateXm) || portalMap.containsKey(wallkey_candidateXm)) {
+			return startx;
+		}
+		return original_startx;
+	}
+	
+	private float fixPhantomRay_z(float startx, float startz, float small_eps) {
+		float original_startz = startz;
+		startz = startz+small_eps;
+		String wallkey_candidateZp = makeWallKey(startx, (float)Math.floor(startz), startx, (float)Math.floor(startz+1));
+		if (wallMap.containsKey(wallkey_candidateZp) || portalMap.containsKey(wallkey_candidateZp)) {
+			return startz;
+		}
+		startz = startz-2*small_eps;
+		String wallkey_candidateZm = makeWallKey(startx, (float)Math.floor(startz), startx, (float)Math.floor(startz+1));
+		if (wallMap.containsKey(wallkey_candidateZm) || portalMap.containsKey(wallkey_candidateZm)) {
+			return startz;
+		}
+		return original_startz;
 	}
 	
 	private void draw_sky(float dir, int[] skybox_picture) {

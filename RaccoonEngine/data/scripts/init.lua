@@ -1,11 +1,11 @@
 local script_index = ...
 
 REAPI:log("Running Init Script from Lua!!")
-REAPI:set_player_pos(0.1, 1, 0.1)
-
+REAPI:set_player_pos(165.08583069, 1, -58.284534451)
+REAPI:set_dir_player(1.30920017)
 REAPI:load_map("openworld.txt")
 --REAPI:set_skybox("day.png", 1)
---REAPI:add_script("show_debug.lua")
+REAPI:add_script("show_debug.lua")
 --REAPI:add_script("show_ui.lua")
 max_r = 500
 REAPI:set_max_ray_steps(max_r)

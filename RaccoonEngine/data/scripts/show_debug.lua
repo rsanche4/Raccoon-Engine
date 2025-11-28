@@ -48,7 +48,7 @@ local current_frame = REAPI:debug_stats("frame_num")
 
 -- Display player info (updated every frame)
 local y = 10
-REAPI:displayText(string.format("Pos: (%.2f, %.2f, %.2f) Dir: %.2f", 
+REAPI:displayText(string.format("Pos: (%.8f, %.8f, %.8f) Dir: %.8f", 
     REAPI:get_player_pos_x(), 
     REAPI:get_player_pos_y(), 
     REAPI:get_player_pos_z(), 
