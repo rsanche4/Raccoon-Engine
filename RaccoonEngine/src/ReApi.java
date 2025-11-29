@@ -72,10 +72,6 @@ public class ReApi {
         Main.active_scripts.remove(script_name);
     }
     
-    public String get_skybox() {
-    	return Screen.skybox;
-    }
-    
     public void set_skybox(String skyboxname, float brightness) {
     	Screen.skybox = skyboxname;
     	Screen.skybox_brightness = brightness;
@@ -85,16 +81,8 @@ public class ReApi {
     	Screen.sky_offset = offset;
     }
     
-    public int get_skybox_offset() {
-    	return Screen.sky_offset;
-    }
-    
     public void set_max_ray_steps(int max_count) {
     	Screen.max_count = max_count;
-    }
-    
-    public int get_max_ray_steps() {
-    	return Screen.max_count;
     }
     
     public void load_map(String mapname) {
@@ -274,16 +262,8 @@ public class ReApi {
     	return Screen.manhattan_dist(x1, y1, x2, y2);
     }
     
-    public float get_move_speed() {
-    	return Camera.MOVE_SPEED;
-    }
-    
     public void set_move_speed(float move_speed) {
     	Camera.MOVE_SPEED = move_speed;
-    }
-    
-    public float get_turn_speed() {
-    	return Camera.TURN_SPEED;
     }
     
     public void set_turn_speed(float turn_speed) {
@@ -294,24 +274,12 @@ public class ReApi {
     	Camera.PITCH_SPEED = pitch_speed;
     }
     
-    public int get_pitch_speed() {
-    	return Camera.PITCH_SPEED;
-    }
-    
-    public float get_jump_up_speed() {
-    	return Camera.JUMP_UP_SPEED;
-    }
-    
     public void set_jump_up_speed(float move_up_speed) {
     	Camera.JUMP_UP_SPEED = move_up_speed;
     }
     
     public void set_mouse_sensitivity(float sens_speed) {
     	Camera.MOUSE_SENSITIVITY = sens_speed;
-    }
-    
-    public float get_mouse_sensitivity() {
-    	return Camera.MOUSE_SENSITIVITY;
     }
     
     public void set_gravity_up_multiplier(float grav_up_mult) {
@@ -322,24 +290,8 @@ public class ReApi {
     	Camera.gravity_down_multiplier = grav_dn_mult;
     }
     
-   public float get_gravity_up_multiplier() {
-    	return Camera.gravity_up_multiplier;
-    }
-    
-    public float get_gravity_down_multiplier() {
-    	return Camera.gravity_down_multiplier;
-    }
-    
-    public float get_crouching_speed() {
-    	return Camera.CROUCHING_SPEED;
-    }
-    
     public void set_crouching_speed(float crouch_speed) {
     	Camera.CROUCHING_SPEED = crouch_speed;
-    }
-    
-    public float get_dir_player() {
-    	return Camera.direction_rad;
     }
     
     public void set_dir_player(float dir) {
@@ -350,32 +302,12 @@ public class ReApi {
     	Camera.player_height = player_height;
     }
     
-    public float get_player_height() {
-    	return Camera.player_height;
-    }
-    
     public void set_fog_settings(int r, int g, int b, float start, float end) {
     	Screen.fog_r = r;
     	Screen.fog_g = g;
     	Screen.fog_b = b;
     	Screen.fog_start = start;
     	Screen.fog_end = end;
-    }
-    
-    public int fog_color() {
-    	return (Screen.fog_r << 16) | (Screen.fog_g << 8) | Screen.fog_b;
-    }
-    
-    public float get_fog_start() {
-    	return Screen.fog_start;
-    }
-    
-    public float get_fog_end() {
-    	return Screen.fog_end;
-    }
-    
-    public float get_retina_dist() {
-    	return Camera.retina_dist;
     }
     
     public void set_retina_dist(float ret_dist) {
@@ -386,16 +318,40 @@ public class ReApi {
     	Screen.plane_texture = planeToggle;
     }
     
-    public boolean get_toggle_plane_texture() {
-    	return Screen.plane_texture;
-    }
-    
     public void toggle_sky_texture(boolean skyToggle) {
     	Screen.sky_texture_bool = skyToggle;
     }
     
-    public boolean get_toggle_sky_texture() {
-    	return Screen.sky_texture_bool;
+    public void toggle_wall_texture(boolean wallToggle) {
+    	Screen.wall_texture_bool = wallToggle;
+    }
+    
+    public void change_world_sector_texture(String type, int sector_id, String texture, float brightness) {
+    	if (type.toLowerCase().contentEquals("floor")) {
+    		Screen.sectorMap.get(sector_id).floorTexture = texture;
+    		Screen.sectorMap.get(sector_id).floorBrightness = brightness;
+    	} else if (type.toLowerCase().contentEquals("ceiling")) {
+    		Screen.sectorMap.get(sector_id).ceilTexture = texture;
+    		Screen.sectorMap.get(sector_id).ceilBrightness = brightness;
+    	}
+    }
+    
+    public void change_world_wall_texture(String wallkey, String texture, float brightness) {
+    	Screen.wallMap.get(wallkey).wallTexture = texture;
+    	Screen.wallMap.get(wallkey).wallBrightness = brightness;
+    }
+    
+    public void change_world_portal_texture(String type, String wallkey, String texture, float brightness) {
+    	if (type.toLowerCase().contentEquals("top")) {
+    		Screen.portalMap.get(wallkey).portalTopTexture = texture;
+    		Screen.portalMap.get(wallkey).portalTopBrightness = brightness;
+    	} else if (type.toLowerCase().contentEquals("middle")) {
+    		Screen.portalMap.get(wallkey).portalMiddleTexture = texture;
+    		Screen.portalMap.get(wallkey).portalMiddleBrightness = brightness;
+    	} else if (type.toLowerCase().contentEquals("bottom")) {
+    		Screen.portalMap.get(wallkey).portalBottomTexture = texture;
+    		Screen.portalMap.get(wallkey).portalBottomBrightness = brightness;
+    	}
     }
     
     public boolean is_key_pressed_once(String keyname) {

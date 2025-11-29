@@ -32,6 +32,7 @@ public class Screen {
 	public static int max_count = 100;
 	public static boolean plane_texture = true;
 	public static boolean sky_texture_bool = true;
+	public static boolean wall_texture_bool = true;
 	private final int[] ZEROS; // allocate once at init
 	private final float[] MAX_DEPTHS;
 	private String transparentTex = "black.png";
@@ -229,7 +230,6 @@ public class Screen {
 				
 				float fl_h = Camera.player_y-sector_info.floor_height;
 				float cl_h = sector_info.ceil_height-Camera.player_y;
-				
 				
 				for (int y=0; y < dy_walltop_clipped; y++) {
 					draw_plane_texture(x, y, cl_h, half_screen_height - y, ray_angle, full_euclid_dist, startx, startz, sector_info.ceilTexture, sector_info.ceilBrightness);
@@ -497,11 +497,16 @@ public class Screen {
 	private void draw_wall_texture(int x, int y, float decimal_value_wall_hit, int dy_walltop, int dy_wallbottom, String wallTexture, float wallBrightness, int wall_column_pixel_size, float full_euclid_dist) {
 		if (gamepixels[y * Main.game_width + x]==0x000000) {
 			Texture texture_wall_obj = Main.allTextures.get(wallTexture);
-			int u = (int)Math.round(decimal_value_wall_hit*texture_wall_obj.IMG_WID); // similar to u v mapping so the idea is u is the x along texture where, and v is going to be the y of that texture where
-			int v = (int)Math.round((((float)y-(float)dy_walltop)/((float)wall_column_pixel_size))*texture_wall_obj.IMG_HEI);
-			u = Math.max(0, Math.min(texture_wall_obj.IMG_WID - 1, u));
-		    v = Math.max(0, Math.min(texture_wall_obj.IMG_HEI - 1, v));
-		    int texture_color = texture_wall_obj.pixels[v * texture_wall_obj.IMG_WID + u];
+			int texture_color = 0;
+			if (wall_texture_bool) {
+				int u = (int)Math.round(decimal_value_wall_hit*texture_wall_obj.IMG_WID); // similar to u v mapping so the idea is u is the x along texture where, and v is going to be the y of that texture where
+				int v = (int)Math.round((((float)y-(float)dy_walltop)/((float)wall_column_pixel_size))*texture_wall_obj.IMG_HEI);
+				u = Math.max(0, Math.min(texture_wall_obj.IMG_WID - 1, u));
+			    v = Math.max(0, Math.min(texture_wall_obj.IMG_HEI - 1, v));
+			    texture_color = texture_wall_obj.pixels[v * texture_wall_obj.IMG_WID + u];
+			} else {
+				texture_color = texture_wall_obj.pixels[0];
+			}
 		    if (texture_color!=0x000000) {
 		    	depth_buffer[y * Main.game_width + x] = full_euclid_dist;
 		    	gamepixels[y * Main.game_width + x] = adjustBrightness(texture_color, wallBrightness, x, y);
