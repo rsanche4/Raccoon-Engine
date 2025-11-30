@@ -4,7 +4,7 @@ REAPI:log("Running Init Script from Lua!!")
 REAPI:set_player_pos(0, 1, 0)
 REAPI:set_dir_player(0)
 REAPI:load_map("openworld.txt")
---REAPI:add_script("show_debug.lua")
+REAPI:add_script("sky_move.lua")
 REAPI:add_script("show_ui.lua")
 max_r = 500
 REAPI:set_max_ray_steps(max_r)

@@ -281,8 +281,8 @@ Raccoon Engine is released under the MIT License, one of the most permissive ope
 
 You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to [email me](mailto:rsanzek25@gmail.com)!
 
-Extras to implement:
+Notes:
 
-  - I should add also a pathfinding algorithm (Greedy Best First Search is good enough)
+  - Better pathfinding algorithm should be implemented (Greedy Best First Search is good enough)
 
   - Angle looks for the sprites (this is possible through scripting in native Lua so)
