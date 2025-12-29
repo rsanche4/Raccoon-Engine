@@ -45,7 +45,8 @@ public class ReApi {
             			LuaValue.valueOf(entity.sprite_length),
             			LuaValue.valueOf(entity.sprite_brightness),
             			LuaValue.valueOf(entity.spritename),
-            			LuaValue.valueOf(entity.spriteId)
+            			LuaValue.valueOf(entity.spriteId),
+            			LuaValue.valueOf(entity.collision_radius)
             	});
 
             	// Single call with all args
@@ -91,12 +92,6 @@ public class ReApi {
         Screen.portalMap = new HashMap<>();
         Screen.portalCollisionData = new HashMap<>();
     	mapname = mapname.toLowerCase();
-    	if (mapname.contentEquals("menu")) {
-    		Screen.is_menu = true;
-    		return;
-    	} else {
-    		Screen.is_menu = false;
-    	}
 
         String path = "data/maps/" + mapname;
 
@@ -261,6 +256,10 @@ public class ReApi {
     public float manhattan_distance_2D(float x1, float y1, float x2, float y2) {
     	return Screen.manhattan_dist(x1, y1, x2, y2);
     }
+    
+    public float euclidean_distance_3D(float x1, float y1, float z1, float x2, float y2, float z2) {
+		return Screen.euclidean_dist_3D(x1, y1, z1, x2, y2, z2);
+	}
     
     public void set_move_speed(float move_speed) {
     	Camera.MOVE_SPEED = move_speed;
@@ -555,8 +554,8 @@ public class ReApi {
 		Screen.current_sfe.stopSound();
 	}
 	
-	public void upsertSprite(float sx, float sy, float sz, float sprite_length, float sprite_brightness, String spriteTextureName, String spriteId, String behavior_script) {
-		Main.allSprites.put(spriteId, new Sprite(sx, sy, sz, sprite_length, sprite_brightness, spriteTextureName, spriteId, behavior_script));
+	public void upsertSprite(float sx, float sy, float sz, float sprite_length, float sprite_brightness, String spriteTextureName, String spriteId, String behavior_script, float collision_radius) {
+		Main.allSprites.put(spriteId, new Sprite(sx, sy, sz, sprite_length, sprite_brightness, spriteTextureName, spriteId, behavior_script, collision_radius));
 	}
 		
 	public void removeSprite(String spriteId) {
@@ -662,12 +661,13 @@ public class ReApi {
 	    return Float.parseFloat(parts[axis]);
 	}
 	
-	public String gbfs_pathfindToward(float source_x, float source_y, float source_z, float targetx, float targety, float targetz, float speed) {
+	public String gbfsPathfindCollision(float source_x, float source_y, float source_z, float targetx, float targety, float targetz, float speed) {
 		// TODO
 		return "Implement";
 	}
 	
-	public String direct_PathfindToward(float source_x, float source_y, float source_z, float targetx, float targety, float targetz, float speed) {
+	// Deprecated
+	public String basicPathfindNoCollision(float source_x, float source_y, float source_z, float targetx, float targety, float targetz, float speed) {
 		float z_dif = Math.abs(targetz-source_z);
 		float y_dif = Math.abs(targety-source_y);
 		float x_dif = Math.abs(targetx-source_x);
@@ -704,6 +704,21 @@ public class ReApi {
         return newx + "," + newy + "," + newz;
 	}
 	
+	public String linePathfind(float source_x, float source_y, float source_z, float targetx, float targety, float targetz, float speed, boolean wall_collision_on, boolean sprite_collision_on) {
+		// TODO add the collision to this as well
+		float dist = euclidean_distance_3D(source_x, source_y, source_z, targetx, targety, targetz);
+		// If close enough, just go to target
+		if (dist <= speed) {
+			return targetx + "," + targety + "," + targetz;
+		}
+		float dist_over_speed = dist/speed;
+		float t = 1/dist_over_speed;
+		float straight_line_eqx = source_x + (targetx - source_x)*t;
+		float straight_line_eqy = source_y + (targety - source_y)*t;
+		float straight_line_eqz = source_z + (targetz - source_z)*t;
+		return straight_line_eqx + "," + straight_line_eqy + "," + straight_line_eqz;
+	}
+	
     public void addUIToScreen(String textureName, int pos_x, int pos_y, int opacity) {
 	    Texture texture = Main.allTextures.get(textureName);
 	    if (texture == null) return;
@@ -714,7 +729,8 @@ public class ReApi {
 	            int screenY = pos_y + y;
 	            if (screenX >= 0 && screenX < Main.game_width && screenY >= 0 && screenY < Main.game_height) {
 	                int srcPixel = texture.pixels[y * texture.IMG_WID + x];
-	                if (srcPixel==0xFF000000) {
+	                int alpha = (srcPixel >>> 24) & 0xFF;
+	                if (alpha == 0) {
 	                	continue;
 	                } else {
 	                    int screenIndex = screenY * Main.game_width + screenX;

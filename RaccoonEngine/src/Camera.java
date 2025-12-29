@@ -3,6 +3,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.Map;
 import java.awt.Robot;
 import java.awt.AWTException;
 import java.awt.Point;
@@ -437,6 +438,17 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener {
 		return false;
 	}
 	
+	private boolean collisionWithSprites(float srcx, float srcz) {
+		for (Map.Entry<String, Sprite> entry : Main.allSprites.entrySet()) {
+			Sprite entity = entry.getValue();
+			float dist = Screen.euclid_dist(srcx, srcz, entity.spriteXPos, entity.spriteZPos);
+			if (dist < entity.collision_radius) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private boolean is_collision(float val_to_add_x, float val_to_add_z) {
 		float temp_x = player_x;
 		float temp_z = player_z;
@@ -447,7 +459,9 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener {
 		int possible_sector = Screen.update_player_sector(temp_x, temp_z);
 		int sectorA = Math.min(possible_sector, player_sector);
 		int sectorB = Math.max(possible_sector, player_sector);
-		if ((possible_sector<0) || (sectorA!=sectorB && isPortalSolid(sectorA, sectorB)) || (Screen.sectorMap.get(possible_sector).floor_height>=player_y) || (player_y>=Screen.sectorMap.get(possible_sector).ceil_height)) {
+		if ((possible_sector<0) || (sectorA!=sectorB && isPortalSolid(sectorA, sectorB)) || 
+				(Screen.sectorMap.get(possible_sector).floor_height>=player_y) || (player_y>=Screen.sectorMap.get(possible_sector).ceil_height) ||
+				(collisionWithSprites(temp_x, temp_z))) {
 			return true;
 		}
 		if (possible_sector>0) {
@@ -484,76 +498,78 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener {
 			}
 		}
 		
-		// Movement (WASD)
-		if (forward) {			
-			if (!is_collision((float)Math.cos(direction_rad) * (MOVE_SPEED + buffer_dist), 0)) {
-				player_x += Math.cos(direction_rad) * MOVE_SPEED;
+		if (Screen.sectorMap!=null) {
+			// Movement (WASD)
+			if (forward) {			
+				if (!is_collision((float)Math.cos(direction_rad) * (MOVE_SPEED + buffer_dist), 0)) {
+					player_x += Math.cos(direction_rad) * MOVE_SPEED;
+				}
+				if (!is_collision(0, (float)Math.sin(direction_rad) * (MOVE_SPEED + buffer_dist))) {
+					player_z += Math.sin(direction_rad) * MOVE_SPEED;
+				}
 			}
-			if (!is_collision(0, (float)Math.sin(direction_rad) * (MOVE_SPEED + buffer_dist))) {
-				player_z += Math.sin(direction_rad) * MOVE_SPEED;
+			else if (back) {
+				if (!is_collision((float) -Math.cos(direction_rad) * (MOVE_SPEED + buffer_dist), 0)) {
+					player_x -= Math.cos(direction_rad) * MOVE_SPEED;
+				}
+				if (!is_collision(0, (float) -Math.sin(direction_rad) * (MOVE_SPEED + buffer_dist))) {
+					player_z -= Math.sin(direction_rad) * MOVE_SPEED;
+				}
 			}
-		}
-		else if (back) {
-			if (!is_collision((float) -Math.cos(direction_rad) * (MOVE_SPEED + buffer_dist), 0)) {
-				player_x -= Math.cos(direction_rad) * MOVE_SPEED;
+			if (straferight) {
+				if (!is_collision((float)Math.cos(direction_rad - Math.PI/2) * (MOVE_SPEED + buffer_dist), 0)) {
+					player_x += Math.cos(direction_rad - Math.PI/2) * MOVE_SPEED;
+				}
+				if (!is_collision(0, (float)Math.sin(direction_rad - Math.PI/2) * (MOVE_SPEED + buffer_dist))) {
+					player_z += Math.sin(direction_rad - Math.PI/2) * MOVE_SPEED;
+				}
 			}
-			if (!is_collision(0, (float) -Math.sin(direction_rad) * (MOVE_SPEED + buffer_dist))) {
-				player_z -= Math.sin(direction_rad) * MOVE_SPEED;
+			else if (strafeleft) {
+				if (!is_collision((float)Math.cos(direction_rad + Math.PI/2) * (MOVE_SPEED + buffer_dist), 0)) {
+					player_x += Math.cos(direction_rad + Math.PI/2) * MOVE_SPEED;
+				}
+				if (!is_collision(0, (float)Math.sin(direction_rad + Math.PI/2) * (MOVE_SPEED + buffer_dist))) {
+					player_z += Math.sin(direction_rad + Math.PI/2) * MOVE_SPEED;
+				}
 			}
-		}
-		if (straferight) {
-			if (!is_collision((float)Math.cos(direction_rad - Math.PI/2) * (MOVE_SPEED + buffer_dist), 0)) {
-				player_x += Math.cos(direction_rad - Math.PI/2) * MOVE_SPEED;
-			}
-			if (!is_collision(0, (float)Math.sin(direction_rad - Math.PI/2) * (MOVE_SPEED + buffer_dist))) {
-				player_z += Math.sin(direction_rad - Math.PI/2) * MOVE_SPEED;
-			}
-		}
-		else if (strafeleft) {
-			if (!is_collision((float)Math.cos(direction_rad + Math.PI/2) * (MOVE_SPEED + buffer_dist), 0)) {
-				player_x += Math.cos(direction_rad + Math.PI/2) * MOVE_SPEED;
-			}
-			if (!is_collision(0, (float)Math.sin(direction_rad + Math.PI/2) * (MOVE_SPEED + buffer_dist))) {
-				player_z += Math.sin(direction_rad + Math.PI/2) * MOVE_SPEED;
-			}
-		}
 
-		// Jumping and crouching logic (unchanged)
-		float sector_h = Screen.sectorMap.get(player_sector).floor_height;
-		float player_h_limit = sector_h+player_height;
-		float player_f_limit = sector_h+crouch_diff_height;
-		float move_up_speed = JUMP_UP_SPEED*gravity_up_multiplier;
-		float move_dn_speed = JUMP_UP_SPEED*gravity_down_multiplier;
+			// Jumping and crouching logic (unchanged)
+			float sector_h = Screen.sectorMap.get(player_sector).floor_height;
+			float player_h_limit = sector_h+player_height;
+			float player_f_limit = sector_h+crouch_diff_height;
+			float move_up_speed = JUMP_UP_SPEED*gravity_up_multiplier;
+			float move_dn_speed = JUMP_UP_SPEED*gravity_down_multiplier;
 
-		if (space_once) {
-			jumping_in_progress = true;
-		} else if (jumping_in_progress) {
-			if (!jumping_down_flag && player_y<player_h_limit+jump_diff_height) {
-				player_y += move_up_speed;
-			} else if (player_y > player_h_limit) {
-				player_y -= move_dn_speed;
-				jumping_down_flag = true;
+			if (space_once) {
+				jumping_in_progress = true;
+			} else if (jumping_in_progress) {
+				if (!jumping_down_flag && player_y<player_h_limit+jump_diff_height) {
+					player_y += move_up_speed;
+				} else if (player_y > player_h_limit) {
+					player_y -= move_dn_speed;
+					jumping_down_flag = true;
+				} else {
+					jumping_in_progress = false;
+					jumping_down_flag = false;
+				}
+			} else if (!crouching_in_progress && ctrl) {
+				crouching_in_progress = true;
+			} else if (crouching_in_progress) {
+				if (player_y > player_f_limit) {
+					player_y -= CROUCHING_SPEED;
+				} else {
+					crouching_in_progress = false;
+				}
 			} else {
-				jumping_in_progress = false;
-				jumping_down_flag = false;
-			}
-		} else if (!crouching_in_progress && ctrl) {
-			crouching_in_progress = true;
-		} else if (crouching_in_progress) {
-			if (player_y > player_f_limit) {
-				player_y -= CROUCHING_SPEED;
-			} else {
-				crouching_in_progress = false;
-			}
-		} else {
-			if (Math.abs(player_y-player_h_limit)<move_up_speed || Math.abs(player_y-player_h_limit)<move_dn_speed) {
-				player_y = player_h_limit;
-			}
-			else if (player_y<player_h_limit) {
-				player_y += move_up_speed;
-			}
-			else if (player_y > player_h_limit) {
-				player_y -= move_dn_speed;
+				if (Math.abs(player_y-player_h_limit)<move_up_speed || Math.abs(player_y-player_h_limit)<move_dn_speed) {
+					player_y = player_h_limit;
+				}
+				else if (player_y<player_h_limit) {
+					player_y += move_up_speed;
+				}
+				else if (player_y > player_h_limit) {
+					player_y -= move_dn_speed;
+				}
 			}
 		}
 

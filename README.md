@@ -233,7 +233,11 @@ Since the source files are accessible, you can dive into the main section of the
 
 ### 15. Publishing Your Game!
 
-For Java, there are several ways to turn your game into an executable, with Launch4j being one popular option. Typically, this involves creating an executable JAR file or using scripts to handle the launch. While this process is beyond the scope of this guide, I'm happy to help if you need assistance-just send me an email! My contact information can be found at the end.
+For Java, there are several ways to turn your game into an executable, with Launch4j being one popular option. Typically, this involves creating an executable JAR file or using scripts to handle the launch.
+
+Tutorial:
+
+https://youtu.be/jKlyHG-zbjk
 
 ### 16. Check Out the Demo!
 
@@ -286,3 +290,7 @@ Notes:
   - Better pathfinding algorithm should be implemented (Greedy Best First Search is good enough)
 
   - Angle looks for the sprites (this is possible through scripting in native Lua so)
+
+  - Encrypting the Data Folders so when we publish games it's not all exposed. Just rewrite Main.java so that if it fails to find a folder named data, then it searches for the .pak or something like data to decompress. Then also write python file to ecrypt it all.
+
+  - Tutorial on how to publish game as an exec with encrypted files for windows, app for apple, and runnable for linux

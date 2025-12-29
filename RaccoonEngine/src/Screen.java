@@ -12,7 +12,6 @@ public class Screen {
 	public static Map<String, Wall> wallMap;
 	public static Map<String, Portal> portalMap;
 	public static Map<Integer, Boolean> portalCollisionData;
-	public static boolean is_menu = true;
 	public static int half_screen_height = Main.game_height/2;
 	private int half_screen_width = Main.game_width/2;
 	private float[] depth_buffer;
@@ -61,7 +60,7 @@ public class Screen {
 	public void update(long frame_num) {
 	    System.arraycopy(ZEROS, 0, gamepixels, 0, gamepixels.length); // About 20% faster than doing Arrays.fill
 	    System.arraycopy(MAX_DEPTHS, 0, depth_buffer, 0, depth_buffer.length);
-	    if (!is_menu) {
+	    if (sectorMap!=null) {
 	        Camera.player_sector = update_player_sector(Camera.player_x, Camera.player_z);
 	        CountDownLatch latch = new CountDownLatch(Main.game_width);	        
 	        for (int x = 0; x < Main.game_width; x++) {
@@ -317,6 +316,10 @@ public class Screen {
 	
 	public static float manhattan_dist(float x1, float z1, float x2, float z2) {
 		return Math.abs(z2-z1)+Math.abs(x2-x1);
+	}
+	
+	public static float euclidean_dist_3D(float x1, float y1, float z1, float x2, float y2, float z2) {
+		return (float) Math.sqrt((z2-z1)*(z2-z1)+(y2-y1)*(y2-y1)+(x2-x1)*(x2-x1));
 	}
 
 	public static String makeWallKey(float x1, float z1, float x2, float z2) {

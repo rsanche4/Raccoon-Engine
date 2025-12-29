@@ -1,18 +1,14 @@
 local script_index = ...
 
-REAPI:log("Running Init Script from Lua!!")
+REAPI:load_map("debugA.txt")
 REAPI:set_player_pos(0, 1, 0)
-REAPI:set_dir_player(0)
-REAPI:load_map("openworld.txt")
-REAPI:add_script("sky_move.lua")
-REAPI:add_script("show_ui.lua")
-max_r = 500
-REAPI:set_max_ray_steps(max_r)
-REAPI:set_fog_settings(15,10,0, 5,max_r)
---REAPI:upsertSprite(0, -0.4, 50, 25.0, 1.0, "seldel.png", "seldel", "behaveseldel.lua")
-REAPI:upsertSprite(0, 3.6, 50, 10000.0, 1.0, "tree.png", "tree", "behave.lua")
---REAPI:upsertSprite(0, -0.4, 10, 25.0, 1.0, "pepe.png", "pepe", "behavepepe.lua")
-REAPI:playBGM("outdoor.wav", true, 1)
---REAPI:toggle_plane_texture(false)
---REAPI:toggle_wall_texture(false)
+REAPI:set_dir_player(0.1)
+REAPI:set_max_ray_steps(1000)
+REAPI:set_fog_settings(0, 0, 1, 25, 1000)
+REAPI:add_script("ui.lua")
+REAPI:add_script("player_script.lua")
+
+-- debugging bullets
+REAPI:writeVar("uuid", 0)
+
 REAPI:endme(script_index)
