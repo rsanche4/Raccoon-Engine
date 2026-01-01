@@ -284,13 +284,3 @@ Raccoon Engine is released under the MIT License, one of the most permissive ope
 ### 19. Contact Me
 
 You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to [email me](mailto:rsanzek25@gmail.com)!
-
-Notes:
-
-  - Better pathfinding algorithm should be implemented (Greedy Best First Search is good enough)
-
-  - Angle looks for the sprites (this is possible through scripting in native Lua so)
-
-  - Encrypting the Data Folders so when we publish games it's not all exposed. Just rewrite Main.java so that if it fails to find a folder named data, then it searches for the .pak or something like data to decompress. Then also write python file to ecrypt it all.
-
-  - Tutorial on how to publish game as an exec with encrypted files for windows, app for apple, and runnable for linux
