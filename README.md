@@ -265,6 +265,10 @@ Because of the column-based rendering, true looking up and down would cause visu
 
 There are no true 3D polygons for objects or enemies. Instead, sprites are "billboarded", or flat images always facing the player. To create the illusion of 3D, you could accomplish with the help of scripting the ability to change the sprite image being shown to a different one depending on the viewing angle (front view, side view, back view, etc.).
 
+**Infinitely Sprite Y Collision**
+
+Borrowed from Doom's original architecture, sprite collision is handled only on the horizontal plane (X and Z axes), with height completely ignored. As a result, you can't move directly over or under enemies or objects that have collision enabled.
+
 **Grid-Aligned Walls Only**
 
 The engine uses a strict grid-based system where all walls must be aligned horizontally or vertically. You cannot create diagonal walls, angled corridors, or sloped surfaces. While this is more restrictive than Doom's approach (which allowed arbitrary wall angles), it makes raycasting significantly faster and completely avoids the epsilon/precision problems that Doom's BSP system had to handle. The tradeoff is simplicity and performance for geometric flexibility: your walls snap to the grid, keeping everything clean and predictable.
