@@ -227,6 +227,16 @@ public class ReApi {
         }
     }
     
+    // TODO: this will be used for saving a game
+    public void save_game() {
+    	return;
+    }
+    
+    // TODO this will be used for loading a game
+    public void load_game() {
+    	return;
+    }
+    
     public void set_player_pos(float x, float y, float z) {
     	Camera.player_x = x;
     	Camera.player_y = y;
@@ -546,8 +556,8 @@ public class ReApi {
 		Screen.current_bgm.stopSound();
 	}
 	
-	public void playSE(String bgm_path, boolean loop, float volume) {
-		Screen.current_sfe = new Sound("data/se/"+bgm_path, loop, volume);
+	public void playSE(String se_path, boolean loop, float volume) {
+		Screen.current_sfe = new Sound("data/se/"+se_path, loop, volume);
 	}
 	
 	public void stopSE() {
@@ -560,6 +570,10 @@ public class ReApi {
 		
 	public void removeSprite(String spriteId) {
 		Main.allSprites.remove(spriteId);
+	}
+	
+	public long getFrameNumber() {
+		return Main.frame_num;
 	}
 	
 	public long debug_stats(String stat) {
@@ -585,8 +599,6 @@ public class ReApi {
 	        return runtime.availableProcessors();
 	    } else if (stat.contentEquals("fps")) {
 	        return (long) Main.currentFPS;
-	    } else if (stat.contentEquals("frame_num")) {
-	    	return Main.frame_num;
 	    } else if (stat.contentEquals("max_fps")) {
 	    	return (long) Main.MAX_FPS;
 	    }
@@ -752,84 +764,105 @@ public class ReApi {
 	    }
 	}
     
-    public void displayText(String text, int pos_x, int pos_y, String fontfile) {
-	    text = text.toLowerCase();
-	    int[] font_pixels = Main.allTextures.get(fontfile).pixels;
-	    int cursor = pos_x;
-	    int font_original_pixel_size = Main.allTextures.get(fontfile).IMG_WID;
-	    for (int i = 0; i < text.length(); i++) {
-	        int letter_location_in_fontpng = -1;
-	        switch (text.charAt(i)) {
-	            case 'a': letter_location_in_fontpng = 0; break;
-	            case 'b': letter_location_in_fontpng = 1; break;
-	            case 'c': letter_location_in_fontpng = 2; break;
-	            case 'd': letter_location_in_fontpng = 3; break;
-	            case 'e': letter_location_in_fontpng = 4; break;
-	            case 'f': letter_location_in_fontpng = 5; break;
-	            case 'g': letter_location_in_fontpng = 6; break;
-	            case 'h': letter_location_in_fontpng = 7; break;
-	            case 'i': letter_location_in_fontpng = 8; break;
-	            case 'j': letter_location_in_fontpng = 9; break;
-	            case 'k': letter_location_in_fontpng = 10; break;
-	            case 'l': letter_location_in_fontpng = 11; break;
-	            case 'm': letter_location_in_fontpng = 12; break;
-	            case 'n': letter_location_in_fontpng = 13; break;
-	            case 'o': letter_location_in_fontpng = 14; break;
-	            case 'p': letter_location_in_fontpng = 15; break;
-	            case 'q': letter_location_in_fontpng = 16; break;
-	            case 'r': letter_location_in_fontpng = 17; break;
-	            case 's': letter_location_in_fontpng = 18; break;
-	            case 't': letter_location_in_fontpng = 19; break;
-	            case 'u': letter_location_in_fontpng = 20; break;
-	            case 'v': letter_location_in_fontpng = 21; break;
-	            case 'w': letter_location_in_fontpng = 22; break;
-	            case 'x': letter_location_in_fontpng = 23; break;
-	            case 'y': letter_location_in_fontpng = 24; break;
-	            case 'z': letter_location_in_fontpng = 25; break;
-	            case '0': letter_location_in_fontpng = 26; break;
-	            case '1': letter_location_in_fontpng = 27; break;
-	            case '2': letter_location_in_fontpng = 28; break;
-	            case '3': letter_location_in_fontpng = 29; break;
-	            case '4': letter_location_in_fontpng = 30; break;
-	            case '5': letter_location_in_fontpng = 31; break;
-	            case '6': letter_location_in_fontpng = 32; break;
-	            case '7': letter_location_in_fontpng = 33; break;
-	            case '8': letter_location_in_fontpng = 34; break;
-	            case '9': letter_location_in_fontpng = 35; break;
-	            case '.': letter_location_in_fontpng = 36; break;
-	            case '\'': letter_location_in_fontpng = 37; break;
-	            case '!': letter_location_in_fontpng = 38; break;
-	            case '?': letter_location_in_fontpng = 39; break;
-	            case ':': letter_location_in_fontpng = 40; break;
-	            case '-': letter_location_in_fontpng = 41; break;
-	            case ',': letter_location_in_fontpng = 42; break;
-	            case '/': letter_location_in_fontpng = 43; break;
-	            case '(': letter_location_in_fontpng = 44; break;
-	            case ')': letter_location_in_fontpng = 45; break;
-	            case '+': letter_location_in_fontpng = 46; break;
-	            case '*': letter_location_in_fontpng = 47; break;
-	            case '"': letter_location_in_fontpng = 48; break;
-	            case '#': letter_location_in_fontpng = 49; break;
-	            case '=': letter_location_in_fontpng = 50; break;
-	            case ';': letter_location_in_fontpng = 51; break;
-	            default: letter_location_in_fontpng = -1; break;
-	        }
-	        if (letter_location_in_fontpng > -1) {
-	        	if (cursor + font_original_pixel_size > Main.game_width) {
-	                break;
-	            }
-	            for (int j = 0; j < font_original_pixel_size; j++) {
-	                for (int k = 0; k < font_original_pixel_size; k++) {
-	                    int font_index = (letter_location_in_fontpng * font_original_pixel_size + j) * font_original_pixel_size + k;
-	                    int ind = (pos_y + j) * Main.game_width + (cursor + k); 
-	                    if (ind < Main.game_width * Main.game_height && font_pixels[font_index]!=0x000000) {
-	                        Screen.gamepixels[ind] = font_pixels[font_index];
-	                    }
-	                }
-	            }
-	        }
-	        cursor += font_original_pixel_size;
-	    }
+    public String padWithLeadingZeros(int number, int totalLength) {
+	    return String.format("%0" + totalLength + "d", number);
 	}
+    
+    public void displayText(String text, int pos_x, int pos_y, String fontfile, int opacity) {
+        text = text.toLowerCase();
+        int[] font_pixels = Main.allTextures.get(fontfile).pixels;
+        int cursor = pos_x;
+        int font_original_pixel_size = Main.allTextures.get(fontfile).IMG_WID;
+        float opacityFactor = opacity / 255.0f;
+        
+        for (int i = 0; i < text.length(); i++) {
+            int letter_location_in_fontpng = -1;
+            switch (text.charAt(i)) {
+                case 'a': letter_location_in_fontpng = 0; break;
+                case 'b': letter_location_in_fontpng = 1; break;
+                case 'c': letter_location_in_fontpng = 2; break;
+                case 'd': letter_location_in_fontpng = 3; break;
+                case 'e': letter_location_in_fontpng = 4; break;
+                case 'f': letter_location_in_fontpng = 5; break;
+                case 'g': letter_location_in_fontpng = 6; break;
+                case 'h': letter_location_in_fontpng = 7; break;
+                case 'i': letter_location_in_fontpng = 8; break;
+                case 'j': letter_location_in_fontpng = 9; break;
+                case 'k': letter_location_in_fontpng = 10; break;
+                case 'l': letter_location_in_fontpng = 11; break;
+                case 'm': letter_location_in_fontpng = 12; break;
+                case 'n': letter_location_in_fontpng = 13; break;
+                case 'o': letter_location_in_fontpng = 14; break;
+                case 'p': letter_location_in_fontpng = 15; break;
+                case 'q': letter_location_in_fontpng = 16; break;
+                case 'r': letter_location_in_fontpng = 17; break;
+                case 's': letter_location_in_fontpng = 18; break;
+                case 't': letter_location_in_fontpng = 19; break;
+                case 'u': letter_location_in_fontpng = 20; break;
+                case 'v': letter_location_in_fontpng = 21; break;
+                case 'w': letter_location_in_fontpng = 22; break;
+                case 'x': letter_location_in_fontpng = 23; break;
+                case 'y': letter_location_in_fontpng = 24; break;
+                case 'z': letter_location_in_fontpng = 25; break;
+                case '0': letter_location_in_fontpng = 26; break;
+                case '1': letter_location_in_fontpng = 27; break;
+                case '2': letter_location_in_fontpng = 28; break;
+                case '3': letter_location_in_fontpng = 29; break;
+                case '4': letter_location_in_fontpng = 30; break;
+                case '5': letter_location_in_fontpng = 31; break;
+                case '6': letter_location_in_fontpng = 32; break;
+                case '7': letter_location_in_fontpng = 33; break;
+                case '8': letter_location_in_fontpng = 34; break;
+                case '9': letter_location_in_fontpng = 35; break;
+                case '.': letter_location_in_fontpng = 36; break;
+                case '\'': letter_location_in_fontpng = 37; break;
+                case '!': letter_location_in_fontpng = 38; break;
+                case '?': letter_location_in_fontpng = 39; break;
+                case ':': letter_location_in_fontpng = 40; break;
+                case '-': letter_location_in_fontpng = 41; break;
+                case ',': letter_location_in_fontpng = 42; break;
+                case '/': letter_location_in_fontpng = 43; break;
+                case '(': letter_location_in_fontpng = 44; break;
+                case ')': letter_location_in_fontpng = 45; break;
+                case '+': letter_location_in_fontpng = 46; break;
+                case '*': letter_location_in_fontpng = 47; break;
+                case '"': letter_location_in_fontpng = 48; break;
+                case '#': letter_location_in_fontpng = 49; break;
+                case '=': letter_location_in_fontpng = 50; break;
+                case ';': letter_location_in_fontpng = 51; break;
+                default: letter_location_in_fontpng = -1; break;
+            }
+            if (letter_location_in_fontpng > -1) {
+                if (cursor + font_original_pixel_size > Main.game_width) {
+                    break;
+                }
+                for (int j = 0; j < font_original_pixel_size; j++) {
+                    for (int k = 0; k < font_original_pixel_size; k++) {
+                        int font_index = (letter_location_in_fontpng * font_original_pixel_size + j) * font_original_pixel_size + k;
+                        int ind = (pos_y + j) * Main.game_width + (cursor + k); 
+                        if (ind < Main.game_width * Main.game_height && font_pixels[font_index] != 0x000000) {
+                            int srcPixel = font_pixels[font_index];
+                            int dstPixel = Screen.gamepixels[ind];
+                            
+                            int Rb = (dstPixel >> 16) & 0xFF;
+                            int Gb = (dstPixel >> 8) & 0xFF;
+                            int Bb = dstPixel & 0xFF;
+                            
+                            int Rf = (srcPixel >> 16) & 0xFF;
+                            int Gf = (srcPixel >> 8) & 0xFF;
+                            int Bf = srcPixel & 0xFF;
+                            
+                            int Rr = Math.min(255, (int)(Rf * opacityFactor + Rb * (1 - opacityFactor)));
+                            int Gr = Math.min(255, (int)(Gf * opacityFactor + Gb * (1 - opacityFactor)));
+                            int Br = Math.min(255, (int)(Bf * opacityFactor + Bb * (1 - opacityFactor)));
+                            
+                            Screen.gamepixels[ind] = 0xFF000000 | (Rr << 16) | (Gr << 8) | Br;
+                        }
+                    }
+                }
+            }
+            cursor += font_original_pixel_size;
+        }
+    }
     
 }
