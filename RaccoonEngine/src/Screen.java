@@ -234,11 +234,13 @@ public class Screen {
 					draw_plane_texture(x, y, cl_h, half_screen_height - y, ray_angle, full_euclid_dist, startx, startz, sector_info.ceilTexture, sector_info.ceilBrightness);
 				}	
 				
-				int column_pixel_size = dy_wallbottom-dy_walltop;
-				for (int y=dy_walltop_clipped; y < dy_wallbottom_clipped; y++) {
-					draw_wall_texture(x, y, decimal_value_wall_hit, dy_walltop, dy_wallbottom, wallhit.wallTexture, wallhit.wallBrightness, column_pixel_size, full_euclid_dist);
+				if (!wallhit.wallTexture.contentEquals(transparentTex)) {
+					int column_pixel_size = dy_wallbottom-dy_walltop;
+					for (int y=dy_walltop_clipped; y < dy_wallbottom_clipped; y++) {
+						draw_wall_texture(x, y, decimal_value_wall_hit, dy_walltop, dy_wallbottom, wallhit.wallTexture, wallhit.wallBrightness, column_pixel_size, full_euclid_dist);
+					}
 				}
-
+				
 				for (int y=dy_wallbottom_clipped; y < Main.game_height; y++) {
 					draw_plane_texture(x, y, fl_h, y - half_screen_height, ray_angle, full_euclid_dist, startx, startz, sector_info.floorTexture, sector_info.floorBrightness);
 				}

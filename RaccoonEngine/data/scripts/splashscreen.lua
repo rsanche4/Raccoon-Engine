@@ -3,6 +3,7 @@ local script_index = ...
 if REAPI:readVar("splashScreenTime") >= 255 then
     REAPI:add_script("warning_message.lua")
     REAPI:playBGM("menu_bgm.wav", true, 0.9)
+    --REAPI:playBGM("waves.wav", true, 0.9)
     REAPI:endme(script_index)
 end
 

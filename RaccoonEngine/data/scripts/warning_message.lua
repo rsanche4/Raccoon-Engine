@@ -4,6 +4,9 @@ local total_time = 255
 
 if REAPI:readVar("warningMesTime") >= total_time then
     REAPI:playSE("menu_ambiance.wav", true, 0.8)
+    REAPI:playSE("ocean.wav", true, 0.9)
+    --REAPI:playSE("beep.wav", true, 0.85)
+    REAPI:add_script("menu_screen.lua")
     REAPI:endme(script_index)
 end
 

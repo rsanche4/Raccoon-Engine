@@ -120,3 +120,4 @@ The algorithm:
 - Edge normalization: Lower X first, if equal then lower Y first
 - Manhattan Partitioning runs on world boundary definition
 - World boundary is never saved in project files (only final map.txt)
+- If a wall or portal overlaps with another one, the one that gets drawn is the one we drew first on that overlapping part
