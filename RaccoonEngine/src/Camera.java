@@ -494,6 +494,7 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener {
 			    frame.setUndecorated(false);
 			    frame.setExtendedState(JFrame.NORMAL);
 			    Main.reinitializeBuffers(frame);
+			    frame.setLocationRelativeTo(null);
 			    frame.setVisible(true);
 			}
 		}

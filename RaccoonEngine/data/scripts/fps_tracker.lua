@@ -1,0 +1,3 @@
+local script_index = ...
+
+REAPI:displayText(REAPI:debug_stats("fps"), 10, 10, "font_8px.png", 255)
