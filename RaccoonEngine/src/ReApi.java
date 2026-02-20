@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.management.ClassLoadingMXBean;
@@ -6,6 +7,8 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.ThreadMXBean;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,9 @@ public class ReApi {
 
     private static final ReApi apiInstance = new ReApi();
     private static HashMap<String, Object> user_temp_variables = new HashMap<>();
+    
+    // Over here we can create user tables or variables that might be too complex to simply store on a single hashmap
+    HashMap<String, HashMap<String, String>> game_data_table;
 
     public static void run_user_scripts() {
         for (int i = 0; i < Main.active_scripts.size(); i++) {
@@ -731,35 +737,65 @@ public class ReApi {
 		return straight_line_eqx + "," + straight_line_eqy + "," + straight_line_eqz;
 	}
 	
-    public void addUIToScreen(String textureName, int pos_x, int pos_y, int opacity) {
+	public void addUIToScreen(String textureName, int pos_x, int pos_y, int opacity, float zoom, int color_filter) {
+	    if (zoom <= 0f) return;
+
 	    Texture texture = Main.allTextures.get(textureName);
 	    if (texture == null) return;
+
 	    float opacityFactor = opacity / 255.0f;
-	    for (int y = 0; y < texture.IMG_HEI; y++) {
-	        for (int x = 0; x < texture.IMG_WID; x++) {
-	            int screenX = pos_x + x;
-	            int screenY = pos_y + y;
-	            if (screenX >= 0 && screenX < Main.game_width && screenY >= 0 && screenY < Main.game_height) {
-	                int srcPixel = texture.pixels[y * texture.IMG_WID + x];
-	                int alpha = (srcPixel >>> 24) & 0xFF;
-	                if (alpha == 0) {
-	                	continue;
-	                } else {
-	                    int screenIndex = screenY * Main.game_width + screenX;
-	                    int dstPixel = Screen.gamepixels[screenIndex];
-	                    int Rb = (dstPixel >> 16) & 0xFF;
-	                    int Gb = (dstPixel >> 8) & 0xFF;
-	                    int Bb = dstPixel & 0xFF;
-	                    
-	                    int Rf = (srcPixel >> 16) & 0xFF;
-	                    int Gf = (srcPixel >> 8) & 0xFF;
-	                    int Bf = srcPixel & 0xFF;
-	                    int Rr = Math.min(255, (int)(Rf * opacityFactor + Rb * (1 - opacityFactor)));
-	                    int Gr = Math.min(255, (int)(Gf * opacityFactor + Gb * (1 - opacityFactor)));
-	                    int Br = Math.min(255, (int)(Bf * opacityFactor + Bb * (1 - opacityFactor)));
-	                    Screen.gamepixels[screenIndex] = 0xFF000000 | (Rr << 16) | (Gr << 8) | Br;
-	                }
-	            }
+
+	    // extract filter color intensity (0.0 - 1.0)
+	    float filterA = ((color_filter >>> 24) & 0xFF) / 255.0f;
+	    float filterR = ((color_filter >> 16) & 0xFF) / 255.0f;
+	    float filterG = ((color_filter >> 8) & 0xFF) / 255.0f;
+	    float filterB = (color_filter & 0xFF) / 255.0f;
+
+	    int srcW = texture.IMG_WID;
+	    int srcH = texture.IMG_HEI;
+
+	    int dstW = Math.max(1, Math.round(srcW * zoom));
+	    int dstH = Math.max(1, Math.round(srcH * zoom));
+
+	    for (int dy = 0; dy < dstH; dy++) {
+	        int screenY = pos_y + dy;
+	        if (screenY < 0 || screenY >= Main.game_height) continue;
+
+	        int srcY = (int) (dy / zoom);
+	        if (srcY >= srcH) srcY = srcH - 1;
+
+	        int srcRow = srcY * srcW;
+	        int screenRow = screenY * Main.game_width;
+
+	        for (int dx = 0; dx < dstW; dx++) {
+	            int screenX = pos_x + dx;
+	            if (screenX < 0 || screenX >= Main.game_width) continue;
+
+	            int srcX = (int) (dx / zoom);
+	            if (srcX >= srcW) srcX = srcW - 1;
+
+	            int srcPixel = texture.pixels[srcRow + srcX];
+
+	            int alpha = (srcPixel >>> 24) & 0xFF;
+	            if (alpha == 0) continue;
+
+	            // apply color filter to source pixel before blending
+	            int Rf = (int)(((srcPixel >> 16) & 0xFF) * filterR * filterA + ((srcPixel >> 16) & 0xFF) * (1 - filterA));
+	            int Gf = (int)(((srcPixel >>  8) & 0xFF) * filterG * filterA + ((srcPixel >>  8) & 0xFF) * (1 - filterA));
+	            int Bf = (int)(( srcPixel        & 0xFF) * filterB * filterA + ( srcPixel        & 0xFF) * (1 - filterA));
+
+	            int screenIndex = screenRow + screenX;
+	            int dstPixel = Screen.gamepixels[screenIndex];
+
+	            int Rb = (dstPixel >> 16) & 0xFF;
+	            int Gb = (dstPixel >>  8) & 0xFF;
+	            int Bb =  dstPixel        & 0xFF;
+
+	            int Rr = Math.min(255, (int)(Rf * opacityFactor + Rb * (1 - opacityFactor)));
+	            int Gr = Math.min(255, (int)(Gf * opacityFactor + Gb * (1 - opacityFactor)));
+	            int Br = Math.min(255, (int)(Bf * opacityFactor + Bb * (1 - opacityFactor)));
+
+	            Screen.gamepixels[screenIndex] = 0xFF000000 | (Rr << 16) | (Gr << 8) | Br;
 	        }
 	    }
 	}
@@ -864,7 +900,238 @@ public class ReApi {
             cursor += font_original_pixel_size;
         }
     }
+        
+    private void load_game_data() {
+
+        game_data_table = new HashMap<>();
+
+        String path = "data/misc/game_data.csv";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            String headerLine = br.readLine();
+            if (headerLine == null) return;
+
+            String[] headers = parseCSVLine(headerLine);
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = parseCSVLine(line);
+
+                HashMap<String, String> row = new HashMap<>();
+                for (int i = 1; i < headers.length; i++) {
+                    row.put(headers[i], i < values.length ? values[i] : "");
+                }
+
+                game_data_table.put(values[0], row);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String[] parseCSVLine(String line) {
+        List<String> fields = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        boolean inQuotes = false;
+
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '"') {
+                inQuotes = !inQuotes;
+            } else if (c == ',' && !inQuotes) {
+                fields.add(sb.toString().trim());
+                sb.setLength(0);
+            } else {
+                sb.append(c);
+            }
+        }
+        fields.add(sb.toString().trim());
+
+        return fields.toArray(new String[0]);
+    }
     
+    private void place_down_building(int player_color, int size, int x, int y, Texture map, String unit_name, boolean isStart) {
+    	
+    	for (int dx = 0; dx < size; dx++) {
+		    for (int dy = 0; dy < size; dy++) {
+		        map.pixels[(y+dy) * map.IMG_WID + (x+dx)] = player_color;
+		        writeVar((x+dx)+","+(y+dy),unit_name);
+		        writeVar((x+dx)+","+(y+dy)+"entity_id", (int)readVar("entity_uuid"));
+		        
+		    }
+		}
+    	writeVar("entity_uuid", (int)readVar("entity_uuid")+1);
+    	
+    	if (isStart) {
+        	// add here as well a King, a Knight, and a Worker. The king will be below to the left (below the 3x3 square). The knight will be right next to the king, and the worker right next to the knight
+        	// they are 1x1 units so no problems there
+        	// make sure we are adding all thats needed and we are not missing anything. i think later we dont have to change anything cuz this takes care of it all
+        	// determine which player this plaza belongs to
+            
+            // place King below-left of the plaza
+            int king_x = x;
+            int king_y = y + size;
+            writeVar(king_x+","+king_y, "King");
+            writeVar(king_x+","+king_y+"entity_id", (int)readVar("entity_uuid"));
+            map.pixels[king_y * map.IMG_WID + king_x] = player_color;
+            writeVar("entity_uuid", (int)readVar("entity_uuid")+1);
+
+            // place Knight right next to King
+            int knight_x = x + 1;
+            int knight_y = y + size;
+            writeVar(knight_x+","+knight_y, "Knight");
+            writeVar(knight_x+","+knight_y+"entity_id", (int)readVar("entity_uuid"));
+            map.pixels[knight_y * map.IMG_WID + knight_x] = player_color;
+            writeVar("entity_uuid", (int)readVar("entity_uuid")+1);
+
+            // place Worker right next to Knight
+            int worker_x = x + 2;
+            int worker_y = y + size;
+            writeVar(worker_x+","+worker_y, "Worker");
+            writeVar(worker_x+","+worker_y+"entity_id", (int)readVar("entity_uuid"));
+            map.pixels[worker_y * map.IMG_WID + worker_x] = player_color;
+            writeVar("entity_uuid", (int)readVar("entity_uuid")+1);
+        }
+    }
     
+    public void load_kingdom_play_map(String map_name, int color_for_water, int color_for_land, int color_for_tree, int color_for_fruit, int color_for_sheep, int color_for_stone, int color_for_gold, int color_for_player1, int color_for_player2) {
+    	// this should also store all the atks and movement patterns, this should also sotre everything every value for each unit but ok for now
+
+    	load_game_data();
+    	Texture map = Main.allTextures.get(map_name);
+    	writeVar("entity_uuid", 0);
+    	writeVar("player_color_1", color_for_player1);
+    	writeVar("player_color_2", color_for_player2);
+    	for (int x = 0; x < map.IMG_WID; x++) {
+    		for (int y = 0; y < map.IMG_HEI; y++) {
+    			if (readVar(x+","+y) != null) continue;
+    			
+    			int map_encoded_pixel_color = map.pixels[y * map.IMG_WID + x];
+    			if (map_encoded_pixel_color == color_for_water) { writeVar(x+","+y,"Water"); }
+    			else if (map_encoded_pixel_color == color_for_land) { writeVar(x+","+y,"Land"); }
+    			else if (map_encoded_pixel_color == color_for_tree) { writeVar(x+","+y,"Tree"); }
+    			else if (map_encoded_pixel_color == color_for_fruit) { writeVar(x+","+y,"Fruit"); }
+    			else if (map_encoded_pixel_color == color_for_sheep) { writeVar(x+","+y,"Sheep"); writeVar(x+","+y+"entity_id", (int)readVar("entity_uuid")); writeVar("entity_uuid", (int)readVar("entity_uuid")+1); }
+    			else if (map_encoded_pixel_color == color_for_stone) { writeVar(x+","+y,"Stone"); }
+    			else if (map_encoded_pixel_color == color_for_gold) { writeVar(x+","+y,"Gold"); }
+    			else {
+    				place_down_building(map_encoded_pixel_color, Integer.parseInt(game_data_table.get("Plaza").get("Size")), x, y, map, "Plaza", true);
+    			}
+    		}
+    	}
+
+    }
     
+    public boolean within_sight(int px, int py, int player_color, Texture map) {
+    	// This should be improved so that we dont have to iterate over freaking everything that is player color but this is the idea (so maybe a better approach is to simply keep track through array of all units basically)
+    	for (int x = 0; x < map.IMG_WID; x++) {
+    		for (int y = 0; y < map.IMG_HEI; y++) {
+    			if (map.pixels[y * map.IMG_WID + x] == player_color) {
+    				// now calculate if its within sight
+    				// we need to find what piece is this, and what is its sight
+    				// and essentially run the formula of the current px and py, to this particular x, y (cuz this is where our piece would be)
+    				int r = Integer.parseInt(game_data_table.get(readVar(x+","+y)).get("SightRange"));
+    				boolean inSight = (x - px)*(x - px) + (y - py)*(y - py) <= r*r;
+    				if (inSight) {
+    					return true;
+    				}
+    			}
+    		}
+    	}
+    	return false;
+    }
+    
+    public void display_kingdom_map(String map_name, String base_unit_example, float zoom, int cam_x, int cam_y) {
+        int tile_size = Main.allTextures.get(base_unit_example).IMG_WID;
+        Texture map = Main.allTextures.get(map_name);
+        
+        for (String key : user_temp_variables.keySet().toArray(new String[0])) {
+            if (key.startsWith("drawn_entity_")) {
+                user_temp_variables.remove(key);
+            }
+        }
+        
+        for (int x = 0; x < map.IMG_WID; x++) {
+            for (int y = 0; y < map.IMG_HEI; y++) {
+
+                String unit_name = (String) readVar(x+","+y);
+
+                // Convert map-relative tile coords → screen-relative pixel coords
+                int screen_x = (int)(x * tile_size * zoom) + cam_x;
+                int screen_y = (int)(y * tile_size * zoom) + cam_y;
+                
+                if (screen_x > Main.game_width || screen_y > Main.game_height) {
+                	continue;
+                }
+                
+                if (!within_sight(x, y, (int)readVar("player_color_1"), map)) { // turn off fog of war here. so just comment this out
+                	continue;
+                }
+                
+                // Now that we are good to place down a building, then draw on the pixels that should be drawn
+                int size = Integer.parseInt(game_data_table.get(unit_name).get("Size"));  
+                if (size==1) {
+                	// if its not water and its not land, its something on top so draw land underneath
+                    if (!unit_name.contentEquals("Water") && !unit_name.contentEquals("Land")) {
+                    	addUIToScreen(game_data_table.get("Land").get("base_graphic_filename"), screen_x, screen_y, 255, zoom, 0x00000000);
+                    }
+                    
+                    if (map.pixels[y * map.IMG_WID + x]==(int)readVar("player_color_1")) {
+                    	addUIToScreen(game_data_table.get(unit_name).get("base_graphic_filename"), screen_x, screen_y, 255, zoom, (int)readVar("player_color_1"));
+                    } else if (map.pixels[y * map.IMG_WID + x]==(int)readVar("player_color_2")) {
+                    	addUIToScreen(game_data_table.get(unit_name).get("base_graphic_filename"), screen_x, screen_y, 255, zoom, (int)readVar("player_color_2"));
+                    } else {
+                    	addUIToScreen(game_data_table.get(unit_name).get("base_graphic_filename"), screen_x, screen_y, 255, zoom, 0x00000000);
+                    }
+                    
+                } else if (size>1) {
+                	// now for this we have to 
+                	Object entity_id = readVar(x+","+y+"entity_id");
+                    Object already_drawn = readVar("drawn_entity_" + entity_id);
+                    
+                    if (already_drawn == null) {
+                        writeVar("drawn_entity_" + entity_id, true);
+                        
+                        // draw land underneath the whole footprint first
+                        for (int dx = 0; dx < size; dx++) {
+                            for (int dy = 0; dy < size; dy++) {
+                                int bx = (int)((x + dx) * tile_size * zoom) + cam_x;
+                                int by = (int)((y + dy) * tile_size * zoom) + cam_y;
+                                addUIToScreen(game_data_table.get("Land").get("base_graphic_filename"), bx, by, 255, zoom, 0x00000000);
+                            }
+                        }
+                        if (map.pixels[y * map.IMG_WID + x]==(int)readVar("player_color_1")) {
+                        	addUIToScreen(game_data_table.get(unit_name).get("base_graphic_filename"), screen_x, screen_y, 255, zoom, (int)readVar("player_color_1"));
+                        } else if (map.pixels[y * map.IMG_WID + x]==(int)readVar("player_color_2")) {
+                        	addUIToScreen(game_data_table.get(unit_name).get("base_graphic_filename"), screen_x, screen_y, 255, zoom, (int)readVar("player_color_2"));
+                        }
+                        
+                    }
+                }
+                
+                
+                
+            }
+        }
+    }
+    
+    public void player_cursor_interact() {
+    	// cursor is always in the middle so where we clicked on the map has to be the middle of the screen. This fires when we pressed enter so dont worry about that. Assume this function runs when user entered middle
+    	// And the idea is that if there is a piece of our color (player_color_1) in there
+    	// then we figure out again what that piece is where we clicked on the map, the location once found gives us directly the name which directly lets us access further things for that piece
+    	// So for example we read from it i will get to this
+    	// But the thing is once we select a piece we dont directly go into movement, we get a tiny window at the bottom left, showing the piece health, stats, and then the cursor can select from a group:
+    	// it can select: 
+    	// MOVE, ATTACK, BUILD, PRODUCE, DESTROY, SKIP, CANCEL, RESIGN
+    	// If it selects anything we get the patterns drawn now as well and we get to decide what to do
+    	// so essentially these are your actions for every unit (note: some units have some of these greyed out cuz not able to basically) if you want to do something in your turn
+    	// we need to read the game data table basically and get the 
+    	// once we decided to move, we need to call the draw function again for the map since its changed and update everything
+    	// That would basically end our turn
+    	// player does the same, badaboom we are done. At first let us just test with enemy ai doing simple skips all the time
+    	// The win condition here is killing the king of the opposite team or the resign part so one of u just quit (true chess fashion) or the other win condition is we reached a max number of turns, and whoever owns "more eco and militery and just generally better game"
+    	
+    	
+    }
 }
