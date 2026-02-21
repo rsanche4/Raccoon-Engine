@@ -1131,7 +1131,7 @@ public class ReApi {
     	// That would basically end our turn
     	// player does the same, badaboom we are done. At first let us just test with enemy ai doing simple skips all the time
     	// The win condition here is killing the king of the opposite team or the resign part so one of u just quit (true chess fashion) or the other win condition is we reached a max number of turns, and whoever owns "more eco and militery and just generally better game"
-    	
+    	// note: as we are building show the process of the building being built
     	
     }
 }

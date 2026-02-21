@@ -6,12 +6,12 @@ local cam_y = REAPI:readVar("cam_y")
 local step = math.floor(8 * zoom)/8
 
 -- zoom in / out
-if REAPI:is_key_pressed("space") then
-    if zoom < 3.0 then REAPI:writeVar("zoom", zoom + 1.0) end
-end
-if REAPI:is_key_pressed("ctrl") then
-    if zoom > 2.0 then REAPI:writeVar("zoom", zoom - 1.0) end
-end
+-- if REAPI:is_key_pressed("space") then
+--     if zoom < 3.0 then REAPI:writeVar("zoom", zoom + 1.0) end
+-- end
+-- if REAPI:is_key_pressed("ctrl") then
+--     if zoom > 2.0 then REAPI:writeVar("zoom", zoom - 1.0) end
+-- end
 
 local arrow_left_offset = 0
 local arrow_right_offset = 0
@@ -77,19 +77,24 @@ REAPI:addUIToScreen("cursor.png", math.floor(320-(8*zoom)/2), math.floor(240-(8*
 local res_start = 10
 local sep = 40
 REAPI:addUIToScreen("gold_100.png", res_start, 450, 255, 3.0, 0x00000000)
-REAPI:displayText(REAPI:padWithLeadingZeros(REAPI:readVar("Gold"), 4) , res_start+sep, 460, "font_16px_code.png", 255)
+REAPI:displayText(REAPI:readVar("Gold"), res_start+sep, 460, "font_16px_code.png", 255)
 
 REAPI:addUIToScreen("stone_100.png", res_start, 420, 255, 3.0, 0x00000000)
-REAPI:displayText(REAPI:padWithLeadingZeros(REAPI:readVar("Stone"), 4), res_start+sep, 430, "font_16px_code.png", 255)
+REAPI:displayText(REAPI:readVar("Stone"), res_start+sep, 430, "font_16px_code.png", 255)
 
 REAPI:addUIToScreen("tree_100.png", res_start, 390, 255, 3.0, 0x00000000)
-REAPI:displayText(REAPI:padWithLeadingZeros(REAPI:readVar("Wood"), 4), res_start+sep, 400, "font_16px_code.png", 255)
+REAPI:displayText(REAPI:readVar("Wood"), res_start+sep, 400, "font_16px_code.png", 255)
 
 REAPI:addUIToScreen("fruit_100.png", res_start, 360, 255, 3.0, 0x00000000)
-REAPI:displayText(REAPI:padWithLeadingZeros(REAPI:readVar("Food"), 4), res_start+sep, 370, "font_16px_code.png", 255)
+REAPI:displayText(REAPI:readVar("Food"), res_start+sep, 370, "font_16px_code.png", 255)
+
+REAPI:addUIToScreen("house_100.png", res_start, 330, 255, 3.0, 0x00000000)
+REAPI:displayText(REAPI:readVar("Popcount") .. "/" .. REAPI:readVar("Popcap"), res_start+sep, 340, "font_16px_code.png", 255)
+
 
 REAPI:addUIToScreen("clock1.png", 10, 10, 255, 1.0, 0x00000000)
 REAPI:displayText(REAPI:readVar("P1Timer"), 90, 25, "font_32px_code.png", 255)
 
-REAPI:addUIToScreen("clock2.png", 640-10-64, 10, 255, 1.0, 0x00000000)
+REAPI:addUIToScreen("clock2.png", 566, 10, 255, 1.0, 0x00000000)
 REAPI:displayText(REAPI:readVar("P2Timer"), 640-90-32-20, 25, "font_32px_code.png", 255)
+
