@@ -26,7 +26,6 @@ import java.util.concurrent.Executors;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-// TODO: allow to encrypt files we have so that it's not all exposed, or at least obfuscation of sorts
 public class Main extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1L;
 	public static float MAX_FPS = 60.0f;

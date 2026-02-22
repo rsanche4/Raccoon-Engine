@@ -234,13 +234,13 @@ public class ReApi {
     }
     
     // TODO: this will be used for saving a game
-    public void save_game() {
-    	return;
+    public String save_game() {
+    	return "Implement";
     }
     
     // TODO this will be used for loading a game
-    public void load_game() {
-    	return;
+    public String load_game() {
+    	return "Implement";
     }
     
     public void set_player_pos(float x, float y, float z) {
@@ -684,7 +684,6 @@ public class ReApi {
 		return "Implement";
 	}
 	
-	// Deprecated
 	public String basicPathfindNoCollision(float source_x, float source_y, float source_z, float targetx, float targety, float targetz, float speed) {
 		float z_dif = Math.abs(targetz-source_z);
 		float y_dif = Math.abs(targety-source_y);
@@ -900,7 +899,8 @@ public class ReApi {
             cursor += font_original_pixel_size;
         }
     }
-        
+
+    // Deprecated
     private void load_game_data() {
 
         game_data_table = new HashMap<>();
@@ -930,6 +930,7 @@ public class ReApi {
         }
     }
 
+    // Deprecated
     private String[] parseCSVLine(String line) {
         List<String> fields = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
@@ -951,6 +952,7 @@ public class ReApi {
         return fields.toArray(new String[0]);
     }
     
+    // Deprecated
     private void place_down_building(int player_color, int size, int x, int y, Texture map, String unit_name, boolean isStart) {
     	
     	for (int dx = 0; dx < size; dx++) {
@@ -964,12 +966,6 @@ public class ReApi {
     	writeVar("entity_uuid", (int)readVar("entity_uuid")+1);
     	
     	if (isStart) {
-        	// add here as well a King, a Knight, and a Worker. The king will be below to the left (below the 3x3 square). The knight will be right next to the king, and the worker right next to the knight
-        	// they are 1x1 units so no problems there
-        	// make sure we are adding all thats needed and we are not missing anything. i think later we dont have to change anything cuz this takes care of it all
-        	// determine which player this plaza belongs to
-            
-            // place King below-left of the plaza
             int king_x = x;
             int king_y = y + size;
             writeVar(king_x+","+king_y, "King");
@@ -977,7 +973,6 @@ public class ReApi {
             map.pixels[king_y * map.IMG_WID + king_x] = player_color;
             writeVar("entity_uuid", (int)readVar("entity_uuid")+1);
 
-            // place Knight right next to King
             int knight_x = x + 1;
             int knight_y = y + size;
             writeVar(knight_x+","+knight_y, "Knight");
@@ -985,7 +980,6 @@ public class ReApi {
             map.pixels[knight_y * map.IMG_WID + knight_x] = player_color;
             writeVar("entity_uuid", (int)readVar("entity_uuid")+1);
 
-            // place Worker right next to Knight
             int worker_x = x + 2;
             int worker_y = y + size;
             writeVar(worker_x+","+worker_y, "Worker");
@@ -995,8 +989,8 @@ public class ReApi {
         }
     }
     
+    // Deprecated
     public void load_kingdom_play_map(String map_name, int color_for_water, int color_for_land, int color_for_tree, int color_for_fruit, int color_for_sheep, int color_for_stone, int color_for_gold, int color_for_player1, int color_for_player2) {
-    	// this should also store all the atks and movement patterns, this should also sotre everything every value for each unit but ok for now
 
     	load_game_data();
     	Texture map = Main.allTextures.get(map_name);
@@ -1023,14 +1017,11 @@ public class ReApi {
 
     }
     
+    // Deprecated
     public boolean within_sight(int px, int py, int player_color, Texture map) {
-    	// This should be improved so that we dont have to iterate over freaking everything that is player color but this is the idea (so maybe a better approach is to simply keep track through array of all units basically)
     	for (int x = 0; x < map.IMG_WID; x++) {
     		for (int y = 0; y < map.IMG_HEI; y++) {
     			if (map.pixels[y * map.IMG_WID + x] == player_color) {
-    				// now calculate if its within sight
-    				// we need to find what piece is this, and what is its sight
-    				// and essentially run the formula of the current px and py, to this particular x, y (cuz this is where our piece would be)
     				int r = Integer.parseInt(game_data_table.get(readVar(x+","+y)).get("SightRange"));
     				boolean inSight = (x - px)*(x - px) + (y - py)*(y - py) <= r*r;
     				if (inSight) {
@@ -1042,6 +1033,7 @@ public class ReApi {
     	return false;
     }
     
+    // Deprecated
     public void display_kingdom_map(String map_name, String base_unit_example, float zoom, int cam_x, int cam_y) {
         int tile_size = Main.allTextures.get(base_unit_example).IMG_WID;
         Texture map = Main.allTextures.get(map_name);
@@ -1057,7 +1049,6 @@ public class ReApi {
 
                 String unit_name = (String) readVar(x+","+y);
 
-                // Convert map-relative tile coords → screen-relative pixel coords
                 int screen_x = (int)(x * tile_size * zoom) + cam_x;
                 int screen_y = (int)(y * tile_size * zoom) + cam_y;
                 
@@ -1065,14 +1056,12 @@ public class ReApi {
                 	continue;
                 }
                 
-                if (!within_sight(x, y, (int)readVar("player_color_1"), map)) { // turn off fog of war here. so just comment this out
+                if (!within_sight(x, y, (int)readVar("player_color_1"), map)) {
                 	continue;
                 }
                 
-                // Now that we are good to place down a building, then draw on the pixels that should be drawn
                 int size = Integer.parseInt(game_data_table.get(unit_name).get("Size"));  
                 if (size==1) {
-                	// if its not water and its not land, its something on top so draw land underneath
                     if (!unit_name.contentEquals("Water") && !unit_name.contentEquals("Land")) {
                     	addUIToScreen(game_data_table.get("Land").get("base_graphic_filename"), screen_x, screen_y, 255, zoom, 0x00000000);
                     }
@@ -1086,14 +1075,12 @@ public class ReApi {
                     }
                     
                 } else if (size>1) {
-                	// now for this we have to 
                 	Object entity_id = readVar(x+","+y+"entity_id");
                     Object already_drawn = readVar("drawn_entity_" + entity_id);
                     
                     if (already_drawn == null) {
                         writeVar("drawn_entity_" + entity_id, true);
                         
-                        // draw land underneath the whole footprint first
                         for (int dx = 0; dx < size; dx++) {
                             for (int dy = 0; dy < size; dy++) {
                                 int bx = (int)((x + dx) * tile_size * zoom) + cam_x;
@@ -1116,22 +1103,4 @@ public class ReApi {
         }
     }
     
-    public void player_cursor_interact() {
-    	// cursor is always in the middle so where we clicked on the map has to be the middle of the screen. This fires when we pressed enter so dont worry about that. Assume this function runs when user entered middle
-    	// And the idea is that if there is a piece of our color (player_color_1) in there
-    	// then we figure out again what that piece is where we clicked on the map, the location once found gives us directly the name which directly lets us access further things for that piece
-    	// So for example we read from it i will get to this
-    	// But the thing is once we select a piece we dont directly go into movement, we get a tiny window at the bottom left, showing the piece health, stats, and then the cursor can select from a group:
-    	// it can select: 
-    	// MOVE, ATTACK, BUILD, PRODUCE, DESTROY, SKIP, CANCEL, RESIGN
-    	// If it selects anything we get the patterns drawn now as well and we get to decide what to do
-    	// so essentially these are your actions for every unit (note: some units have some of these greyed out cuz not able to basically) if you want to do something in your turn
-    	// we need to read the game data table basically and get the 
-    	// once we decided to move, we need to call the draw function again for the map since its changed and update everything
-    	// That would basically end our turn
-    	// player does the same, badaboom we are done. At first let us just test with enemy ai doing simple skips all the time
-    	// The win condition here is killing the king of the opposite team or the resign part so one of u just quit (true chess fashion) or the other win condition is we reached a max number of turns, and whoever owns "more eco and militery and just generally better game"
-    	// note: as we are building show the process of the building being built
-    	
-    }
 }

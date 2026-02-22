@@ -1,27 +1,7 @@
-Unit_Name,Size,CostWood,CostGold,CostFood,CostStone,ATK,HP,SightRange,BuildTimeInTurnNumbers,Produces,Heals,BlocksEnemyMovement,BlocksYourMovement,PopulationIncrease,CanBuild/CollectResources,base_graphic_filename,MovePatternFile,AtkPatternFile,Notes
-Worker,1,0,0,2,0,1,5,3,1,N/A,0,1,1,0,1,worker.png,move_pattern0.png,atk_pattern0.png,"They can build, and are the only ones that can gather resources. They don't need to drop them at the plaza. Resources automatically get added once collected"
-Archer,1,1,2,1,0,2,6,7,1,N/A,0,1,1,0,0,archer.png,move_pattern1.png,atk_pattern1.png,
-Infantry,1,1,1,1,0,3,8,4,1,N/A,0,1,1,0,0,infantry.png,move_pattern0.png,atk_pattern2.png,
-Knight,1,2,2,2,0,4,10,6,1,N/A,0,1,1,0,0,knight.png,move_pattern2.png,atk_pattern2.png,
-King,1,0,0,0,0,0,7,3,0,N/A,0,1,1,0,0,king.png,move_pattern3.png,null_move.png,
-Canon,1,5,5,0,3,7,6,10,1,N/A,0,1,1,0,0,canon.png,move_pattern4.png,atk_pattern3.png,
-Priest,1,0,4,2,0,0,5,4,1,N/A,2,1,1,0,0,priest.png,move_pattern3.png,atk_pattern2.png,The priest can actually not only heal units but also buildings. Take it as God helping
-Bomb,1,4,2,2,4,8,10,3,1,N/A,0,1,1,0,0,bomb.png,move_pattern0.png,atk_pattern5.png,"The bomb explodes and you lose this unit once activated, dealing massive damage to anybody nearby including your own units"
-Tower,1,3,0,0,2,3,17,6,3,N/A,0,1,1,0,0,tower_100.png,null_move.png,atk_pattern4.png,
-Wall,1,1,0,0,2,0,20,2,2,N/A,0,1,1,0,0,wall_100.png,null_move.png,null_move.png,
-Gate,1,1,1,0,2,0,20,2,2,N/A,0,1,0,0,0,gate_100.png,null_move.png,null_move.png,
-House,1,2,0,0,0,0,12,2,1,N/A,0,1,1,3,0,house_100.png,null_move.png,null_move.png,"Population usually has a cap, so to increase that, you need to provide more houses"
-Archery,2,3,0,0,2,0,15,3,4,Archer,0,1,1,0,0,archery_100.png,null_move.png,null_move.png,
-Barrack,2,2,0,0,2,0,15,3,4,Infantry,0,1,1,0,0,barrack_100.png,null_move.png,null_move.png,
-Stable,2,4,0,0,1,0,15,3,4,Knight,0,1,1,0,0,stable_100.png,null_move.png,null_move.png,
-Church,2,2,2,0,3,0,15,3,4,Priest,0,1,1,0,0,church_100.png,null_move.png,null_move.png,
-Plaza,3,5,5,5,5,0,25,4,8,Worker,0,1,1,0,0,plaza_100.png,null_move.png,null_move.png,
-Castle,3,4,4,3,8,3,40,7,12,Bomb/Canon,0,1,1,0,0,castle_100.png,null_move.png,atk_pattern5.png,
-Land,1,0,0,0,0,0,0,0,0,N/A,0,0,0,0,0,land.png,null_move.png,null_move.png,
-Water,1,0,0,0,0,0,0,0,0,N/A,0,1,1,0,0,water.png,null_move.png,null_move.png,Water doesn't really have a purpose other than to help us shape the land so it's not all walkable
-Tree,1,0,0,0,0,0,15,0,0,N/A,0,1,1,0,0,tree_100.png,null_move.png,null_move.png,"Only gives you 1 of wood when hit one turn essentially, and it decreases its HP by one. So essentially you are taking its HP and turning it into a resource"
-Stone,1,0,0,0,0,0,15,0,0,N/A,0,1,1,0,0,stone_100.png,null_move.png,null_move.png,Same deal
-Gold,1,0,0,0,0,0,15,0,0,N/A,0,1,1,0,0,gold_100.png,null_move.png,null_move.png,Same deal
-Sheep,1,0,0,0,0,0,3,0,0,N/A,0,1,1,0,0,sheep_100.png,move_pattern0.png,null_move.png,"For sheep, once you are close with a worker, you can convert them to your unit, and you can move them around all you want. This process requires one turn. You can head them to base etc, the problem is the enemy could come in and also convert them, so you will have to convert them again. If killed, they are no longer movable, and now we start extracting food from them"
-Fruit,1,0,0,0,0,0,5,0,0,N/A,0,1,1,0,0,fruit_100.png,null_move.png,null_move.png,Same deal as mines
-Fog,1,0,0,0,0,0,0,0,0,N/A,0,0,0,0,0,fog.png,null_move.png,null_move.png,The fog is simply a tile that doesn't let you see. Once you approach it fades. Fog of War functionality
+RandomID,SampleData
+1,Hello
+2,World
+3,My
+4,Name
+5,Is
+6,Neo
