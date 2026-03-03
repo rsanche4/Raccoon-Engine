@@ -60,7 +60,7 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener {
 	private boolean crouching_in_progress = false;
 	public static float buffer_dist = 0.2f;
 	private int pitch = 0;
-	private int max_pitch = 400;
+	private int max_pitch = 100;
 	private int min_pitch = -max_pitch;
 	private int half_screen_h = Screen.half_screen_height;
 	
@@ -371,7 +371,7 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener {
 				// Vertical mouse movement for pitch (up/down)
 				pitch -= deltaY;
 				pitch = Math.max(min_pitch, Math.min(max_pitch, pitch));
-				Screen.half_screen_height = half_screen_h + pitch;
+				Screen.half_screen_height = half_screen_h + pitch; // uncomment this to allow for looking up or down
 			}
 		}
 		
