@@ -1,8 +1,0 @@
-[SECTORS]
-1 -2 2 white.png 1 black.png 1
-[WALLS]
--8 -10 8 -10 1 black.png 1
-8 -10 8 8 1 black.png 1
--8 8 8 8 1 black.png 1
--8 -10 -8 8 1 black.png 1
-[PORTALS]

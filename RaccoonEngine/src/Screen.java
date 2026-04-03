@@ -24,10 +24,6 @@ public class Screen {
 	public static Sound current_bgm;
 	public static Sound current_sfe;
 	public static int sky_offset = 0;
-	float camera_mid_side_a = Camera.retina_dist;
-	float camera_mid_side_b = Main.game_width / 2.0f;
-	float total_fov = (float) (2 * Math.atan(camera_mid_side_b / camera_mid_side_a));
-	float deltatheta = total_fov / Main.game_width;
 	public static int max_count = 100;
 	public static boolean plane_texture = true;
 	public static boolean sky_texture_bool = true;
@@ -147,9 +143,10 @@ public class Screen {
 	}
 	
 	private void cast_ray_and_render_screen_column(int x) {
-		int ray_num = half_screen_width - x;
-
-		float ray_angle = Camera.direction_rad + ray_num * deltatheta;
+		float screenX = (x + 0.5f) - (Main.game_width / 2.0f);
+		float ray_offset = (float)Math.atan(-screenX / Camera.retina_dist);
+		float ray_angle = Camera.direction_rad + ray_offset;
+		
 		float tan_ray = (float) Math.tan(ray_angle);
 		float startx = Camera.player_x;
 		float startz = Camera.player_z;
@@ -205,9 +202,11 @@ public class Screen {
 				startx = new_starts[0];
 				startz = new_starts[1];
 			}
+			
 			if (isWholeNumber(startx) && isWholeNumber(startz)) {
 				continue;
-			} else if (isWholeNumber(startx)) {
+			} 
+			if (isWholeNumber(startx)) {
 				wallkey = makeWallKey(startx, (float)Math.floor(startz), startx, (float)Math.floor(startz+1));
 				float abs_startz = Math.abs(startz);
 				decimal_value_wall_hit = (float) (abs_startz-Math.floor(abs_startz));
@@ -218,6 +217,7 @@ public class Screen {
 			}
 			float full_euclid_dist = euclid_dist(Camera.player_x, Camera.player_z, startx, startz);
 			if (wallMap.containsKey(wallkey)) {
+				
 
 				Wall wallhit = wallMap.get(wallkey);
 				Sector sector_info = sectorMap.get(wallhit.sectorid); 
@@ -335,12 +335,15 @@ public class Screen {
 	}
 	
 	private boolean isWholeNumber(float number) {
-	    return number % 1 == 0;
+	    float epsilon = 0.0001f; // tolerance
+	    return Math.abs(number - Math.round(number)) < epsilon;
 	}
 	
 	private float[] fixPhantomRay(float startx, float startz) {
 		float[] coords = new float[] {startx, startz};
 		if (isWholeNumber(startx) && isWholeNumber(startz)) {
+			startx = Math.round(startx);
+			startz = Math.round(startz);
 			// exact coordinates not allowed, check 4 walls to figure out where is the wallkey we want
 			coords[0] = fixPhantomRay_x(startx, startz, 0.001f);
 			if (coords[0]==startx) {

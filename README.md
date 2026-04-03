@@ -287,4 +287,4 @@ Raccoon Engine is released under the MIT License, one of the most permissive ope
 
 You are still here? Oh my! Well, I am glad you managed to read through the documentation. If you have any further questions, feel free to [email me](mailto:rsanzek25@gmail.com)!
 
-For the future, I'd like to add the ability to encrypt files so that it's not all exposed when releasing your game, or at least allowing for some obfuscation of some kind.
+For the future, I'd like to add the ability to encrypt files so that it's not all exposed when releasing your game, or at least allowing for some obfuscation of some kind. We might also need to optimize the DDA further so it runs faster on bigger maps.

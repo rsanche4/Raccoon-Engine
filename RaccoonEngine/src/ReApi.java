@@ -8,7 +8,6 @@ import java.lang.management.ThreadMXBean;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -323,10 +322,6 @@ public class ReApi {
     	Screen.fog_b = b;
     	Screen.fog_start = start;
     	Screen.fog_end = end;
-    }
-    
-    public void set_retina_dist(float ret_dist) {
-    	Camera.retina_dist = ret_dist;
     }
     
     public void toggle_plane_texture(boolean planeToggle) {
