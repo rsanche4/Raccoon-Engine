@@ -1,3 +1,0 @@
-local script_index = ...
-
-REAPI:addUIToScreen("gun.png", 280, 220, 255, 2, 0)

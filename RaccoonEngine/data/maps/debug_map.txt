@@ -1,8 +1,0 @@
-[SECTORS]
-1 -2 2 grass.png 1 black.png 1
-[WALLS]
--19 -19 43 -19 1 wall.png 1
-43 -19 43 29 1 wall.png 0.8
--19 29 43 29 1 wall.png 1
--19 -19 -19 29 1 wall.png 0.8
-[PORTALS]
