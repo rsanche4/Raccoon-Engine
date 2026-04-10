@@ -6,10 +6,10 @@ public class Wall {
 	int sector_a = -1;
     String wall_texture;
     int wall_brightness;
-    boolean wall_tiled;
+    int wall_tiled;
     boolean skip_wall_texture;
     
-    public Wall(int x1, int z1, int x2, int z2, int sector_a, String wall_texture, int wall_brightness, boolean wall_tiled, boolean skip_wall_texture) {
+    public Wall(int x1, int z1, int x2, int z2, int sector_a, String wall_texture, int wall_brightness, int wall_tiled, boolean skip_wall_texture) {
     	this.x1 = x1;
     	this.z1 = z1;
     	this.x2 = x2;

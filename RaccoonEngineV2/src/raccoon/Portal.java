@@ -6,18 +6,18 @@ public class Portal {
     int sector_b = -1;
     String bottom_texture;
     int bottom_brightness;
-    boolean bottom_tiled;
+    int bottom_tiled;
     boolean bottom_skip_texture;
     String middle_texture;
     int middle_brightness;
-    boolean middle_tiled;
+    int middle_tiled;
     boolean middle_skip_texture;
     String top_texture;
     int top_brightness;
-    boolean top_tiled;
+    int top_tiled;
     boolean top_skip_texture;
     
-    public Portal(int x1, int z1, int x2, int z2, int sector_a, int sector_b, String bottom_texture, int bottom_brightness, boolean bottom_tiled, boolean bottom_skip_texture, String middle_texture, int middle_brightness, boolean middle_tiled, boolean middle_skip_texture, String top_texture, int top_brightness, boolean top_tiled, boolean top_skip_texture) {
+    public Portal(int x1, int z1, int x2, int z2, int sector_a, int sector_b, String bottom_texture, int bottom_brightness, int bottom_tiled, boolean bottom_skip_texture, String middle_texture, int middle_brightness, int middle_tiled, boolean middle_skip_texture, String top_texture, int top_brightness, int top_tiled, boolean top_skip_texture) {
     	this.x1 = x1;
     	this.z1 = z1;
     	this.x2 = x2;

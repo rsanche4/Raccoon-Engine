@@ -15,6 +15,16 @@ public class Table {
 	public static int[] signs_sins;
 	public static int[] signs_coss;
 	public static int half_screen_height = Main.GAME_HEI/2;
+	public static double scale = Math.min(Main.USER_SCREEN_SIZE_W / Main.GAME_WID, Main.USER_SCREEN_SIZE_H / Main.GAME_HEI);
+	public static int render_w = (int) (Main.GAME_WID * scale);
+	public static int render_h = (int) (Main.GAME_HEI * scale);
+	public static int render_start_x = (Main.USER_SCREEN_SIZE_W - render_w) >> 1;
+	public static int render_start_y = (Main.USER_SCREEN_SIZE_H - render_h) >> 1;
+	public static double inv_scale = 1 / scale;
+	public static int[] src_y = new int[render_h];
+	public static int[] screen_y = new int[render_h];
+	public static int[] src_offset = new int[render_h];
+	public static int[] src_x = new int[render_w];
 	
     public static void init() {
     	all_angles = new double[ANGLE_COUNT];
@@ -39,7 +49,15 @@ public class Table {
     		ray_offset[x] = Math.atan(-screen_x[x] / Camera.retina_dist);
     	}
     	
+    	for (int y = 0; y < render_h; y++) {
+			src_y[y] = (int) (y * inv_scale);
+			screen_y[y] = (render_start_y + y) * Main.USER_SCREEN_SIZE_W + render_start_x;
+			src_offset[y] = src_y[y] * Main.GAME_WID;
+		}
     	
+    	for (int x = 0; x < render_w; x++) {
+    		src_x[x] = (int) (x * inv_scale);
+    	}
     	
     }
 }

@@ -13,7 +13,7 @@ public class Screen {
 	public static int map_width;
 	public static int map_height;
 	public static String skybox = "default_sky.png";
-	public static int max_count = 100;
+	public static int max_count = 1000;
 	
 	private int[] pixels;
 	private int[] game_pixels;
@@ -247,13 +247,14 @@ public class Screen {
 	}
 	
 	private int projectColumn(int wallhit_x, int wallhit_y, int wallhit_z, int angle_index) {
-	}
-	
-	private void drawHorizontalTexture(int x, int y, int height_offset, int screen_y_offset, int angle_index, int full_euclid_dist, int start_x, int start_z, String horizontal_texture, int horizontal_brightness, boolean horizontal_tiled) {
 		
 	}
 	
-	private void drawVerticalTexture(int x, int y, double perc_wall_hit, int dy_walltop, int dy_wallbottom, String wall_texture, int wall_brightness, boolean wall_tiled, int wall_column_pixel_size, float full_euclid_dist) {
+	private void drawHorizontalTexture(int x, int y, int height_offset, int screen_y_offset, int angle_index, int full_euclid_dist, int start_x, int start_z, String horizontal_texture, int horizontal_brightness, int horizontal_tiled) {
+		
+	}
+	
+	private void drawVerticalTexture(int x, int y, double perc_wall_hit, int dy_walltop, int dy_wallbottom, String wall_texture, int wall_brightness, int wall_tiled, int wall_column_pixel_size, float full_euclid_dist) {
 		
 	}
 	
@@ -266,6 +267,10 @@ public class Screen {
 	}
 	
 	private void upRes() {
-		
+		for (int y = 0; y < Table.render_h; y++) {
+			for (int x = 0; x < Table.render_w; x++) {
+				pixels[Table.screen_y[y] + x] = game_pixels[Table.src_offset[y] + Table.src_x[x]];
+			}
+		}
 	}
 }
