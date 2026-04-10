@@ -13,7 +13,7 @@ public class Portal {
     boolean middle_tiled;
     boolean middle_skip_texture;
     String top_texture;
-    float top_brightness;
+    int top_brightness;
     boolean top_tiled;
     boolean top_skip_texture;
     
