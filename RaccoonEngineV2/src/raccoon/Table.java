@@ -5,7 +5,6 @@ public class Table {
 	public static int ANGLE_COUNT = 65536;
 	public static double pi = 3.141592654;
 	public static double pi2 = 2*pi;
-	public static int world_position_base_unit = 1000;
 	public static double[] screen_x;
 	public static double[] ray_offset;
 	public static double[] all_angles;

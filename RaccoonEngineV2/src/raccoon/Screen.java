@@ -13,25 +13,21 @@ public class Screen {
 	public static int map_width;
 	public static int map_height;
 	public static String skybox = "default_sky.png";
-	public static int max_count = 1000;
 	
+	private int[] phantom_rays;
+	private int phantom_hunters = 10;
 	private int[] pixels;
 	private int[] game_pixels;
 	private int[] depth_buffer;
-	private int[] ZEROS;
-	private int[] MAX_DEPTHS;
 	
 	public Screen(int[] pixels, int[] game_pixels) {
 		this.pixels = pixels;
 		this.game_pixels = game_pixels;
 		this.depth_buffer = new int[game_pixels.length];
-		ZEROS = new int[game_pixels.length];
-		MAX_DEPTHS = new int[depth_buffer.length];
-		Arrays.fill(ZEROS, 0x000000);
-		Arrays.fill(MAX_DEPTHS, fog_end);
+		phantom_rays = new int[phantom_hunters];
 	}
 	
-	public static int updatePlayerSector(int player_x, int player_z) {
+	public static int updatePlayerSector(double player_x, double player_z) {
 		for (int i=1; i<=sectors.length; i++) {
 	        Sector sector = sectors[i];
 			if (player_x >= sector.boundary_coords[0] && player_x <= sector.boundary_coords[1] && player_z >= sector.boundary_coords[2] && player_z <= sector.boundary_coords[3]) {
@@ -42,8 +38,9 @@ public class Screen {
 	}
 	
 	public void update(int frame_num) {
-		System.arraycopy(ZEROS, 0, game_pixels, 0, game_pixels.length);
-	    System.arraycopy(MAX_DEPTHS, 0, depth_buffer, 0, depth_buffer.length);
+	    Arrays.fill(phantom_rays, -1);
+	    Arrays.fill(game_pixels, 0);
+	    Arrays.fill(depth_buffer, fog_end);
 	    if (sectors!=null) {
 	        Camera.player_sector = updatePlayerSector(Camera.player_x, Camera.player_z);
 	        CountDownLatch latch = new CountDownLatch(Main.GAME_WID);      
@@ -62,7 +59,18 @@ public class Screen {
 	        } catch (InterruptedException e) {
 	            Thread.currentThread().interrupt();
 	        }
-	        drawSky(Camera.direction_value, Main.textures.get(skybox).pixels);
+	        for (int ph = 0; ph < phantom_hunters; ph++) {
+	        	int phd = phantom_rays[ph];
+	        	if (phd>=0) {
+	        		for (int y=0; y < Main.GAME_HEI; y++) {
+	        			int cur_column = y * Main.GAME_WID + phd;
+	        			int next_column = y * Main.GAME_WID + ((phd+1)%Main.GAME_WID);
+	        			game_pixels[cur_column] = game_pixels[next_column];
+	        			depth_buffer[cur_column] = depth_buffer[next_column];
+	        		}
+	        	}
+	        }
+	        drawSky(Camera.direction_rad, Main.textures.get(skybox).pixels);
 	        drawSprites();
 	    }
 	    RaccoonAPI.runUserScripts();
@@ -70,60 +78,58 @@ public class Screen {
 	}
 	
 	private void castRayAndRenderScreenColumn(int x) {
-		double ray_angle = (Table.all_angles[Camera.direction_value] + Table.ray_offset[x]) % Table.pi2;
+		double ray_angle = (Camera.direction_rad + Table.ray_offset[x]) % Table.pi2;
 		int angle_index = (int) ((ray_angle/Table.pi2)*Table.ANGLE_COUNT);
 		double tan_ray = Table.tans[angle_index];
 		int dir_theta_x = Table.signs_coss[angle_index];
 		int dir_theta_z = Table.signs_sins[angle_index];
-		int start_x = Camera.player_x;
-		int start_z = Camera.player_z;
+		double start_x = Camera.player_x;
+		double start_z = Camera.player_z;
 		
-		int counter = 0;
 		int ray_sector = Camera.player_sector;
 		int dy_wall_bottom_bottom;
 		int dy_wall_bottom_top;
 		int dy_wall_top_bottom;
 		int dy_wall_top_top;
 		
-		while (counter<max_count) {
-			counter++;
-			int dx_1;
-			int dz_1;
-			int dx_2;
-			int dz_2;
-			int mod_x = start_x % Table.world_position_base_unit;
+		while (true) {
+			double dx_1;
+			double dz_1;
+			double dx_2;
+			double dz_2;
+			double mod_x = start_x % 1;
 			if (dir_theta_x>0) {
-				dx_1 = Table.world_position_base_unit - mod_x;
+				dx_1 = 1 - mod_x;
 			} else {
 				dx_1 = mod_x;
 			}
-			dz_1 = (int) Math.round(dx_1*tan_ray);
-			int dist_horizontal = dx_1 + dz_1;
-			int mod_z = start_z % Table.world_position_base_unit;
+			dz_1 = dx_1*tan_ray;
+			double dist_horizontal = dx_1 + dz_1;
+			double mod_z = start_z % 1;
 			if (dir_theta_z > 0) {
-				dz_2 = Table.world_position_base_unit - mod_z;
+				dz_2 = 1 - mod_z;
 			} else {
 				dz_2 = mod_z;
 			}
-			dx_2 = (int) (dz_2 / tan_ray);
-			int dist_vertical = dx_2 + dz_2;
+			dx_2 = dz_2 / tan_ray;
+			double dist_vertical = dx_2 + dz_2;
 			
 			int wall_index;
 			double perc_wall_hit;
 			if (dist_horizontal < dist_vertical) {
 				start_x = start_x + dir_theta_x*dx_1;
 				start_z = start_z + dir_theta_z*dz_1;
-				wall_index = makeWallIndex(start_x, start_z, 1, map_width);
-				perc_wall_hit = mod_z/Table.world_position_base_unit;
+				wall_index = makeWallIndex((int)start_x, (int)start_z, 1, map_width);
+				perc_wall_hit = mod_z/1;
 			} else {
 				start_x = start_x + dir_theta_x*dx_2;
 				start_z = start_z + dir_theta_z*dz_2;
-				wall_index = makeWallIndex(start_x, start_z, 0, map_width);
-				perc_wall_hit = mod_x/Table.world_position_base_unit;
+				wall_index = makeWallIndex((int)start_x, (int)start_z, 0, map_width);
+				perc_wall_hit = mod_x/1;
 			}
-			int full_euclid_dist = euclidDist(Camera.player_x, Camera.player_z, start_x, start_z);
+			double full_euclid_dist = euclidDist(Camera.player_x, Camera.player_z, start_x, start_z);
 			if (wall_index>=walls.length && wall_index>=portals.length) {
-				// TODO PHANTOM RAY
+				phantom_rays[(int)((double)x/Main.GAME_WID*phantom_hunters)] = x;
 				return;
 			}
 			
@@ -133,7 +139,7 @@ public class Screen {
 				int dy_walltop = Table.half_screen_height - projectColumn(start_x, sector_info.ceil_height, start_z, angle_index);
 				int dy_wallbottom = Table.half_screen_height - projectColumn(start_x, sector_info.floor_height, start_z, angle_index);
 				
-				int cl_h = sector_info.ceil_height-Camera.player_y;
+				double cl_h = sector_info.ceil_height-Camera.player_y;
 				if (!sector_info.ceil_skip_texture) {
 					for (int y=0; y < dy_walltop; y++) {
 						drawHorizontalTexture(x, y, cl_h, Table.half_screen_height - y, angle_index, full_euclid_dist, start_x, start_z, sector_info.ceil_texture, sector_info.ceil_brightness, sector_info.ceil_tiled);
@@ -149,7 +155,7 @@ public class Screen {
 					}
 				}
 				
-				int fl_h = Camera.player_y-sector_info.floor_height;				
+				double fl_h = Camera.player_y-sector_info.floor_height;				
 				if (!sector_info.floor_skip_texture) {
 					for (int y=dy_wallbottom_clipped; y < Main.GAME_HEI; y++) {
 						drawHorizontalTexture(x, y, fl_h, y - Table.half_screen_height, angle_index, full_euclid_dist, start_x, start_z, sector_info.floor_texture, sector_info.floor_brightness, sector_info.floor_tiled);
@@ -191,7 +197,7 @@ public class Screen {
 				int dy_wall_bottom_bottom_clipped = clipColumn(dy_wall_bottom_bottom);
 				
 				
-				int cl_h = cur_sector.ceil_height-Camera.player_y;
+				double cl_h = cur_sector.ceil_height-Camera.player_y;
 				if (!cur_sector.ceil_skip_texture) {
 					for (int y=0; y < dy_wall_top_top_clipped; y++) {
 						drawHorizontalTexture(x, y, cl_h, Table.half_screen_height - y, angle_index, full_euclid_dist, start_x, start_z, cur_sector.ceil_texture, cur_sector.ceil_brightness, cur_sector.ceil_tiled);
@@ -219,7 +225,7 @@ public class Screen {
 					}	
 				}
 
-				int fl_h = Camera.player_y-cur_sector.floor_height;
+				double fl_h = Camera.player_y-cur_sector.floor_height;
 				if (!cur_sector.floor_skip_texture) {
 					for (int y=dy_wall_bottom_bottom_clipped; y < Main.GAME_HEI; y++) {
 						drawHorizontalTexture(x, y, fl_h, y - Table.half_screen_height, angle_index, full_euclid_dist, start_x, start_z, cur_sector.floor_texture, cur_sector.floor_brightness, cur_sector.floor_tiled);
@@ -238,27 +244,27 @@ public class Screen {
 	    return pointIndex * 2 + isHorizontal;
 	}
 	
-	private int euclidDist(int x1, int z1, int x2, int z2) {
-		return (int) Math.sqrt((z2-z1)*(z2-z1)+(x2-x1)*(x2-x1));
+	private double euclidDist(double x1, double z1, double x2, double z2) {
+		return Math.sqrt((z2-z1)*(z2-z1)+(x2-x1)*(x2-x1));
 	}
 	
 	private int clipColumn(int column_n) {
 		
 	}
 	
-	private int projectColumn(int wallhit_x, int wallhit_y, int wallhit_z, int angle_index) {
+	private int projectColumn(double wallhit_x, double wallhit_y, double wallhit_z, int angle_index) {
 		
 	}
 	
-	private void drawHorizontalTexture(int x, int y, int height_offset, int screen_y_offset, int angle_index, int full_euclid_dist, int start_x, int start_z, String horizontal_texture, int horizontal_brightness, int horizontal_tiled) {
+	private void drawHorizontalTexture(int x, int y, double height_offset, int screen_y_offset, int angle_index, double full_euclid_dist, double start_x, double start_z, String horizontal_texture, int horizontal_brightness, int horizontal_tiled) {
 		
 	}
 	
-	private void drawVerticalTexture(int x, int y, double perc_wall_hit, int dy_walltop, int dy_wallbottom, String wall_texture, int wall_brightness, int wall_tiled, int wall_column_pixel_size, float full_euclid_dist) {
+	private void drawVerticalTexture(int x, int y, double perc_wall_hit, int dy_walltop, int dy_wallbottom, String wall_texture, int wall_brightness, int wall_tiled, int wall_column_pixel_size, double full_euclid_dist) {
 		
 	}
 	
-	private void drawSky(int dir, int[] skybox_picture) {
+	private void drawSky(double dir, int[] skybox_picture) {
 		
 	}
 	
@@ -268,8 +274,10 @@ public class Screen {
 	
 	private void upRes() {
 		for (int y = 0; y < Table.render_h; y++) {
+			int screen_y = Table.screen_y[y];
+			int src_offset = Table.src_offset[y];
 			for (int x = 0; x < Table.render_w; x++) {
-				pixels[Table.screen_y[y] + x] = game_pixels[Table.src_offset[y] + Table.src_x[x]];
+				pixels[screen_y + x] = game_pixels[src_offset + Table.src_x[x]];
 			}
 		}
 	}

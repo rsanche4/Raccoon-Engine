@@ -3,8 +3,8 @@ package raccoon;
 public class Sector {
 	
 	int ID;
-	int floor_height;
-    int ceil_height;
+	double floor_height;
+    double ceil_height;
     String floor_texture;
     int floor_brightness;
     int floor_tiled;
@@ -18,7 +18,7 @@ public class Sector {
     int index_set_boundary_x = 0; 
     int index_set_boundary_z = 2;
     
-    public Sector(int ID, int floor_height, int ceil_height, String floor_texture, int floor_brightness, int floor_tiled, boolean floor_skip_texture, String ceil_texture, int ceil_brightness, int ceil_tiled, boolean ceil_skip_texture) {
+    public Sector(int ID, double floor_height, double ceil_height, String floor_texture, int floor_brightness, int floor_tiled, boolean floor_skip_texture, String ceil_texture, int ceil_brightness, int ceil_tiled, boolean ceil_skip_texture) {
         this.ID = ID;
         this.floor_height = floor_height;
         this.ceil_height = ceil_height;

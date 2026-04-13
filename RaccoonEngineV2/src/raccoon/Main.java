@@ -78,6 +78,7 @@ public class Main extends JFrame implements Runnable {
             }
 
             camera = new Camera();
+            camera.initializeKeyMap();
             camera.setFrame(this);
 
             screen = new Screen(pixels, game_pixels);
