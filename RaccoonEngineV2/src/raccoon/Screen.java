@@ -5,8 +5,8 @@ import java.util.concurrent.CountDownLatch;
 
 public class Screen {
 
-	public static int fog_start = 5;
-	public static int fog_end = 25;
+	public static double fog_start = 5;
+	public static double fog_end = 25;
 	public static Sector[] sectors=null;
 	public static Wall[] walls;
 	public static Portal[] portals;
@@ -16,10 +16,10 @@ public class Screen {
 	
 	private int[] phantom_rays;
 	private int phantom_hunters = 10;
-	private int[] depth_buffer;
+	private double[] depth_buffer;
 	
 	public Screen() {
-		this.depth_buffer = new int[Main.GAME_WID * Main.GAME_HEI];
+		this.depth_buffer = new double[Main.GAME_WID * Main.GAME_HEI];
 		phantom_rays = new int[phantom_hunters];
 	}
 	
