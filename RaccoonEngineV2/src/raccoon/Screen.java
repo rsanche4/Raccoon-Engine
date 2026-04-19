@@ -16,14 +16,10 @@ public class Screen {
 	
 	private int[] phantom_rays;
 	private int phantom_hunters = 10;
-	private int[] pixels;
-	private int[] game_pixels;
 	private int[] depth_buffer;
 	
-	public Screen(int[] pixels, int[] game_pixels) {
-		this.pixels = pixels;
-		this.game_pixels = game_pixels;
-		this.depth_buffer = new int[game_pixels.length];
+	public Screen() {
+		this.depth_buffer = new int[Main.GAME_WID * Main.GAME_HEI];
 		phantom_rays = new int[phantom_hunters];
 	}
 	
@@ -37,7 +33,7 @@ public class Screen {
 		return -1;
 	}
 	
-	public void update(int frame_num) {
+	public int[] update(int frame_num, int[] game_pixels) {
 	    Arrays.fill(phantom_rays, -1);
 	    Arrays.fill(game_pixels, 0);
 	    Arrays.fill(depth_buffer, fog_end);
@@ -70,11 +66,11 @@ public class Screen {
 	        		}
 	        	}
 	        }
-	        drawSky(Camera.direction_rad, Main.textures.get(skybox).pixels);
+	        drawSky(Camera.direction_rad, ResourceManager.textures.get(skybox).pixels);
 	        drawSprites();
 	    }
 	    RaccoonAPI.runUserScripts();
-	    upRes();
+	    return game_pixels;
 	}
 	
 	private void castRayAndRenderScreenColumn(int x) {
@@ -272,13 +268,4 @@ public class Screen {
 		
 	}
 	
-	private void upRes() {
-		for (int y = 0; y < Table.render_h; y++) {
-			int screen_y = Table.screen_y[y];
-			int src_offset = Table.src_offset[y];
-			for (int x = 0; x < Table.render_w; x++) {
-				pixels[screen_y + x] = game_pixels[src_offset + Table.src_x[x]];
-			}
-		}
-	}
 }

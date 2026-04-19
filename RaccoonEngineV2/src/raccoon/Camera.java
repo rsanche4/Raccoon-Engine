@@ -21,6 +21,7 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener {
 	
 	public Camera() {
 		
+		initializeKeyMap();
 	}
 	
 	public void initializeKeyMap() {
@@ -85,11 +86,7 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener {
         keyStates.put("mouse_wheel_down", false);
     }
 	
-	public void update(JFrame frame) {
-		
-	}
-	
-	public void setFrame(JFrame frame) {
+	public void update() {
 		
 	}
 	
