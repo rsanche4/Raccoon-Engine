@@ -21,7 +21,7 @@ public class Main implements Runnable {
         this.renderer = renderer;
     	thread = new Thread(this, "game_loop_thread");
 
-    	ResourceManager.unpackRPK("data.rpk");
+    	ResourceManager.loadData();
 
         camera = new Camera();
         screen = new Screen();
@@ -61,7 +61,6 @@ public class Main implements Runnable {
 
     public static void main(String[] args) {
     	Table.init();
-    	ResourceManager.scripts.add(new Event("init.lua", 1));
     	Renderer renderer = new JavaSwingRenderer();
         new Main(renderer);
     }

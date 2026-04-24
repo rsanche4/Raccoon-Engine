@@ -116,12 +116,12 @@ public class Screen {
 				start_x = start_x + dir_theta_x*dx_1;
 				start_z = start_z + dir_theta_z*dz_1;
 				wall_index = makeWallIndex((int)start_x, (int)start_z, 1, map_width);
-				perc_wall_hit = mod_z/1;
+				perc_wall_hit = mod_z;
 			} else {
 				start_x = start_x + dir_theta_x*dx_2;
 				start_z = start_z + dir_theta_z*dz_2;
 				wall_index = makeWallIndex((int)start_x, (int)start_z, 0, map_width);
-				perc_wall_hit = mod_x/1;
+				perc_wall_hit = mod_x;
 			}
 			double full_euclid_dist = euclidDist(Camera.player_x, Camera.player_z, start_x, start_z);
 			if (wall_index>=walls.length && wall_index>=portals.length) {

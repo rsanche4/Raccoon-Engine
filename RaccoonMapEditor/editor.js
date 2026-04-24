@@ -5,7 +5,7 @@ const menu = document.getElementById('menu');
 
         let zoom = 1.0;
         let panX = 0;
-        let panY = 0;
+        let panZ = 0;
         const gridSize = 32;
 
         let mode = 'drawing';
@@ -77,8 +77,18 @@ const menu = document.getElementById('menu');
             URL.revokeObjectURL(url);
         }
 
+        function clampPan() {
+            // Never scroll past origin — keep (0,0) visible at bottom-left with a small margin
+            const margin = 40;
+            panX = Math.min(panX, margin);
+            panZ = Math.min(panZ, margin);
+        }
+
         function init() {
             resizeCanvas();
+            // Place origin at bottom-left with a small margin
+            panX = 40;
+            panZ = 40;
             window.addEventListener('resize', resizeCanvas);
             canvas.addEventListener('wheel', handleZoom);
             canvas.addEventListener('mousedown', handleMouseDown);
@@ -102,33 +112,38 @@ const menu = document.getElementById('menu');
         }
 
         function screenToGrid(screenX, screenY) {
-            const worldX = (screenX - canvas.width / 2 - panX) / zoom;
-            const worldY = -(screenY - canvas.height / 2 - panY) / zoom;
+            // Origin at bottom-left: X increases right, Z increases upward
+            const gridX = (screenX - panX) / (gridSize * zoom);
+            const gridZ = (canvas.height - screenY - panZ) / (gridSize * zoom);
             return {
-                x: Math.round(worldX / gridSize),
-                y: Math.round(worldY / gridSize)
+                x: Math.round(gridX),
+                z: Math.round(gridZ)
             };
         }
 
-        function gridToScreen(gridX, gridY) {
-            const worldX = gridX * gridSize;
-            const worldY = -gridY * gridSize;
+        function gridToScreen(gridX, gridZ) {
             return {
-                x: worldX * zoom + canvas.width / 2 + panX,
-                y: worldY * zoom + canvas.height / 2 + panY
+                x: gridX * gridSize * zoom + panX,
+                y: canvas.height - gridZ * gridSize * zoom - panZ
             };
         }
 
         function handleZoom(e) {
             e.preventDefault();
             const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const oldZoom = zoom;
             zoom *= delta;
             zoom = Math.max(0.1, Math.min(10, zoom));
+            
+            // Zoom toward mouse cursor
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            panX = mouseX - (mouseX - panX) * (zoom / oldZoom);
+            panZ = (canvas.height - mouseY) - ((canvas.height - mouseY) - panZ) * (zoom / oldZoom);
+            
+            clampPan();
             document.getElementById('zoomLevel').textContent = zoom.toFixed(1);
-            // Invalidate pattern cache so tiles rescale with zoom
-            for (const entry of textureCache.values()) {
-                entry.pattern = null;
-            }
+            for (const entry of textureCache.values()) entry.pattern = null;
             draw();
         }
 
@@ -183,7 +198,7 @@ const menu = document.getElementById('menu');
                 // Check if clicking on start vertex to complete shape
                 const clickingStartVertex = shapeStartVertex && 
                     gridPos.x === shapeStartVertex.x && 
-                    gridPos.y === shapeStartVertex.y &&
+                    gridPos.z === shapeStartVertex.z &&
                     currentShape.length > 0;
                 
                 if (clickingStartVertex) {
@@ -223,7 +238,7 @@ const menu = document.getElementById('menu');
                 // Start or continue drawing
                 if (currentShape.length > 0) {
                     const lastLine = currentShape[currentShape.length - 1];
-                    lineStart = {x: lastLine.x2, y: lastLine.y2};
+                    lineStart = {x: lastLine.x2, z: lastLine.z2};
                 } else {
                     lineStart = gridPos;
                     shapeStartVertex = gridPos;
@@ -233,13 +248,14 @@ const menu = document.getElementById('menu');
             } else if (e.button === 2) {
                 canvas.style.cursor = 'grabbing';
                 const startPanX = panX;
-                const startPanY = panY;
+                const startPanZ = panZ;
                 const startX = e.clientX;
                 const startY = e.clientY;
                 
                 function pan(e) {
                     panX = startPanX + (e.clientX - startX);
-                    panY = startPanY + (e.clientY - startY);
+                    panZ = startPanZ - (e.clientY - startY); // invert Y for cartesian Z
+                    clampPan();
                     draw();
                 }
                 
@@ -258,11 +274,11 @@ const menu = document.getElementById('menu');
             let inside = false;
             const vertices = rect.vertices;
             for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
-                const xi = vertices[i].x, yi = vertices[i].y;
-                const xj = vertices[j].x, yj = vertices[j].y;
+                const xi = vertices[i].x, zi = vertices[i].z;
+                const xj = vertices[j].x, zj = vertices[j].z;
                 
-                const intersect = ((yi > gridPos.y) !== (yj > gridPos.y))
-                    && (gridPos.x < (xj - xi) * (gridPos.y - yi) / (yj - yi) + xi);
+                const intersect = ((zi > gridPos.z) !== (zj > gridPos.z))
+                    && (gridPos.x < (xj - xi) * (gridPos.z - zi) / (zj - zi) + xi);
                 if (intersect) inside = !inside;
             }
             return inside;
@@ -272,7 +288,7 @@ const menu = document.getElementById('menu');
             const gridPos = screenToGrid(e.clientX, e.clientY);
             currentMousePos = gridPos;
             document.getElementById('mouseX').textContent = gridPos.x;
-            document.getElementById('mouseY').textContent = gridPos.y;
+            document.getElementById('mouseZ').textContent = gridPos.z;
             
             if (drawingLine) {
                 draw();
@@ -283,22 +299,22 @@ const menu = document.getElementById('menu');
             if (e.button === 0 && drawingLine) {
                 const gridEnd = screenToGrid(e.clientX, e.clientY);
                 
-                if (gridEnd.x !== lineStart.x && gridEnd.y !== lineStart.y) {
+                if (gridEnd.x !== lineStart.x && gridEnd.z !== lineStart.z) {
                     const dx = Math.abs(gridEnd.x - lineStart.x);
-                    const dy = Math.abs(gridEnd.y - lineStart.y);
-                    if (dx > dy) {
-                        gridEnd.y = lineStart.y;
+                    const dz = Math.abs(gridEnd.z - lineStart.z);
+                    if (dx > dz) {
+                        gridEnd.z = lineStart.z;
                     } else {
                         gridEnd.x = lineStart.x;
                     }
                 }
                 
-                if (gridEnd.x !== lineStart.x || gridEnd.y !== lineStart.y) {
+                if (gridEnd.x !== lineStart.x || gridEnd.z !== lineStart.z) {
                     currentShape.push({
                         x1: lineStart.x,
-                        y1: lineStart.y,
+                        z1: lineStart.z,
                         x2: gridEnd.x,
-                        y2: gridEnd.y
+                        z2: gridEnd.z
                     });
                 }
                 
@@ -359,15 +375,15 @@ const menu = document.getElementById('menu');
             const vertexSet = new Set();
             
             for (const line of lines) {
-                const v1Key = `${line.x1},${line.y1}`;
-                const v2Key = `${line.x2},${line.y2}`;
+                const v1Key = `${line.x1},${line.z1}`;
+                const v2Key = `${line.x2},${line.z2}`;
                 
                 if (!vertexSet.has(v1Key)) {
-                    vertices.push({x: line.x1, y: line.y1});
+                    vertices.push({x: line.x1, z: line.z1});
                     vertexSet.add(v1Key);
                 }
                 if (!vertexSet.has(v2Key)) {
-                    vertices.push({x: line.x2, y: line.y2});
+                    vertices.push({x: line.x2, z: line.z2});
                     vertexSet.add(v2Key);
                 }
             }
@@ -378,12 +394,12 @@ const menu = document.getElementById('menu');
         function getEdgeDirection(vertices, edge) {
             const minX = Math.min(...vertices.map(v => v.x));
             const maxX = Math.max(...vertices.map(v => v.x));
-            const minY = Math.min(...vertices.map(v => v.y));
-            const maxY = Math.max(...vertices.map(v => v.y));
+            const minZ = Math.min(...vertices.map(v => v.z));
+            const maxZ = Math.max(...vertices.map(v => v.z));
             
-            if (edge.y1 === edge.y2) {
-                if (edge.y1 === maxY) return 'north';
-                if (edge.y1 === minY) return 'south';
+            if (edge.z1 === edge.z2) {
+                if (edge.z1 === maxZ) return 'north';
+                if (edge.z1 === minZ) return 'south';
             }
             if (edge.x1 === edge.x2) {
                 if (edge.x1 === maxX) return 'east';
@@ -569,11 +585,11 @@ const menu = document.getElementById('menu');
             
             updateProgress(10, 'Collecting coordinates...');
             const xCoords = new Set();
-            const yCoords = new Set();
+            const zCoords = new Set();
             
             for (const v of worldBoundary.vertices) {
                 xCoords.add(v.x);
-                yCoords.add(v.y);
+                zCoords.add(v.z);
             }
             
             for (const rect of userRectangles) {
@@ -581,26 +597,26 @@ const menu = document.getElementById('menu');
                     if (line.x1 === line.x2) {
                         xCoords.add(line.x1);
                     }
-                    if (line.y1 === line.y2) {
-                        yCoords.add(line.y1);
+                    if (line.z1 === line.z2) {
+                        zCoords.add(line.z1);
                     }
                 }
             }
             
             const xArray = Array.from(xCoords).sort((a, b) => a - b);
-            const yArray = Array.from(yCoords).sort((a, b) => a - b);
+            const zArray = Array.from(zCoords).sort((a, b) => a - b);
             
             updateProgress(30, 'Generating grid sectors...');
             await new Promise(resolve => setTimeout(resolve, 50));
             
             const gridRectangles = [];
             for (let i = 0; i < xArray.length - 1; i++) {
-                for (let j = 0; j < yArray.length - 1; j++) {
+                for (let j = 0; j < zArray.length - 1; j++) {
                     const rect = {
                         minX: xArray[i],
                         maxX: xArray[i + 1],
-                        minY: yArray[j],
-                        maxY: yArray[j + 1]
+                        minZ: zArray[j],
+                        maxZ: zArray[j + 1]
                     };
                     gridRectangles.push(rect);
                 }
@@ -614,11 +630,11 @@ const menu = document.getElementById('menu');
             
             for (const gridRect of gridRectangles) {
                 const centerX = (gridRect.minX + gridRect.maxX) / 2;
-                const centerY = (gridRect.minY + gridRect.maxY) / 2;
+                const centerZ = (gridRect.minZ + gridRect.maxZ) / 2;
                 
                 let sourceRect = null;
                 for (const userRect of userRectangles) {
-                    if (isPointInPolygon(centerX, centerY, userRect.vertices)) {
+                    if (isPointInPolygon(centerX, centerZ, userRect.vertices)) {
                         sourceRect = userRect;
                         break;
                     }
@@ -628,13 +644,13 @@ const menu = document.getElementById('menu');
                     id: sectorId++,
                     minX: gridRect.minX,
                     maxX: gridRect.maxX,
-                    minY: gridRect.minY,
-                    maxY: gridRect.maxY,
+                    minZ: gridRect.minZ,
+                    maxZ: gridRect.maxZ,
                     vertices: [
-                        {x: gridRect.minX, y: gridRect.minY},
-                        {x: gridRect.maxX, y: gridRect.minY},
-                        {x: gridRect.maxX, y: gridRect.maxY},
-                        {x: gridRect.minX, y: gridRect.maxY}
+                        {x: gridRect.minX, z: gridRect.minZ},
+                        {x: gridRect.maxX, z: gridRect.minZ},
+                        {x: gridRect.maxX, z: gridRect.maxZ},
+                        {x: gridRect.minX, z: gridRect.maxZ}
                     ],
                     sourceRect: sourceRect || 'void',
                     floorHeight: sourceRect ? sourceRect.floorHeight : worldBoundary.floorHeight,
@@ -666,14 +682,14 @@ const menu = document.getElementById('menu');
             draw();
         }
 
-        function isPointInPolygon(x, y, vertices) {
+        function isPointInPolygon(x, z, vertices) {
             let inside = false;
             for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
-                const xi = vertices[i].x, yi = vertices[i].y;
-                const xj = vertices[j].x, yj = vertices[j].y;
+                const xi = vertices[i].x, zi = vertices[i].z;
+                const xj = vertices[j].x, zj = vertices[j].z;
                 
-                const intersect = ((yi > y) !== (yj > y))
-                    && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                const intersect = ((zi > z) !== (zj > z))
+                    && (x < (xj - xi) * (z - zi) / (zj - zi) + xi);
                 if (intersect) inside = !inside;
             }
             return inside;
@@ -685,21 +701,21 @@ const menu = document.getElementById('menu');
             
             const worldMinX = Math.min(...worldBoundary.vertices.map(v => v.x));
             const worldMaxX = Math.max(...worldBoundary.vertices.map(v => v.x));
-            const worldMinY = Math.min(...worldBoundary.vertices.map(v => v.y));
-            const worldMaxY = Math.max(...worldBoundary.vertices.map(v => v.y));
+            const worldMinZ = Math.min(...worldBoundary.vertices.map(v => v.z));
+            const worldMaxZ = Math.max(...worldBoundary.vertices.map(v => v.z));
             
             const edgeMap = new Map();
             
             for (const sector of finalSectors) {
                 const edges = [
-                    {x1: sector.minX, y1: sector.minY, x2: sector.maxX, y2: sector.minY},
-                    {x1: sector.maxX, y1: sector.minY, x2: sector.maxX, y2: sector.maxY},
-                    {x1: sector.minX, y1: sector.maxY, x2: sector.maxX, y2: sector.maxY},
-                    {x1: sector.minX, y1: sector.minY, x2: sector.minX, y2: sector.maxY}
+                    {x1: sector.minX, z1: sector.minZ, x2: sector.maxX, z2: sector.minZ},
+                    {x1: sector.maxX, z1: sector.minZ, x2: sector.maxX, z2: sector.maxZ},
+                    {x1: sector.minX, z1: sector.maxZ, x2: sector.maxX, z2: sector.maxZ},
+                    {x1: sector.minX, z1: sector.minZ, x2: sector.minX, z2: sector.maxZ}
                 ];
                 
                 for (const edge of edges) {
-                    const key = normalizeEdgeKey(edge.x1, edge.y1, edge.x2, edge.y2);
+                    const key = normalizeEdgeKey(edge.x1, edge.z1, edge.x2, edge.z2);
                     if (!edgeMap.has(key)) {
                         edgeMap.set(key, []);
                     }
@@ -708,21 +724,21 @@ const menu = document.getElementById('menu');
             }
             
             for (const [key, sectorIds] of edgeMap) {
-                const [x1, y1, x2, y2] = key.split(',').map(Number);
+                const [x1, z1, x2, z2] = key.split(',').map(Number);
                 
                 const isOnBoundary = 
                     (x1 === worldMinX && x2 === worldMinX) ||
                     (x1 === worldMaxX && x2 === worldMaxX) ||
-                    (y1 === worldMinY && y2 === worldMinY) ||
-                    (y1 === worldMaxY && y2 === worldMaxY);
+                    (z1 === worldMinZ && z2 === worldMinZ) ||
+                    (z1 === worldMaxZ && z2 === worldMaxZ);
                 
                 if (isOnBoundary) {
-                    const dir = getWallDirection(x1, y1, x2, y2, worldMinX, worldMaxX, worldMinY, worldMaxY);
+                    const dir = getWallDirection(x1, z1, x2, z2, worldMinX, worldMaxX, worldMinZ, worldMaxZ);
                     const wallData = worldBoundary.walls[dir];
                     
                     for (const sectorId of sectorIds) {
                         finalWalls.push({
-                            x1, y1, x2, y2,
+                            x1, z1, x2, z2,
                             sectorId,
                             texture: wallData ? wallData.texture : 'wall.png',
                             brightness: wallData ? wallData.brightness : 1.0,
@@ -731,10 +747,10 @@ const menu = document.getElementById('menu');
                         });
                     }
                 } else if (sectorIds.length === 2) {
-                    const edgeProps = getEdgeProperties(x1, y1, x2, y2);
+                    const edgeProps = getEdgeProperties(x1, z1, x2, z2);
                     
                     finalPortals.push({
-                        x1, y1, x2, y2,
+                        x1, z1, x2, z2,
                         sectorA: sectorIds[0],
                         sectorB: sectorIds[1],
                         topTexture: edgeProps.topTexture,
@@ -755,10 +771,10 @@ const menu = document.getElementById('menu');
             }
         }
 
-        function getWallDirection(x1, y1, x2, y2, minX, maxX, minY, maxY) {
-            if (y1 === y2) {
-                if (y1 === maxY) return 'north';
-                if (y1 === minY) return 'south';
+        function getWallDirection(x1, z1, x2, z2, minX, maxX, minZ, maxZ) {
+            if (z1 === z2) {
+                if (z1 === maxZ) return 'north';
+                if (z1 === minZ) return 'south';
             }
             if (x1 === x2) {
                 if (x1 === maxX) return 'east';
@@ -767,10 +783,10 @@ const menu = document.getElementById('menu');
             return 'north';
         }
 
-        function getEdgeProperties(x1, y1, x2, y2) {
+        function getEdgeProperties(x1, z1, x2, z2) {
             for (const rect of userRectangles) {
                 for (const line of rect.lines) {
-                    if (isEdgePartOfLine(x1, y1, x2, y2, line.x1, line.y1, line.x2, line.y2)) {
+                    if (isEdgePartOfLine(x1, z1, x2, z2, line.x1, line.z1, line.x2, line.z2)) {
                         const dir = getEdgeDirection(rect.vertices, line);
                         if (dir && rect.edges[dir]) {
                             return {
@@ -794,45 +810,32 @@ const menu = document.getElementById('menu');
             }
             
             return {
-                topTexture: 'black.png',
-                topBrightness: 1.0,
-                topTiled: 1,
-                topSkip: false,
-                midTexture: 'black.png',
-                midBrightness: 1.0,
-                midTiled: 1,
-                midSkip: false,
-                botTexture: 'black.png',
-                botBrightness: 1.0,
-                botTiled: 1,
-                botSkip: false,
+                topTexture: 'black.png', topBrightness: 1.0, topTiled: 1, topSkip: false,
+                midTexture: 'black.png', midBrightness: 1.0, midTiled: 1, midSkip: false,
+                botTexture: 'black.png', botBrightness: 1.0, botTiled: 1, botSkip: false,
                 solid: 0
             };
         }
 
-        function isEdgePartOfLine(ex1, ey1, ex2, ey2, lx1, ly1, lx2, ly2) {
+        function isEdgePartOfLine(ex1, ez1, ex2, ez2, lx1, lz1, lx2, lz2) {
             if (ex1 === ex2 && lx1 === lx2 && ex1 === lx1) {
-                const eMin = Math.min(ey1, ey2);
-                const eMax = Math.max(ey1, ey2);
-                const lMin = Math.min(ly1, ly2);
-                const lMax = Math.max(ly1, ly2);
+                const eMin = Math.min(ez1, ez2), eMax = Math.max(ez1, ez2);
+                const lMin = Math.min(lz1, lz2), lMax = Math.max(lz1, lz2);
                 return eMin >= lMin && eMax <= lMax;
             }
-            if (ey1 === ey2 && ly1 === ly2 && ey1 === ly1) {
-                const eMin = Math.min(ex1, ex2);
-                const eMax = Math.max(ex1, ex2);
-                const lMin = Math.min(lx1, lx2);
-                const lMax = Math.max(lx1, lx2);
+            if (ez1 === ez2 && lz1 === lz2 && ez1 === lz1) {
+                const eMin = Math.min(ex1, ex2), eMax = Math.max(ex1, ex2);
+                const lMin = Math.min(lx1, lx2), lMax = Math.max(lx1, lx2);
                 return eMin >= lMin && eMax <= lMax;
             }
             return false;
         }
 
-        function normalizeEdgeKey(x1, y1, x2, y2) {
-            if (x1 < x2 || (x1 === x2 && y1 < y2)) {
-                return `${x1},${y1},${x2},${y2}`;
+        function normalizeEdgeKey(x1, z1, x2, z2) {
+            if (x1 < x2 || (x1 === x2 && z1 < z2)) {
+                return `${x1},${z1},${x2},${z2}`;
             } else {
-                return `${x2},${y2},${x1},${y1}`;
+                return `${x2},${z2},${x1},${z1}`;
             }
         }
 
@@ -851,13 +854,13 @@ const menu = document.getElementById('menu');
             output += '[WALLS]\n';
             for (const wall of finalWalls) {
                 // Wall(x1, z1, x2, z2, sector_a, wall_texture, wall_brightness, wall_tiled, skip_wall_texture)
-                output += `${wall.x1} ${wall.y1} ${wall.x2} ${wall.y2} ${wall.sectorId} ${wall.texture} ${wall.brightness} ${wall.tiled} ${wall.skipTexture}\n`;
+                output += `${wall.x1} ${wall.z1} ${wall.x2} ${wall.z2} ${wall.sectorId} ${wall.texture} ${wall.brightness} ${wall.tiled} ${wall.skipTexture}\n`;
             }
             
             output += '[PORTALS]\n';
             for (const portal of finalPortals) {
                 // Portal(x1, z1, x2, z2, sector_a, sector_b, bottom_texture, bottom_brightness, bottom_tiled, bottom_skip_texture, middle_texture, middle_brightness, middle_tiled, middle_skip_texture, top_texture, top_brightness, top_tiled, top_skip_texture)
-                output += `${portal.x1} ${portal.y1} ${portal.x2} ${portal.y2} ${portal.sectorA} ${portal.sectorB} ${portal.botTexture} ${portal.botBrightness} ${portal.botTiled} ${portal.botSkip} ${portal.midTexture} ${portal.midBrightness} ${portal.midTiled} ${portal.midSkip} ${portal.topTexture} ${portal.topBrightness} ${portal.topTiled} ${portal.topSkip}\n`;
+                output += `${portal.x1} ${portal.z1} ${portal.x2} ${portal.z2} ${portal.sectorA} ${portal.sectorB} ${portal.botTexture} ${portal.botBrightness} ${portal.botTiled} ${portal.botSkip} ${portal.midTexture} ${portal.midBrightness} ${portal.midTiled} ${portal.midSkip} ${portal.topTexture} ${portal.topBrightness} ${portal.topTiled} ${portal.topSkip}\n`;
             }
             
             const blob = new Blob([output], { type: 'text/plain' });
@@ -895,40 +898,46 @@ const menu = document.getElementById('menu');
             ctx.strokeStyle = '#1a1a1a';
             ctx.lineWidth = 1;
             
-            const centerX = canvas.width / 2 + panX;
-            const centerY = canvas.height / 2 + panY;
-            const scaledGrid = gridSize * zoom;
+            // Draw grid lines only in positive quadrant
+            const originScreen = gridToScreen(0, 0);
             
-            const startX = Math.floor(-centerX / scaledGrid) - 1;
-            const endX = Math.ceil((canvas.width - centerX) / scaledGrid) + 1;
-            const startY = Math.floor(-centerY / scaledGrid) - 1;
-            const endY = Math.ceil((canvas.height - centerY) / scaledGrid) + 1;
-            
-            for (let i = startX; i <= endX; i++) {
-                const x = centerX + i * scaledGrid;
+            // Vertical lines (constant X)
+            const startGridX = Math.max(0, Math.floor((0 - panX) / (gridSize * zoom)));
+            const endGridX = Math.ceil((canvas.width - panX) / (gridSize * zoom));
+            for (let i = startGridX; i <= endGridX; i++) {
+                const sx = gridToScreen(i, 0).x;
                 ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
+                ctx.moveTo(sx, 0);
+                ctx.lineTo(sx, canvas.height);
                 ctx.stroke();
             }
             
-            for (let i = startY; i <= endY; i++) {
-                const y = centerY + i * scaledGrid;
+            // Horizontal lines (constant Z)
+            // Convert screen top and bottom to grid Z, clamp to >= 0
+            const screenTopZ = screenToGrid(0, 0).z;
+            const screenBotZ = screenToGrid(0, canvas.height).z;
+            const startGridZ = Math.max(0, Math.floor(screenBotZ) - 1);
+            const endGridZ = Math.ceil(screenTopZ) + 1;
+            for (let j = startGridZ; j <= endGridZ; j++) {
+                const sy = gridToScreen(0, j).y;
                 ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
+                ctx.moveTo(0, sy);
+                ctx.lineTo(canvas.width, sy);
                 ctx.stroke();
             }
             
+            // Draw axes
             ctx.strokeStyle = '#0f0';
             ctx.lineWidth = 2;
+            // X axis (Z=0, horizontal)
             ctx.beginPath();
-            ctx.moveTo(centerX, 0);
-            ctx.lineTo(centerX, canvas.height);
+            ctx.moveTo(originScreen.x, originScreen.y);
+            ctx.lineTo(canvas.width, originScreen.y);
             ctx.stroke();
+            // Z axis (X=0, vertical going up)
             ctx.beginPath();
-            ctx.moveTo(0, centerY);
-            ctx.lineTo(canvas.width, centerY);
+            ctx.moveTo(originScreen.x, originScreen.y);
+            ctx.lineTo(originScreen.x, 0);
             ctx.stroke();
             
             if (mode === 'partitioned') {
@@ -937,10 +946,10 @@ const menu = document.getElementById('menu');
                     ctx.fillStyle = isVoid ? 'rgba(100, 100, 100, 0.2)' : 'rgba(0, 255, 0, 0.2)';
                     
                     ctx.beginPath();
-                    const p1 = gridToScreen(sector.minX, sector.minY);
-                    const p2 = gridToScreen(sector.maxX, sector.minY);
-                    const p3 = gridToScreen(sector.maxX, sector.maxY);
-                    const p4 = gridToScreen(sector.minX, sector.maxY);
+                    const p1 = gridToScreen(sector.minX, sector.minZ);
+                    const p2 = gridToScreen(sector.maxX, sector.minZ);
+                    const p3 = gridToScreen(sector.maxX, sector.maxZ);
+                    const p4 = gridToScreen(sector.minX, sector.maxZ);
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(p2.x, p2.y);
                     ctx.lineTo(p3.x, p3.y);
@@ -953,8 +962,8 @@ const menu = document.getElementById('menu');
                     ctx.stroke();
                     
                     const centerX = (sector.minX + sector.maxX) / 2;
-                    const centerY = (sector.minY + sector.maxY) / 2;
-                    const screenCenter = gridToScreen(centerX, centerY);
+                    const centerZ = (sector.minZ + sector.maxZ) / 2;
+                    const screenCenter = gridToScreen(centerX, centerZ);
                     ctx.fillStyle = '#fff';
                     ctx.font = '12px Courier New';
                     ctx.textAlign = 'center';
@@ -965,8 +974,8 @@ const menu = document.getElementById('menu');
                 ctx.strokeStyle = '#f00';
                 ctx.lineWidth = 2;
                 for (const wall of finalWalls) {
-                    const p1 = gridToScreen(wall.x1, wall.y1);
-                    const p2 = gridToScreen(wall.x2, wall.y2);
+                    const p1 = gridToScreen(wall.x1, wall.z1);
+                    const p2 = gridToScreen(wall.x2, wall.z2);
                     ctx.beginPath();
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(p2.x, p2.y);
@@ -979,7 +988,7 @@ const menu = document.getElementById('menu');
                     const rect = userRectangles[i];
 
                     // Build polygon path from vertices
-                    const screenVerts = rect.vertices.map(v => gridToScreen(v.x, v.y));
+                    const screenVerts = rect.vertices.map(v => gridToScreen(v.x, v.z));
                     ctx.beginPath();
                     ctx.moveTo(screenVerts[0].x, screenVerts[0].y);
                     for (let k = 1; k < screenVerts.length; k++) {
@@ -1007,8 +1016,7 @@ const menu = document.getElementById('menu');
                             const originScreen = gridToScreen(0, 0);
                             const matrix = new DOMMatrix();
                             matrix.translateSelf(originScreen.x % (gridSize * zoom), originScreen.y % (gridSize * zoom));
-                            entry.pattern.setTransform(matrix);
-                            ctx.fillStyle = entry.pattern;
+                            entry.pattern.setTransform(matrix);                            ctx.fillStyle = entry.pattern;
                         } else {
                             ctx.fillStyle = '#111';
                         }
@@ -1027,8 +1035,8 @@ const menu = document.getElementById('menu');
                     }
 
                     for (const line of rect.lines) {
-                        const p1 = gridToScreen(line.x1, line.y1);
-                        const p2 = gridToScreen(line.x2, line.y2);
+                        const p1 = gridToScreen(line.x1, line.z1);
+                        const p2 = gridToScreen(line.x2, line.z2);
                         ctx.beginPath();
                         ctx.moveTo(p1.x, p1.y);
                         ctx.lineTo(p2.x, p2.y);
@@ -1040,8 +1048,8 @@ const menu = document.getElementById('menu');
                     ctx.strokeStyle = '#f00';
                     ctx.lineWidth = 3;
                     for (const line of worldBoundary.lines) {
-                        const p1 = gridToScreen(line.x1, line.y1);
-                        const p2 = gridToScreen(line.x2, line.y2);
+                        const p1 = gridToScreen(line.x1, line.z1);
+                        const p2 = gridToScreen(line.x2, line.z2);
                         ctx.beginPath();
                         ctx.moveTo(p1.x, p1.y);
                         ctx.lineTo(p2.x, p2.y);
@@ -1052,8 +1060,8 @@ const menu = document.getElementById('menu');
                 ctx.strokeStyle = '#0ff';
                 ctx.lineWidth = 2;
                 for (const line of currentShape) {
-                    const p1 = gridToScreen(line.x1, line.y1);
-                    const p2 = gridToScreen(line.x2, line.y2);
+                    const p1 = gridToScreen(line.x1, line.z1);
+                    const p2 = gridToScreen(line.x2, line.z2);
                     ctx.beginPath();
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(p2.x, p2.y);
@@ -1063,18 +1071,18 @@ const menu = document.getElementById('menu');
                 if (drawingLine && lineStart && currentMousePos) {
                     let snapEnd = {...currentMousePos};
                     
-                    if (snapEnd.x !== lineStart.x && snapEnd.y !== lineStart.y) {
+                    if (snapEnd.x !== lineStart.x && snapEnd.z !== lineStart.z) {
                         const dx = Math.abs(snapEnd.x - lineStart.x);
-                        const dy = Math.abs(snapEnd.y - lineStart.y);
-                        if (dx > dy) {
-                            snapEnd.y = lineStart.y;
+                        const dz = Math.abs(snapEnd.z - lineStart.z);
+                        if (dx > dz) {
+                            snapEnd.z = lineStart.z;
                         } else {
                             snapEnd.x = lineStart.x;
                         }
                     }
                     
-                    const p1 = gridToScreen(lineStart.x, lineStart.y);
-                    const p2 = gridToScreen(snapEnd.x, snapEnd.y);
+                    const p1 = gridToScreen(lineStart.x, lineStart.z);
+                    const p2 = gridToScreen(snapEnd.x, snapEnd.z);
                     
                     ctx.strokeStyle = '#0ff';
                     ctx.lineWidth = 2;
@@ -1087,7 +1095,7 @@ const menu = document.getElementById('menu');
                 }
                 
                 if (currentMousePos) {
-                    const p = gridToScreen(currentMousePos.x, currentMousePos.y);
+                    const p = gridToScreen(currentMousePos.x, currentMousePos.z);
                     ctx.fillStyle = '#0ff';
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
@@ -1095,7 +1103,7 @@ const menu = document.getElementById('menu');
                 }
                 
                 if (shapeStartVertex) {
-                    const p = gridToScreen(shapeStartVertex.x, shapeStartVertex.y);
+                    const p = gridToScreen(shapeStartVertex.x, shapeStartVertex.z);
                     ctx.fillStyle = '#f0f';
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
