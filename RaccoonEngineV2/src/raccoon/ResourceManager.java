@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 
 public class ResourceManager {
+
+    // TODO NOTE THIS IS IMPORTANT DO NOT EVEN ATTEMPT TO STORE ALL THAT. ONLY GET WHAT IS NECESSARY,A ND LOAD IT FROM THE FILE WHEN CALLED BY STRINGS ETC. DO NOT OVERLOAD UR MEMORY
+	// Perhaps a better way is to store an index to where that info is stored outside or something. Instead of the raw info
     public static HashMap<String, Texture> textures = new HashMap<>(); 	// TODO here we need to actually store the colors that we are reading from the data and convert them to the closest ones in our allowed ANSI colors for our game engine
     // public static HashMap<String, LuaJ or something> all_scripts = etc // TODO like this
     public static PriorityQueue<Event> scripts = new PriorityQueue<>();

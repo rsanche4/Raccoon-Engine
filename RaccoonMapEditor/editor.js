@@ -21,6 +21,7 @@ const menu = document.getElementById('menu');
         let finalSectors = [];
         let finalWalls = [];
         let finalPortals = [];
+        const textureCache = new Map();
 
         document.getElementById('newProjectBtn').addEventListener('click', () => {
             menu.style.display = 'none';
@@ -56,12 +57,14 @@ const menu = document.getElementById('menu');
 
         function loadProject(projectData) {
             userRectangles = projectData.userRectangles || [];
+            worldBoundary = projectData.worldBoundary || null;
             document.getElementById('rectCount').textContent = userRectangles.length;
         }
 
         function saveProject() {
             const projectData = {
-                userRectangles: userRectangles
+                userRectangles: userRectangles,
+                worldBoundary: worldBoundary
             };
             
             const json = JSON.stringify(projectData, null, 2);
@@ -122,6 +125,10 @@ const menu = document.getElementById('menu');
             zoom *= delta;
             zoom = Math.max(0.1, Math.min(10, zoom));
             document.getElementById('zoomLevel').textContent = zoom.toFixed(1);
+            // Invalidate pattern cache so tiles rescale with zoom
+            for (const entry of textureCache.values()) {
+                entry.pattern = null;
+            }
             draw();
         }
 
@@ -313,8 +320,12 @@ const menu = document.getElementById('menu');
                     ceilingHeight: 2,
                     floorTexture: 'floor.png',
                     floorBrightness: 1.0,
+                    floorTiled: 1,
+                    floorSkipTexture: false,
                     ceilingTexture: 'ceiling.png',
                     ceilingBrightness: 1.0,
+                    ceilingTiled: 1,
+                    ceilingSkipTexture: false,
                     edges: {}
                 };
                 openConfigPanel(false);
@@ -326,8 +337,12 @@ const menu = document.getElementById('menu');
                     ceilingHeight: 2,
                     floorTexture: 'floor.png',
                     floorBrightness: 1.0,
+                    floorTiled: 1,
+                    floorSkipTexture: false,
                     ceilingTexture: 'ceiling.png',
                     ceilingBrightness: 1.0,
+                    ceilingTiled: 1,
+                    ceilingSkipTexture: false,
                     walls: {}
                 };
                 openConfigPanel(true);
@@ -386,8 +401,12 @@ const menu = document.getElementById('menu');
             document.getElementById('ceilingHeight').value = rect.ceilingHeight;
             document.getElementById('floorTexture').value = rect.floorTexture;
             document.getElementById('floorBrightness').value = rect.floorBrightness;
+            document.getElementById('floorTiled').value = rect.floorTiled !== undefined ? rect.floorTiled : 1;
+            document.getElementById('floorSkipTexture').checked = rect.floorSkipTexture || false;
             document.getElementById('ceilingTexture').value = rect.ceilingTexture;
             document.getElementById('ceilingBrightness').value = rect.ceilingBrightness;
+            document.getElementById('ceilingTiled').value = rect.ceilingTiled !== undefined ? rect.ceilingTiled : 1;
+            document.getElementById('ceilingSkipTexture').checked = rect.ceilingSkipTexture || false;
             
             const wallsContainer = document.getElementById('wallsConfig');
             wallsContainer.innerHTML = '';
@@ -401,28 +420,46 @@ const menu = document.getElementById('menu');
                 wallSection.innerHTML = `<h3>${dir.toUpperCase()} Wall</h3>`;
                 
                 if (isWorldBoundary) {
+                    const saved = rect.walls && rect.walls[dir];
                     wallSection.innerHTML += `
                         <label>Texture:</label>
-                        <input type="text" class="wall-texture" data-dir="${dir}" value="wall.png">
+                        <input type="text" class="wall-texture" data-dir="${dir}" value="${saved ? saved.texture : 'wall.png'}">
                         <label>Brightness:</label>
-                        <input type="number" class="wall-brightness" data-dir="${dir}" value="1.0" step="0.1" min="0">
+                        <input type="number" class="wall-brightness" data-dir="${dir}" value="${saved ? saved.brightness : 1.0}" step="0.1" min="0">
+                        <label>Tiled:</label>
+                        <input type="number" class="wall-tiled" data-dir="${dir}" value="${saved ? saved.tiled : 1}" step="1" min="0">
+                        <label>Skip Texture:</label>
+                        <input type="checkbox" class="wall-skip-texture" data-dir="${dir}" ${saved && saved.skipTexture ? 'checked' : ''}>
                     `;
                 } else {
+                    const saved = rect.edges && rect.edges[dir];
                     wallSection.innerHTML += `
                         <label>Top Texture:</label>
-                        <input type="text" class="edge-top-texture" data-dir="${dir}" value="black.png">
+                        <input type="text" class="edge-top-texture" data-dir="${dir}" value="${saved ? saved.topTexture : 'black.png'}">
                         <label>Top Brightness:</label>
-                        <input type="number" class="edge-top-brightness" data-dir="${dir}" value="1.0" step="0.1" min="0">
+                        <input type="number" class="edge-top-brightness" data-dir="${dir}" value="${saved ? saved.topBrightness : 1.0}" step="0.1" min="0">
+                        <label>Top Tiled:</label>
+                        <input type="number" class="edge-top-tiled" data-dir="${dir}" value="${saved ? saved.topTiled : 1}" step="1" min="0">
+                        <label>Top Skip Texture:</label>
+                        <input type="checkbox" class="edge-top-skip" data-dir="${dir}" ${saved && saved.topSkip ? 'checked' : ''}>
                         <label>Middle Texture:</label>
-                        <input type="text" class="edge-mid-texture" data-dir="${dir}" value="black.png">
+                        <input type="text" class="edge-mid-texture" data-dir="${dir}" value="${saved ? saved.midTexture : 'black.png'}">
                         <label>Middle Brightness:</label>
-                        <input type="number" class="edge-mid-brightness" data-dir="${dir}" value="1.0" step="0.1" min="0">
+                        <input type="number" class="edge-mid-brightness" data-dir="${dir}" value="${saved ? saved.midBrightness : 1.0}" step="0.1" min="0">
+                        <label>Middle Tiled:</label>
+                        <input type="number" class="edge-mid-tiled" data-dir="${dir}" value="${saved ? saved.midTiled : 1}" step="1" min="0">
+                        <label>Middle Skip Texture:</label>
+                        <input type="checkbox" class="edge-mid-skip" data-dir="${dir}" ${saved && saved.midSkip ? 'checked' : ''}>
                         <label>Bottom Texture:</label>
-                        <input type="text" class="edge-bot-texture" data-dir="${dir}" value="black.png">
+                        <input type="text" class="edge-bot-texture" data-dir="${dir}" value="${saved ? saved.botTexture : 'black.png'}">
                         <label>Bottom Brightness:</label>
-                        <input type="number" class="edge-bot-brightness" data-dir="${dir}" value="1.0" step="0.1" min="0">
+                        <input type="number" class="edge-bot-brightness" data-dir="${dir}" value="${saved ? saved.botBrightness : 1.0}" step="0.1" min="0">
+                        <label>Bottom Tiled:</label>
+                        <input type="number" class="edge-bot-tiled" data-dir="${dir}" value="${saved ? saved.botTiled : 1}" step="1" min="0">
+                        <label>Bottom Skip Texture:</label>
+                        <input type="checkbox" class="edge-bot-skip" data-dir="${dir}" ${saved && saved.botSkip ? 'checked' : ''}>
                         <label>Solid (1) or Passthrough (0):</label>
-                        <input type="number" class="edge-solid" data-dir="${dir}" value="0" min="0" max="1" step="1">
+                        <input type="number" class="edge-solid" data-dir="${dir}" value="${saved ? saved.solid : 0}" min="0" max="1" step="1">
                     `;
                 }
                 
@@ -440,18 +477,26 @@ const menu = document.getElementById('menu');
             rect.ceilingHeight = parseFloat(document.getElementById('ceilingHeight').value);
             rect.floorTexture = document.getElementById('floorTexture').value;
             rect.floorBrightness = parseFloat(document.getElementById('floorBrightness').value);
+            rect.floorTiled = parseInt(document.getElementById('floorTiled').value);
+            rect.floorSkipTexture = document.getElementById('floorSkipTexture').checked;
             rect.ceilingTexture = document.getElementById('ceilingTexture').value;
             rect.ceilingBrightness = parseFloat(document.getElementById('ceilingBrightness').value);
+            rect.ceilingTiled = parseInt(document.getElementById('ceilingTiled').value);
+            rect.ceilingSkipTexture = document.getElementById('ceilingSkipTexture').checked;
             
             if (isWorldBoundary) {
                 const wallTextures = document.querySelectorAll('.wall-texture');
                 const wallBrightnesses = document.querySelectorAll('.wall-brightness');
+                const wallTileds = document.querySelectorAll('.wall-tiled');
+                const wallSkips = document.querySelectorAll('.wall-skip-texture');
                 
                 wallTextures.forEach((input, idx) => {
                     const dir = input.dataset.dir;
                     rect.walls[dir] = {
                         texture: input.value,
-                        brightness: parseFloat(wallBrightnesses[idx].value)
+                        brightness: parseFloat(wallBrightnesses[idx].value),
+                        tiled: parseInt(wallTileds[idx].value),
+                        skipTexture: wallSkips[idx].checked
                     };
                 });
                 
@@ -463,10 +508,16 @@ const menu = document.getElementById('menu');
             } else {
                 const topTextures = document.querySelectorAll('.edge-top-texture');
                 const topBrightnesses = document.querySelectorAll('.edge-top-brightness');
+                const topTileds = document.querySelectorAll('.edge-top-tiled');
+                const topSkips = document.querySelectorAll('.edge-top-skip');
                 const midTextures = document.querySelectorAll('.edge-mid-texture');
                 const midBrightnesses = document.querySelectorAll('.edge-mid-brightness');
+                const midTileds = document.querySelectorAll('.edge-mid-tiled');
+                const midSkips = document.querySelectorAll('.edge-mid-skip');
                 const botTextures = document.querySelectorAll('.edge-bot-texture');
                 const botBrightnesses = document.querySelectorAll('.edge-bot-brightness');
+                const botTileds = document.querySelectorAll('.edge-bot-tiled');
+                const botSkips = document.querySelectorAll('.edge-bot-skip');
                 const solids = document.querySelectorAll('.edge-solid');
                 
                 topTextures.forEach((input, idx) => {
@@ -474,10 +525,16 @@ const menu = document.getElementById('menu');
                     rect.edges[dir] = {
                         topTexture: input.value,
                         topBrightness: parseFloat(topBrightnesses[idx].value),
+                        topTiled: parseInt(topTileds[idx].value),
+                        topSkip: topSkips[idx].checked,
                         midTexture: midTextures[idx].value,
                         midBrightness: parseFloat(midBrightnesses[idx].value),
+                        midTiled: parseInt(midTileds[idx].value),
+                        midSkip: midSkips[idx].checked,
                         botTexture: botTextures[idx].value,
                         botBrightness: parseFloat(botBrightnesses[idx].value),
+                        botTiled: parseInt(botTileds[idx].value),
+                        botSkip: botSkips[idx].checked,
                         solid: parseInt(solids[idx].value)
                     };
                 });
@@ -584,8 +641,12 @@ const menu = document.getElementById('menu');
                     ceilingHeight: sourceRect ? sourceRect.ceilingHeight : worldBoundary.ceilingHeight,
                     floorTexture: sourceRect ? sourceRect.floorTexture : worldBoundary.floorTexture,
                     floorBrightness: sourceRect ? sourceRect.floorBrightness : worldBoundary.floorBrightness,
+                    floorTiled: sourceRect ? (sourceRect.floorTiled !== undefined ? sourceRect.floorTiled : 1) : (worldBoundary.floorTiled !== undefined ? worldBoundary.floorTiled : 1),
+                    floorSkipTexture: sourceRect ? (sourceRect.floorSkipTexture || false) : (worldBoundary.floorSkipTexture || false),
                     ceilingTexture: sourceRect ? sourceRect.ceilingTexture : worldBoundary.ceilingTexture,
-                    ceilingBrightness: sourceRect ? sourceRect.ceilingBrightness : worldBoundary.ceilingBrightness
+                    ceilingBrightness: sourceRect ? sourceRect.ceilingBrightness : worldBoundary.ceilingBrightness,
+                    ceilingTiled: sourceRect ? (sourceRect.ceilingTiled !== undefined ? sourceRect.ceilingTiled : 1) : (worldBoundary.ceilingTiled !== undefined ? worldBoundary.ceilingTiled : 1),
+                    ceilingSkipTexture: sourceRect ? (sourceRect.ceilingSkipTexture || false) : (worldBoundary.ceilingSkipTexture || false)
                 };
                 
                 finalSectors.push(sector);
@@ -664,7 +725,9 @@ const menu = document.getElementById('menu');
                             x1, y1, x2, y2,
                             sectorId,
                             texture: wallData ? wallData.texture : 'wall.png',
-                            brightness: wallData ? wallData.brightness : 1.0
+                            brightness: wallData ? wallData.brightness : 1.0,
+                            tiled: wallData ? (wallData.tiled !== undefined ? wallData.tiled : 1) : 1,
+                            skipTexture: wallData ? (wallData.skipTexture || false) : false
                         });
                     }
                 } else if (sectorIds.length === 2) {
@@ -676,10 +739,16 @@ const menu = document.getElementById('menu');
                         sectorB: sectorIds[1],
                         topTexture: edgeProps.topTexture,
                         topBrightness: edgeProps.topBrightness,
+                        topTiled: edgeProps.topTiled,
+                        topSkip: edgeProps.topSkip,
                         midTexture: edgeProps.midTexture,
                         midBrightness: edgeProps.midBrightness,
+                        midTiled: edgeProps.midTiled,
+                        midSkip: edgeProps.midSkip,
                         botTexture: edgeProps.botTexture,
                         botBrightness: edgeProps.botBrightness,
+                        botTiled: edgeProps.botTiled,
+                        botSkip: edgeProps.botSkip,
                         solid: edgeProps.solid
                     });
                 }
@@ -707,10 +776,16 @@ const menu = document.getElementById('menu');
                             return {
                                 topTexture: rect.edges[dir].topTexture,
                                 topBrightness: rect.edges[dir].topBrightness,
+                                topTiled: rect.edges[dir].topTiled !== undefined ? rect.edges[dir].topTiled : 1,
+                                topSkip: rect.edges[dir].topSkip || false,
                                 midTexture: rect.edges[dir].midTexture,
                                 midBrightness: rect.edges[dir].midBrightness,
+                                midTiled: rect.edges[dir].midTiled !== undefined ? rect.edges[dir].midTiled : 1,
+                                midSkip: rect.edges[dir].midSkip || false,
                                 botTexture: rect.edges[dir].botTexture,
                                 botBrightness: rect.edges[dir].botBrightness,
+                                botTiled: rect.edges[dir].botTiled !== undefined ? rect.edges[dir].botTiled : 1,
+                                botSkip: rect.edges[dir].botSkip || false,
                                 solid: rect.edges[dir].solid
                             };
                         }
@@ -721,10 +796,16 @@ const menu = document.getElementById('menu');
             return {
                 topTexture: 'black.png',
                 topBrightness: 1.0,
+                topTiled: 1,
+                topSkip: false,
                 midTexture: 'black.png',
                 midBrightness: 1.0,
+                midTiled: 1,
+                midSkip: false,
                 botTexture: 'black.png',
                 botBrightness: 1.0,
+                botTiled: 1,
+                botSkip: false,
                 solid: 0
             };
         }
@@ -763,17 +844,20 @@ const menu = document.getElementById('menu');
             let output = '[SECTORS]\n';
             
             for (const sector of finalSectors) {
-                output += `${sector.id} ${sector.floorHeight} ${sector.ceilingHeight} ${sector.floorTexture} ${sector.floorBrightness} ${sector.ceilingTexture} ${sector.ceilingBrightness}\n`;
+                // Sector(ID, floor_height, ceil_height, floor_texture, floor_brightness, floor_tiled, floor_skip_texture, ceil_texture, ceil_brightness, ceil_tiled, ceil_skip_texture)
+                output += `${sector.id} ${sector.floorHeight} ${sector.ceilingHeight} ${sector.floorTexture} ${sector.floorBrightness} ${sector.floorTiled} ${sector.floorSkipTexture} ${sector.ceilingTexture} ${sector.ceilingBrightness} ${sector.ceilingTiled} ${sector.ceilingSkipTexture}\n`;
             }
             
             output += '[WALLS]\n';
             for (const wall of finalWalls) {
-                output += `${wall.x1} ${wall.y1} ${wall.x2} ${wall.y2} ${wall.sectorId} ${wall.texture} ${wall.brightness}\n`;
+                // Wall(x1, z1, x2, z2, sector_a, wall_texture, wall_brightness, wall_tiled, skip_wall_texture)
+                output += `${wall.x1} ${wall.y1} ${wall.x2} ${wall.y2} ${wall.sectorId} ${wall.texture} ${wall.brightness} ${wall.tiled} ${wall.skipTexture}\n`;
             }
             
             output += '[PORTALS]\n';
             for (const portal of finalPortals) {
-                output += `${portal.x1} ${portal.y1} ${portal.x2} ${portal.y2} ${portal.sectorA} ${portal.sectorB} ${portal.botTexture} ${portal.botBrightness} ${portal.midTexture} ${portal.midBrightness} ${portal.topTexture} ${portal.topBrightness} ${portal.solid}\n`;
+                // Portal(x1, z1, x2, z2, sector_a, sector_b, bottom_texture, bottom_brightness, bottom_tiled, bottom_skip_texture, middle_texture, middle_brightness, middle_tiled, middle_skip_texture, top_texture, top_brightness, top_tiled, top_skip_texture)
+                output += `${portal.x1} ${portal.y1} ${portal.x2} ${portal.y2} ${portal.sectorA} ${portal.sectorB} ${portal.botTexture} ${portal.botBrightness} ${portal.botTiled} ${portal.botSkip} ${portal.midTexture} ${portal.midBrightness} ${portal.midTiled} ${portal.midSkip} ${portal.topTexture} ${portal.topBrightness} ${portal.topTiled} ${portal.topSkip}\n`;
             }
             
             const blob = new Blob([output], { type: 'text/plain' });
@@ -783,6 +867,25 @@ const menu = document.getElementById('menu');
             a.download = 'map.txt';
             a.click();
             URL.revokeObjectURL(url);
+        }
+
+        function loadTexture(textureName) {
+            if (textureCache.has(textureName)) return textureCache.get(textureName);
+            
+            const entry = { img: null, pattern: null, failed: false };
+            textureCache.set(textureName, entry);
+            
+            const img = new Image();
+            img.onload = () => {
+                entry.img = img;
+                draw();
+            };
+            img.onerror = () => {
+                entry.failed = true;
+            };
+            img.src = 'tex/' + textureName;
+            
+            return entry;
         }
 
         function draw() {
@@ -874,7 +977,46 @@ const menu = document.getElementById('menu');
                 ctx.lineWidth = 2;
                 for (let i = 0; i < userRectangles.length; i++) {
                     const rect = userRectangles[i];
-                    
+
+                    // Build polygon path from vertices
+                    const screenVerts = rect.vertices.map(v => gridToScreen(v.x, v.y));
+                    ctx.beginPath();
+                    ctx.moveTo(screenVerts[0].x, screenVerts[0].y);
+                    for (let k = 1; k < screenVerts.length; k++) {
+                        ctx.lineTo(screenVerts[k].x, screenVerts[k].y);
+                    }
+                    ctx.closePath();
+
+                    // Fill with floor texture if available, else dark fallback
+                    const texName = rect.floorTexture;
+                    if (texName) {
+                        const entry = loadTexture(texName);
+                        if (entry.img) {
+                            if (!entry.pattern || entry._patternZoom !== zoom) {
+                                // Scale the pattern so one texture tile = one grid cell
+                                const offscreen = document.createElement('canvas');
+                                const tileSize = Math.max(1, Math.round(gridSize * zoom));
+                                offscreen.width = tileSize;
+                                offscreen.height = tileSize;
+                                const octx = offscreen.getContext('2d');
+                                octx.drawImage(entry.img, 0, 0, tileSize, tileSize);
+                                entry.pattern = ctx.createPattern(offscreen, 'repeat');
+                                entry._patternZoom = zoom;
+                            }
+                            // Offset the pattern so it aligns to the grid origin
+                            const originScreen = gridToScreen(0, 0);
+                            const matrix = new DOMMatrix();
+                            matrix.translateSelf(originScreen.x % (gridSize * zoom), originScreen.y % (gridSize * zoom));
+                            entry.pattern.setTransform(matrix);
+                            ctx.fillStyle = entry.pattern;
+                        } else {
+                            ctx.fillStyle = '#111';
+                        }
+                    } else {
+                        ctx.fillStyle = '#111';
+                    }
+                    ctx.fill();
+
                     // Highlight selected rectangle in red
                     if (i === selectedRectIndex) {
                         ctx.strokeStyle = '#f00';
@@ -883,7 +1025,7 @@ const menu = document.getElementById('menu');
                         ctx.strokeStyle = '#ff0';
                         ctx.lineWidth = 2;
                     }
-                    
+
                     for (const line of rect.lines) {
                         const p1 = gridToScreen(line.x1, line.y1);
                         const p2 = gridToScreen(line.x2, line.y2);

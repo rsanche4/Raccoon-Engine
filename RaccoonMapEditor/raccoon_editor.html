@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manhattan Partition Level IN PROGRESS NEED TO ADD EXTRA ATTRIBUTES AND ALSO make sure we SAVE the draft with ALL the stuff we wrote in for the map so we dont have to refill everything again</title>
+    <title>Manhattan Partition Level Editor TODO we need to add the extra attributes stuff</title>
     <link rel="stylesheet" href="editor_style.css">
 </head>
 <body>
@@ -45,10 +45,18 @@
             <input type="text" id="floorTexture" value="floor.png">
             <label>Floor Brightness:</label>
             <input type="number" id="floorBrightness" value="1.0" step="0.1" min="0">
+            <label>Floor Tiled:</label>
+            <input type="number" id="floorTiled" value="1" step="1" min="0">
+            <label>Floor Skip Texture:</label>
+            <input type="checkbox" id="floorSkipTexture">
             <label>Ceiling Texture:</label>
             <input type="text" id="ceilingTexture" value="ceiling.png">
             <label>Ceiling Brightness:</label>
             <input type="number" id="ceilingBrightness" value="1.0" step="0.1" min="0">
+            <label>Ceiling Tiled:</label>
+            <input type="number" id="ceilingTiled" value="1" step="1" min="0">
+            <label>Ceiling Skip Texture:</label>
+            <input type="checkbox" id="ceilingSkipTexture">
             
             <div id="wallsConfig"></div>
             
