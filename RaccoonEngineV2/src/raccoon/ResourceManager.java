@@ -1,46 +1,117 @@
 package raccoon;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.PriorityQueue;
 
 import javax.imageio.ImageIO;
 
 public class ResourceManager {
 
-	public static boolean pack_into_rpk = true;
-    public static String data_rpk = "data.rpk";
-    public static String data_folder = "data";
-    public static String data_folder_bgm = data_folder+"/bgm/";
-    public static String data_folder_fonts = data_folder+"/fonts/";
-    public static String data_folder_maps = data_folder+"/maps/";
-    public static String data_folder_pics = data_folder+"/pics/";
-    public static String data_folder_scripts = data_folder+"/scripts/";
-    public static String data_folder_se = data_folder+"/se/";
-    public static String data_folder_skybox = data_folder+"/skybox/";
-    public static String data_folder_sprites = data_folder+"/sprites/";
-    public static String data_folder_tex = data_folder+"/tex/";
+	public static boolean pack_into_rpk = false;
+	public static String data_rpk = "data.rpk";
+	public static String data_folder = "data";
+	public static String data_folder_bgm = data_folder+"/bgm/";
+	public static String data_folder_fonts = data_folder+"/fonts/";
+	public static String data_folder_maps = data_folder+"/maps/";
+	public static String data_folder_pics = data_folder+"/pics/";
+	public static String data_folder_scripts = data_folder+"/scripts/";
+	public static String data_folder_se = data_folder+"/se/";
+	public static String data_folder_skybox = data_folder+"/skybox/";
+	public static String data_folder_sprites = data_folder+"/sprites/";
+	public static String data_folder_tex = data_folder+"/tex/";
 
-	// TODO NOTE THIS IS IMPORTANT DO NOT EVEN ATTEMPT TO STORE ALL THAT. ONLY GET WHAT IS NECESSARY, AND LOAD IT FROM THE FILE WHEN CALLED BY STRINGS ETC. DO NOT OVERLOAD UR MEMORY
-	// Perhaps a better way is to store an index to where that info is stored outside or something. Instead of the raw info
-    // public static HashMap<String, Texture> textures = new HashMap<>(); 	// TODO here we need to actually store the colors that we are reading from the data and convert them to the closest ones in our allowed ANSI colors for our game engine
-    // public static HashMap<String, LuaJ or something> all_scripts = etc // TODO like this
-    public static PriorityQueue<Event> scripts = new PriorityQueue<>();
-    // public static Sounds type of thing idk all Sounds so that we can recall them later and play them TODO
-    // TODO Misc folder can go because we can simply use the RaccoonAPI to add stuff directly and use it as we see fit
-    // TODO saves folder should be started when needed by an API if called, so yeah that we dont really check
+	private static String img_type = ".png";
+	private static String font_type = ".ttf";
+	private static String sound_type = ".wav";
+	private static String map_type = ".txt";
+	private static String script_type = ".lua";
 
-    private static void unpackRPK() {
+	public static PriorityQueue<Event> scripts = new PriorityQueue<>();
+	public static HashMap<String, Texture> images = new HashMap<>();
+	public static HashMap<String, Texture> fonts = new HashMap<>();
 
-    }
+	private static void unpackRPK() {
+		// TODO
+		return;
+	}
 
-    private static void packRPK() {
+	private static void packRPK() {
+		// TODO
+		return;
+	}
 
-    }
-
-    private static void manageDiskResources() {
-
-    }
+	private static void saveResource(File resource, String type) {
+		if (type.contentEquals(img_type)) {
+			BufferedImage image;
+			try {
+				image = ImageIO.read(resource);
+				int IMG_WID = image.getWidth();
+				int IMG_HEI = image.getHeight();
+				int[] pixels = new int[IMG_WID * IMG_HEI];
+				image.getRGB(0, 0, IMG_WID, IMG_HEI, pixels, 0, IMG_WID);
+				for (int i=0; i<pixels.length; i++) {
+					int color = pixels[i];
+					int r = (color >> 16) & 0xFF;
+	                int g = (color >> 8) & 0xFF;
+	                int b = color & 0xFF;
+					pixels[i] = Table.findClosestColorIndex(r, g, b);
+				}
+				images.put(resource.getName(), new Texture(pixels, IMG_WID, IMG_HEI));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else if (type.contentEquals(font_type)) {
+			try {
+		        Font font = Font.createFont(Font.TRUETYPE_FONT, resource).deriveFont(12f);
+		        String font_file_name = resource.getName();
+		        BufferedImage probe = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		        Graphics2D probe_g = probe.createGraphics();
+		        probe_g.setFont(font);
+		        FontMetrics metrics = probe_g.getFontMetrics();
+		        probe_g.dispose();
+		        int glyph_height = metrics.getAscent() + metrics.getDescent();
+		        for (int code = 32; code <= 126; code++) {
+		            char c = (char) code;
+		            String char_str = String.valueOf(c);
+		            int glyph_width = metrics.charWidth(c);
+		            if (glyph_width <= 0 || glyph_height <= 0) continue;
+		            BufferedImage glyph_image = new BufferedImage(glyph_width, glyph_height, BufferedImage.TYPE_INT_ARGB);
+		            Graphics2D g = glyph_image.createGraphics();
+		            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+		            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+		            g.setFont(font);
+		            g.setColor(Color.BLACK);
+		            g.fillRect(0, 0, glyph_width, glyph_height);
+		            g.setColor(Color.WHITE);
+		            g.drawString(char_str, 0, metrics.getAscent());
+		            g.dispose();
+		            int[] pixels = new int[glyph_width * glyph_height];
+		            glyph_image.getRGB(0, 0, glyph_width, glyph_height, pixels, 0, glyph_width);
+		            for (int i = 0; i < pixels.length; i++) {
+		                int color = pixels[i];
+		                int r = (color >> 16) & 0xFF;
+		                int g2 = (color >> 8) & 0xFF;
+		                int b = color & 0xFF;
+		                pixels[i] = Table.findClosestColorIndex(r, g2, b);
+		            }
+		            String key = c + "_" + font_file_name;
+		            fonts.put(key, new Texture(pixels, glyph_width, glyph_height));
+		        }
+		 
+		    } catch (FontFormatException | IOException e) {
+		        e.printStackTrace();
+		    }
+		}
+	}
 
 	public static void loadData() {
 
@@ -55,20 +126,20 @@ public class ResourceManager {
 			return;
 		}
 
-		checkFolder(data_folder_bgm, ".wav");
-		checkFolder(data_folder_fonts, ".ttf");
-		checkFolder(data_folder_maps, ".txt");
-		checkFolder(data_folder_pics, ".png");
-		checkFolder(data_folder_scripts, ".lua");
-		File init_lua = new File(data_folder_scripts + "init.lua");
+		checkInFolder(data_folder_bgm, sound_type);
+		checkInFolder(data_folder_fonts, font_type);
+		checkInFolder(data_folder_maps, map_type);
+		checkInFolder(data_folder_pics, img_type);
+		checkInFolder(data_folder_scripts, script_type);
+		File init_lua = new File(data_folder_scripts + "init" + script_type);
 		if (!init_lua.exists()) {
 			throw new RuntimeException("[ResourceManager] Fatal: 'init.lua' not found in '" + data_folder_scripts + "'. An init script is required.");
 		}
-		scripts.add(new Event("init.lua", 1));
-		checkFolder(data_folder_se, ".wav");
-		checkFolder(data_folder_skybox, ".png");
+		scripts.add(new Event("init"+script_type, 1));
+		checkInFolder(data_folder_se, sound_type);
+		checkInFolder(data_folder_skybox, img_type);
 		File skybox_dir = new File(data_folder_skybox);
-		File[] skybox_files = skybox_dir.listFiles(f -> f.isFile() && f.getName().toLowerCase().endsWith(".png"));
+		File[] skybox_files = skybox_dir.listFiles(f -> f.isFile() && f.getName().toLowerCase().endsWith(img_type));
 		if (skybox_files != null) {
 			for (File img : skybox_files) {
 				try {
@@ -86,9 +157,9 @@ public class ResourceManager {
 			}
 		}
 
-		checkFolder(data_folder_sprites, ".png");
+		checkInFolder(data_folder_sprites, img_type);
 		File sprites_dir = new File(data_folder_sprites);
-		File[] sprite_files = sprites_dir.listFiles(f -> f.isFile() && f.getName().toLowerCase().endsWith(".png"));
+		File[] sprite_files = sprites_dir.listFiles(f -> f.isFile() && f.getName().toLowerCase().endsWith(img_type));
 		if (sprite_files != null) {
 			for (File img : sprite_files) {
 				try {
@@ -96,9 +167,7 @@ public class ResourceManager {
 					int h = bi.getHeight();
 					int expected_w = 8 * h;
 					if (bi.getWidth() != expected_w) {
-						throw new RuntimeException("[ResourceManager] Fatal: sprite '" + img.getName() +
-							"' has wrong dimensions (" + bi.getWidth() + "x" + h +
-							"). Expected width = 8 * height = " + expected_w + ".");
+						throw new RuntimeException("[ResourceManager] Fatal: sprite '" + img.getName() + "' has wrong dimensions (" + bi.getWidth() + "x" + h +	"). Expected width = 8 * height = " + expected_w + ".");
 					}
 				} catch (RuntimeException e) {
 					throw e;
@@ -108,16 +177,13 @@ public class ResourceManager {
 			}
 		}
 
-		checkFolder(data_folder_tex, ".png");
+		checkInFolder(data_folder_tex, img_type);
 		if (pack_into_rpk) {
 			packRPK();
-			unpackRPK();
-		} else {
-			manageDiskResources();
 		}
 	}
 
-	private static void checkFolder(String path, String required_ext) {
+	private static void checkInFolder(String path, String required_ext) {
 		File folder = new File(path);
 
 		if (!folder.exists() || !folder.isDirectory()) {
@@ -130,6 +196,7 @@ public class ResourceManager {
 				if (!f.getName().toLowerCase().endsWith(required_ext)) {
 					throw new RuntimeException("[ResourceManager] Fatal: unsupported file format '" + f.getName() +	"' found in '" + path + "'. Only " + required_ext + " files are supported here.");
 				}
+				saveResource(f, required_ext);
 			}
 		}
 	}

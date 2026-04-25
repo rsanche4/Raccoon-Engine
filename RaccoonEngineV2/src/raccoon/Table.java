@@ -97,7 +97,7 @@ public class Table {
         }
     }
     
-    private static int findClosestColorIndex(int r, int g, int b) {
+    public static int findClosestColorIndex(int r, int g, int b) {
         int best_index = 0;
         int best_dist = Integer.MAX_VALUE;
         for (int i = 0; i < NUM_COLORS; i++) {

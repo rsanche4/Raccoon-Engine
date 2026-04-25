@@ -66,7 +66,7 @@ public class Screen {
 	        		}
 	        	}
 	        }
-	        drawSky(Camera.direction_rad, ResourceManager.textures.get(skybox).pixels);
+	        drawSky(Camera.direction_rad, ResourceManager.images.get(skybox).pixels);
 	        drawSprites();
 	    }
 	    RaccoonAPI.runUserScripts();
@@ -265,6 +265,7 @@ public class Screen {
 			
 		} else {
 			// Here just go through the places where we need the sky draw but dont draw cuz no need to. and also depth buffer ensure its filled
+			// Remember, these are indeces to the palette
 		}
 	}
 	

@@ -44,7 +44,7 @@ public class JavaSwingRenderer implements Renderer {
             int screen_y = Table.screen_y[y];
             int src_offset = Table.src_offset[y];
             for (int x = 0; x < Table.render_w; x++) {
-                pixels[screen_y + x] = game_pixels[src_offset + Table.src_x[x]];
+                pixels[screen_y + x] = Table.PALETTE[game_pixels[src_offset + Table.src_x[x]]];
             }
         }
     }
