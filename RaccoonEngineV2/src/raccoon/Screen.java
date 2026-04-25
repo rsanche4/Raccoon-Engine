@@ -12,7 +12,7 @@ public class Screen {
 	public static Portal[] portals;
 	public static int map_width;
 	public static int map_height;
-	public static String skybox = "default_sky.png";
+	public static String skybox = null;
 	
 	private int[] phantom_rays;
 	private int phantom_hunters = 10;
@@ -261,7 +261,11 @@ public class Screen {
 	}
 	
 	private void drawSky(double dir, int[] skybox_picture) {
-		
+		if (skybox!=null) {
+			
+		} else {
+			// Here just go through the places where we need the sky draw but dont draw cuz no need to. and also depth buffer ensure its filled
+		}
 	}
 	
 	private void drawSprites() {
