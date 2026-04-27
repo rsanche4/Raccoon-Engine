@@ -10,35 +10,32 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.PriorityQueue;
-
 import javax.imageio.ImageIO;
-import javax.xml.crypto.Data;
 
 public class ResourceManager {
 
 	public static boolean pack_into_rpk = false;
-	public static String data_rpk = "data.rpk";
-	public static String data_folder = "data";
-	public static String data_folder_bgm = data_folder+"/bgm/";
-	public static String data_folder_fonts = data_folder+"/fonts/";
-	public static String data_folder_maps = data_folder+"/maps/";
-	public static String data_folder_pics = data_folder+"/pics/";
-	public static String data_folder_scripts = data_folder+"/scripts/";
-	public static String data_folder_se = data_folder+"/se/";
-	public static String data_folder_skybox = data_folder+"/skybox/";
-	public static String data_folder_sprites = data_folder+"/sprites/";
-	public static String data_folder_tex = data_folder+"/tex/";
-
+	
+	private static String data_rpk = "data.rpk";
+	private static String data_folder = "data";
+	private static String data_folder_bgm = data_folder+"/bgm/";
+	private static String data_folder_fonts = data_folder+"/fonts/";
+	private static String data_folder_maps = data_folder+"/maps/";
+	private static String data_folder_pics = data_folder+"/pics/";
+	private static String data_folder_scripts = data_folder+"/scripts/";
+	private static String data_folder_se = data_folder+"/se/";
+	private static String data_folder_skybox = data_folder+"/skybox/";
+	private static String data_folder_sprites = data_folder+"/sprites/";
+	private static String data_folder_tex = data_folder+"/tex/";
 	private static String img_type = ".png";
 	private static String font_type = ".ttf";
 	private static String sound_type = ".wav";
 	private static String map_type = ".txt";
 	private static String script_type = ".lua";
 
-	// NOTE: TODO: IMPORTANT: IF THIS THING OF STORING EVERYTHING IN HASHMAPS AT LOAD TIME IS TOO MUCH, THEN REMOVE THEM AND ACTUALLY ACCESS THEM FROM FILE SYSTEM IF NEEDED, OR FROM RPK FILE BY LOOKING THROUGH IT LITERALLY
-	public static PriorityQueue<Event> scripts = new PriorityQueue<>();
+	public static ArrayList<Event> active_scripts = new ArrayList<>();
 	public static HashMap<String, Texture> images = new HashMap<>();
 	public static HashMap<String, Texture> fonts = new HashMap<>();
 	public static HashMap<String, File> sounds = new HashMap<>();
@@ -159,7 +156,7 @@ public class ResourceManager {
 		if (!init_lua.exists()) {
 			throw new RuntimeException("[ResourceManager] Fatal: 'init.lua' not found in '" + data_folder_scripts + "'. An init script is required.");
 		}
-		scripts.add(new Event("init"+script_type, 1));
+		active_scripts.add(new Event("init"+script_type, 1));
 		checkInFolder(data_folder_se, sound_type);
 		checkInFolder(data_folder_skybox, img_type);
 		File skybox_dir = new File(data_folder_skybox);

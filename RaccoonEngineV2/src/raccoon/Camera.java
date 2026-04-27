@@ -18,6 +18,7 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener {
 	public static double player_z = 0; 
 	public static double direction_rad = 0; // TODO ensure angles are non-negative, do not overflow over pi2
 	public static double retina_dist = Main.GAME_WID/2;
+	public static boolean jetpack = true;
 	
 	public Camera() {
 		

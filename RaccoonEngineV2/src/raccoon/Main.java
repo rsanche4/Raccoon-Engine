@@ -16,11 +16,12 @@ public class Main implements Runnable {
     private Renderer renderer;
     private Camera camera;
     private Screen screen;
+    public static final long start_time = System.currentTimeMillis();
 
     public Main(Renderer renderer) {
         this.renderer = renderer;
     	thread = new Thread(this, "game_loop_thread");
-
+    	
     	ResourceManager.loadData();
 
         camera = new Camera();
