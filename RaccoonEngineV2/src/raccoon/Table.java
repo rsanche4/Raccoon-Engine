@@ -6,18 +6,14 @@ public class Table {
 	
 	public static int USER_SCREEN_SIZE_W = Toolkit.getDefaultToolkit().getScreenSize().width;
 	public static int USER_SCREEN_SIZE_H = Toolkit.getDefaultToolkit().getScreenSize().height;
-	public static int ANGLE_COUNT = 65536;
 	public static double pi = 3.141592654;
 	public static double pi2 = 2*pi;
+	public static double MAX_DOUBLE_VAL = 9999999999.99;
+	public static int SKYBOX_WID = Main.GAME_WID * 4;
 	public static double[] screen_x;
 	public static double[] ray_offset;
-	public static double[] all_angles;
-	public static double[] tans;
-	public static double[] sins;
-	public static double[] coss;
-	public static int[] signs_sins;
-	public static int[] signs_coss;
 	public static int half_screen_height = Main.GAME_HEI/2;
+	public static int half_screen_width = Main.GAME_WID/2;
 	public static double scale = Math.min(USER_SCREEN_SIZE_W / Main.GAME_WID, USER_SCREEN_SIZE_H / Main.GAME_HEI);
 	public static int render_w = (int) (Main.GAME_WID * scale);
 	public static int render_h = (int) (Main.GAME_HEI * scale);
@@ -32,23 +28,11 @@ public class Table {
 	public static int[] PALETTE = new int[NUM_COLORS];
 	public static int NUM_LIGHT_LEVELS = 32;
 	public static int[][] SHADE_TABLE = new int[NUM_LIGHT_LEVELS][NUM_COLORS];
+	public static int[] sky_y = new int[Main.GAME_HEI];
+	public static int SPRITE_NUM_DIRECTIONS = 8;
+	public static double DIRECTIONAL_SLICE_ANGLE = pi2 / SPRITE_NUM_DIRECTIONS;
 	
     public static void init() {
-    	all_angles = new double[ANGLE_COUNT];
-    	tans = new double[ANGLE_COUNT];
-    	sins = new double[ANGLE_COUNT];
-    	coss = new double[ANGLE_COUNT];
-    	signs_sins = new int[ANGLE_COUNT];
-    	signs_coss = new int[ANGLE_COUNT];
-    	double increment = pi2/ANGLE_COUNT;
-    	for (int angle_val = 0; angle_val < ANGLE_COUNT; angle_val++) {
-    		all_angles[angle_val] = increment*angle_val;
-    		tans[angle_val] = Math.tan(all_angles[angle_val]);
-    		sins[angle_val] = Math.sin(all_angles[angle_val]);
-    		signs_sins[angle_val] = (int) Math.signum(sins[angle_val]);
-    		coss[angle_val] = Math.cos(all_angles[angle_val]);
-    		signs_coss[angle_val] = (int) Math.signum(coss[angle_val]);
-    	}
     	screen_x = new double[Main.GAME_WID];
     	ray_offset = new double[Main.GAME_WID];
     	for (int x = 0; x < Main.GAME_WID; x++) {
@@ -64,6 +48,10 @@ public class Table {
     	
     	for (int x = 0; x < render_w; x++) {
     		src_x[x] = (int) (x * inv_scale);
+    	}
+    	
+    	for (int y = 0; y < Main.GAME_HEI; y++) {
+    		sky_y[y] = y * Main.GAME_HEI / Main.GAME_HEI; 
     	}
     	
         int[] base = {0xFF000000, 0xFF800000, 0xFF008000, 0xFF808000, 0xFF000080, 0xFF800080, 0xFF008080, 0xFFC0C0C0, 0xFF808080, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF0000FF, 0xFFFF00FF, 0xFF00FFFF, 0xFFFFFFFF};

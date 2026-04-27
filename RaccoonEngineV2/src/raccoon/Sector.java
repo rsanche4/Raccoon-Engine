@@ -7,18 +7,18 @@ public class Sector {
     double ceil_height;
     String floor_texture;
     int floor_brightness;
-    int floor_tiled;
+    double floor_tiled;
     boolean floor_skip_texture; 
     String ceil_texture;
     int ceil_brightness;
-    int ceil_tiled;
+    double ceil_tiled;
     boolean ceil_skip_texture; 
     
     int[] boundary_coords = new int[4];
     int index_set_boundary_x = 0; 
     int index_set_boundary_z = 2;
     
-    public Sector(int ID, double floor_height, double ceil_height, String floor_texture, int floor_brightness, int floor_tiled, boolean floor_skip_texture, String ceil_texture, int ceil_brightness, int ceil_tiled, boolean ceil_skip_texture) {
+    public Sector(int ID, double floor_height, double ceil_height, String floor_texture, int floor_brightness, double floor_tiled, boolean floor_skip_texture, String ceil_texture, int ceil_brightness, double ceil_tiled, boolean ceil_skip_texture) {
         this.ID = ID;
         this.floor_height = floor_height;
         this.ceil_height = ceil_height;

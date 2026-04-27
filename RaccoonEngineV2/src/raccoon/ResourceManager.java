@@ -9,10 +9,12 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
 import javax.imageio.ImageIO;
+import javax.xml.crypto.Data;
 
 public class ResourceManager {
 
@@ -35,9 +37,13 @@ public class ResourceManager {
 	private static String map_type = ".txt";
 	private static String script_type = ".lua";
 
+	// NOTE: TODO: IMPORTANT: IF THIS THING OF STORING EVERYTHING IN HASHMAPS AT LOAD TIME IS TOO MUCH, THEN REMOVE THEM AND ACTUALLY ACCESS THEM FROM FILE SYSTEM IF NEEDED, OR FROM RPK FILE BY LOOKING THROUGH IT LITERALLY
 	public static PriorityQueue<Event> scripts = new PriorityQueue<>();
 	public static HashMap<String, Texture> images = new HashMap<>();
 	public static HashMap<String, Texture> fonts = new HashMap<>();
+	public static HashMap<String, File> sounds = new HashMap<>();
+	public static HashMap<String, String> level_data = new HashMap<>();
+	public static HashMap<String, Sprite> sprites = new HashMap<>();
 
 	private static void unpackRPK() {
 		// TODO
@@ -60,10 +66,15 @@ public class ResourceManager {
 				image.getRGB(0, 0, IMG_WID, IMG_HEI, pixels, 0, IMG_WID);
 				for (int i=0; i<pixels.length; i++) {
 					int color = pixels[i];
-					int r = (color >> 16) & 0xFF;
-	                int g = (color >> 8) & 0xFF;
-	                int b = color & 0xFF;
-					pixels[i] = Table.findClosestColorIndex(r, g, b);
+					if ((color >>> 24) == 0) {
+						pixels[i] = -1;
+					} else {
+						int r = (color >> 16) & 0xFF;
+		                int g = (color >> 8) & 0xFF;
+		                int b = color & 0xFF;
+						pixels[i] = Table.findClosestColorIndex(r, g, b);
+					}
+					
 				}
 				images.put(resource.getName(), new Texture(pixels, IMG_WID, IMG_HEI));
 			} catch (IOException e) {
@@ -98,10 +109,15 @@ public class ResourceManager {
 		            glyph_image.getRGB(0, 0, glyph_width, glyph_height, pixels, 0, glyph_width);
 		            for (int i = 0; i < pixels.length; i++) {
 		                int color = pixels[i];
-		                int r = (color >> 16) & 0xFF;
-		                int g2 = (color >> 8) & 0xFF;
-		                int b = color & 0xFF;
-		                pixels[i] = Table.findClosestColorIndex(r, g2, b);
+		                if ((color >>> 24) == 0) {
+		                	pixels[i] = -1;
+		                } else {
+		                	int r = (color >> 16) & 0xFF;
+			                int g2 = (color >> 8) & 0xFF;
+			                int b = color & 0xFF;
+			                pixels[i] = Table.findClosestColorIndex(r, g2, b);
+		                }
+		                
 		            }
 		            String key = c + "_" + font_file_name;
 		            fonts.put(key, new Texture(pixels, glyph_width, glyph_height));
@@ -110,6 +126,14 @@ public class ResourceManager {
 		    } catch (FontFormatException | IOException e) {
 		        e.printStackTrace();
 		    }
+		} else if (type.contentEquals(sound_type)) {
+			sounds.put(resource.getName(), resource);
+		} else if (type.contentEquals(map_type) || type.contentEquals(script_type)) {
+			try {
+				level_data.put(resource.getName(), Files.readString(resource.toPath()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

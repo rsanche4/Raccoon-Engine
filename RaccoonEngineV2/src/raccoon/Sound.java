@@ -7,11 +7,11 @@ import java.io.IOException;
 public class Sound implements AutoCloseable {
     private Clip clip;
     private boolean looping;
-    private float volume; // 0.0 to 1.0 scale
+    private float volume; 
     
     public Sound(File file, boolean loop, float volume) {
         this.looping = loop;
-        this.volume = Math.max(0.0f, Math.min(1.0f, volume)); // Clamp to 0-1
+        this.volume = Math.max(0.0f, Math.min(1.0f, volume));
         playSound(file);
     }
     
@@ -21,14 +21,11 @@ public class Sound implements AutoCloseable {
             clip = AudioSystem.getClip();
             clip.open(audio_stream);
             
-            // Set volume
             setVolume(volume);
-            
-            // Add listener to auto-close when done (if not looping)
             if (!looping) {
                 clip.addLineListener(event -> {
                     if (event.getType() == LineEvent.Type.STOP && !clip.isRunning()) {
-                        close(); // Auto-close when sound finishes
+                        close(); 
                     }
                 });
             }
@@ -43,10 +40,6 @@ public class Sound implements AutoCloseable {
         }
     }
     
-    /**
-     * Sets the volume using a 0.0 to 1.0 scale
-     * @param volume 0.0 = mute, 1.0 = max volume
-     */
     public void setVolume(float volume) {
         this.volume = Math.max(0.0f, Math.min(1.0f, volume));
         
@@ -57,15 +50,10 @@ public class Sound implements AutoCloseable {
         }
     }
     
-    /**
-     * Converts 0.0-1.0 volume scale to decibels
-     */
     private float volumeToDecibels(float volume, float min, float max) {
         if (volume <= 0) {
-            return min; // Mute
+            return min;
         }
-        // Logarithmic scale for natural volume perception
-        // Maps 0.0-1.0 to min-max dB range
         return (float) (min + (max - min) * Math.pow(volume, 2));
     }
     
@@ -82,7 +70,7 @@ public class Sound implements AutoCloseable {
     @Override
     public void close() {
         if (clip != null) {
-            clip.close(); // Releases system resources
+            clip.close();
         }
     }
 }

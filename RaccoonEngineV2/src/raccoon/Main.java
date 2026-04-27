@@ -54,7 +54,7 @@ public class Main implements Runnable {
     }
 
     private void update() {
-    	game_pixels = screen.update(frame_num, game_pixels);
+    	screen.update(frame_num, game_pixels);
         camera.update();
         frame_num++;
     }
