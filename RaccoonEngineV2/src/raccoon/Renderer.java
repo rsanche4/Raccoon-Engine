@@ -2,5 +2,6 @@ package raccoon;
 
 public interface Renderer {
 	
-	void render(int[] pixels);
+	void render(int[] game_pixels);
+	
 }

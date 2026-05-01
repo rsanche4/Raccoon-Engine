@@ -10,6 +10,7 @@ public class Table {
 	public static double pi2 = 2*pi;
 	public static double MAX_DOUBLE_VAL = 9999999999.99;
 	public static int SKYBOX_WID = Main.GAME_WID * 4;
+	public static int LAST_WID_INDEX = Main.GAME_WID-1;
 	public static double[] screen_x;
 	public static double[] ray_offset;
 	public static int half_screen_height = Main.GAME_HEI/2;

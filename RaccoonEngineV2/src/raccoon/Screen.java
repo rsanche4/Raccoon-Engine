@@ -6,7 +6,10 @@ import java.util.concurrent.CountDownLatch;
 
 public class Screen {
 
+	public static int MAX_NUM_SECTORS = 1024;
+	public static int MAX_NUM_WALLS = 8192;
 	public static Sector[] sectors=null;
+	public static int sectors_length = 0;
 	public static Wall[] walls;
 	public static Portal[] portals;
 	public static int map_width;
@@ -19,13 +22,14 @@ public class Screen {
 	private int phantom_hunters = 10;
 	private double[] depth_buffer;
 	
+	
 	public Screen() {
 		this.depth_buffer = new double[Main.GAME_WID * Main.GAME_HEI];
 		phantom_rays = new int[phantom_hunters];
 	}
 	
 	public static int updatePlayerSector(double player_x, double player_z) {
-		for (int i=1; i<=sectors.length; i++) {
+		for (int i=0; i<sectors_length; i++) {
 	        Sector sector = sectors[i];
 			if (player_x >= sector.boundary_coords[0] && player_x <= sector.boundary_coords[1] && player_z >= sector.boundary_coords[2] && player_z <= sector.boundary_coords[3]) {
 	            return sector.ID;
@@ -39,13 +43,17 @@ public class Screen {
 	    Arrays.fill(game_pixels, -1);
 	    Arrays.fill(depth_buffer, Table.MAX_DOUBLE_VAL);
 	    if (sectors!=null) {
-	        Camera.player_sector = updatePlayerSector(Camera.player_x, Camera.player_z);
+	    	double player_dir = Camera.direction_rad;
+	        double player_x = Camera.player_x;
+	        double player_y = Camera.player_y;
+	        double player_z = Camera.player_z;
+	    	Camera.player_sector = updatePlayerSector(Camera.player_x, Camera.player_z);
 	        CountDownLatch latch = new CountDownLatch(Main.GAME_WID);      
 	        for (int x = 0; x < Main.GAME_WID; x++) {
 	            final int ray_num = x;
 	            Main.executor_threads.submit(() -> {
 	                try {
-	                	castRayAndRenderScreenColumn(ray_num, game_pixels);
+	                	castRayAndRenderScreenColumn(ray_num, game_pixels, player_dir, player_x, player_y, player_z, Camera.player_sector);
 	                } finally {
 	                    latch.countDown();
 	                }
@@ -59,29 +67,33 @@ public class Screen {
 	        for (int ph = 0; ph < phantom_hunters; ph++) {
 	        	int phd = phantom_rays[ph];
 	        	if (phd>=0) {
+	        		int next_phd = phd+1;
+	        		if (phd==Table.LAST_WID_INDEX) {
+	        			next_phd = 0;
+	        		}
 	        		for (int y=0; y < Main.GAME_HEI; y++) {
 	        			int cur_column = y * Main.GAME_WID + phd;
-	        			int next_column = y * Main.GAME_WID + ((phd+1)%Main.GAME_WID);
+	        			int next_column = y * Main.GAME_WID + next_phd;
 	        			game_pixels[cur_column] = game_pixels[next_column];
 	        			depth_buffer[cur_column] = depth_buffer[next_column];
 	        		}
 	        	}
 	        }
-	        drawSky(Camera.direction_rad, ResourceManager.images.get(skybox).pixels, game_pixels);
-	        drawSprites(game_pixels);
+	        drawSky(player_dir, ResourceManager.images.get(skybox).pixels, game_pixels);
+	        drawSprites(game_pixels, player_x, player_y, player_z, player_dir);
 	    }
 	    RaccoonAPI.runUserScripts();
 	}
 	
-	private void castRayAndRenderScreenColumn(int x, int[] game_pixels) {
-		double ray_angle = Camera.direction_rad + Table.ray_offset[x];
+	private void castRayAndRenderScreenColumn(int x, int[] game_pixels, double player_dir, double player_x, double player_y, double player_z, int player_sector) {
+		double ray_angle = player_dir + Table.ray_offset[x];
 		double tan_ray = Math.tan(ray_angle);
 		double dir_theta_x = Math.signum(Math.cos(ray_angle));
 		double dir_theta_z = Math.signum(Math.sin(ray_angle));
-		double start_x = Camera.player_x;
-		double start_z = Camera.player_z;
+		double start_x = player_x;
+		double start_z = player_z;
 		
-		int ray_sector = Camera.player_sector;
+		int ray_sector = player_sector;
 		int dy_wall_bottom_bottom;
 		int dy_wall_bottom_top;
 		int dy_wall_top_bottom;
@@ -114,32 +126,32 @@ public class Screen {
 			if (dist_horizontal < dist_vertical) {
 				start_x = start_x + dir_theta_x*dx_1;
 				start_z = start_z + dir_theta_z*dz_1;
-				wall_index = makeWallIndex((int)start_x, (int)start_z, 1, map_width);
+				wall_index = makeWallIndex((int)start_x, (int)start_z, 0);
 				perc_wall_hit = mod_z;
 			} else {
 				start_x = start_x + dir_theta_x*dx_2;
 				start_z = start_z + dir_theta_z*dz_2;
-				wall_index = makeWallIndex((int)start_x, (int)start_z, 0, map_width);
+				wall_index = makeWallIndex((int)start_x, (int)start_z, 1);
 				perc_wall_hit = mod_x;
 			}
-			double full_euclid_dist = euclidDist(Camera.player_x, Camera.player_z, start_x, start_z);
-			if (wall_index>=walls.length && wall_index>=portals.length) {
+			double full_euclid_dist = euclidDist(player_x, player_z, start_x, start_z);
+			if (wall_index<0) {
 				phantom_rays[(int)((double)x/Main.GAME_WID*phantom_hunters)] = x;
 				return;
 			}
 			
-			double ray_angle_correct = ray_angle-Camera.direction_rad;
+			double ray_angle_correct = ray_angle-player_dir;
 			
 			if (walls[wall_index].sector_a>0) {
 				
 				Sector sector_info = sectors[walls[wall_index].sector_a]; 
-				int dy_walltop = Table.half_screen_height - projectColumn(start_x, sector_info.ceil_height, start_z, ray_angle_correct);
-				int dy_wallbottom = Table.half_screen_height - projectColumn(start_x, sector_info.floor_height, start_z, ray_angle_correct);
+				int dy_walltop = Table.half_screen_height - projectColumn(start_x, sector_info.ceil_height, start_z, ray_angle_correct, player_x, player_y, player_z);
+				int dy_wallbottom = Table.half_screen_height - projectColumn(start_x, sector_info.floor_height, start_z, ray_angle_correct, player_x, player_y, player_z);
 				
-				double cl_h = sector_info.ceil_height-Camera.player_y;
+				double cl_h = sector_info.ceil_height-player_y;
 				if (!sector_info.ceil_skip_texture) {
 					for (int y=0; y < dy_walltop; y++) {
-						drawHorizontalTexture(x, y, cl_h, Table.half_screen_height - y, ray_angle_correct, full_euclid_dist, start_x, start_z, sector_info.ceil_texture, sector_info.ceil_brightness, sector_info.ceil_tiled, game_pixels);
+						drawHorizontalTexture(x, y, cl_h, Table.half_screen_height - y, ray_angle_correct, full_euclid_dist, start_x, start_z, sector_info.ceil_texture, sector_info.ceil_brightness, sector_info.ceil_tiled, game_pixels, player_x, player_z);
 					}	
 				}
 				
@@ -152,10 +164,10 @@ public class Screen {
 					}
 				}
 				
-				double fl_h = Camera.player_y-sector_info.floor_height;				
+				double fl_h = player_y-sector_info.floor_height;				
 				if (!sector_info.floor_skip_texture) {
 					for (int y=dy_wallbottom_clipped; y < Main.GAME_HEI; y++) {
-						drawHorizontalTexture(x, y, fl_h, y - Table.half_screen_height, ray_angle_correct, full_euclid_dist, start_x, start_z, sector_info.floor_texture, sector_info.floor_brightness, sector_info.floor_tiled, game_pixels);
+						drawHorizontalTexture(x, y, fl_h, y - Table.half_screen_height, ray_angle_correct, full_euclid_dist, start_x, start_z, sector_info.floor_texture, sector_info.floor_brightness, sector_info.floor_tiled, game_pixels, player_x, player_z);
 					}
 				}
 				
@@ -174,17 +186,17 @@ public class Screen {
 				Sector next_sector = sectors[ray_sector];
 
 				if (cur_sector.floor_height < next_sector.floor_height) {
-					dy_wall_bottom_bottom = Table.half_screen_height - projectColumn(start_x, cur_sector.floor_height, start_z, ray_angle_correct);
-					dy_wall_bottom_top = Table.half_screen_height - projectColumn(start_x, next_sector.floor_height, start_z, ray_angle_correct);
+					dy_wall_bottom_bottom = Table.half_screen_height - projectColumn(start_x, cur_sector.floor_height, start_z, ray_angle_correct, player_x, player_y, player_z);
+					dy_wall_bottom_top = Table.half_screen_height - projectColumn(start_x, next_sector.floor_height, start_z, ray_angle_correct, player_x, player_y, player_z);
 				} else {
-					dy_wall_bottom_bottom = Table.half_screen_height - projectColumn(start_x, cur_sector.floor_height, start_z, ray_angle_correct);
+					dy_wall_bottom_bottom = Table.half_screen_height - projectColumn(start_x, cur_sector.floor_height, start_z, ray_angle_correct, player_x, player_y, player_z);
 					dy_wall_bottom_top = dy_wall_bottom_bottom;
 				}
 				if (cur_sector.ceil_height > next_sector.ceil_height) {
-					dy_wall_top_bottom = Table.half_screen_height - projectColumn(start_x, next_sector.ceil_height, start_z, ray_angle_correct);
-					dy_wall_top_top = Table.half_screen_height - projectColumn(start_x, cur_sector.ceil_height, start_z, ray_angle_correct);
+					dy_wall_top_bottom = Table.half_screen_height - projectColumn(start_x, next_sector.ceil_height, start_z, ray_angle_correct, player_x, player_y, player_z);
+					dy_wall_top_top = Table.half_screen_height - projectColumn(start_x, cur_sector.ceil_height, start_z, ray_angle_correct, player_x, player_y, player_z);
 				} else {
-					dy_wall_top_bottom = Table.half_screen_height - projectColumn(start_x, cur_sector.ceil_height, start_z, ray_angle_correct);
+					dy_wall_top_bottom = Table.half_screen_height - projectColumn(start_x, cur_sector.ceil_height, start_z, ray_angle_correct, player_x, player_y, player_z);
 					dy_wall_top_top = dy_wall_top_bottom;
 				}
 				
@@ -194,10 +206,10 @@ public class Screen {
 				int dy_wall_bottom_bottom_clipped = clipColumn(dy_wall_bottom_bottom);
 				
 				
-				double cl_h = cur_sector.ceil_height-Camera.player_y;
+				double cl_h = cur_sector.ceil_height-player_y;
 				if (!cur_sector.ceil_skip_texture) {
 					for (int y=0; y < dy_wall_top_top_clipped; y++) {
-						drawHorizontalTexture(x, y, cl_h, Table.half_screen_height - y, ray_angle_correct, full_euclid_dist, start_x, start_z, cur_sector.ceil_texture, cur_sector.ceil_brightness, cur_sector.ceil_tiled, game_pixels);
+						drawHorizontalTexture(x, y, cl_h, Table.half_screen_height - y, ray_angle_correct, full_euclid_dist, start_x, start_z, cur_sector.ceil_texture, cur_sector.ceil_brightness, cur_sector.ceil_tiled, game_pixels, player_x, player_z);
 					}
 				}
 				
@@ -222,10 +234,10 @@ public class Screen {
 					}	
 				}
 
-				double fl_h = Camera.player_y-cur_sector.floor_height;
+				double fl_h = player_y-cur_sector.floor_height;
 				if (!cur_sector.floor_skip_texture) {
 					for (int y=dy_wall_bottom_bottom_clipped; y < Main.GAME_HEI; y++) {
-						drawHorizontalTexture(x, y, fl_h, y - Table.half_screen_height, ray_angle_correct, full_euclid_dist, start_x, start_z, cur_sector.floor_texture, cur_sector.floor_brightness, cur_sector.floor_tiled, game_pixels);
+						drawHorizontalTexture(x, y, fl_h, y - Table.half_screen_height, ray_angle_correct, full_euclid_dist, start_x, start_z, cur_sector.floor_texture, cur_sector.floor_brightness, cur_sector.floor_tiled, game_pixels, player_x, player_z);
 					}
 				}
 
@@ -236,8 +248,11 @@ public class Screen {
 		
 	}
 	
-	private int makeWallIndex(int x, int z, int isHorizontal, int map_width) {
-	    return (z * map_width + x) * 2 + isHorizontal;
+	private int makeWallIndex(int x, int z, int isVertical) {
+		if (x>=map_width || z>=map_height) {
+			return -1;
+		}
+	    return (z * map_width + x) * 2 + isVertical;
 	}
 	
 	private double euclidDist(double x1, double z1, double x2, double z2) {
@@ -248,8 +263,8 @@ public class Screen {
 		return Math.max(0, Math.min(column_n, Main.GAME_HEI));
 	}
 	
-	private int projectColumn(double wallhit_x, double wallhit_y, double wallhit_z, double ray_angle_correct) {
-		return (int)(((wallhit_y-Camera.player_y)/(euclidDist(Camera.player_x, Camera.player_z, wallhit_x, wallhit_z)*Math.cos(ray_angle_correct)))*Camera.retina_dist);
+	private int projectColumn(double wallhit_x, double wallhit_y, double wallhit_z, double ray_angle_correct, double player_x, double player_y, double player_z) {
+		return (int)(((wallhit_y-player_y)/(euclidDist(player_x, player_z, wallhit_x, wallhit_z)*Math.cos(ray_angle_correct)))*Camera.retina_dist);
 	}
 	
 	private double reverseProject(double fl_h, int screen_y_offset, double ray_angle_correct) {
@@ -273,14 +288,14 @@ public class Screen {
 	    return -1;
 	}
 	
-	private void drawHorizontalTexture(int x, int y, double height_offset, int screen_y_offset, double ray_angle_correct, double full_euclid_dist, double start_x, double start_z, String horizontal_texture, int horizontal_brightness, double horizontal_tiled, int[] game_pixels) {
+	private void drawHorizontalTexture(int x, int y, double height_offset, int screen_y_offset, double ray_angle_correct, double full_euclid_dist, double start_x, double start_z, String horizontal_texture, int horizontal_brightness, double horizontal_tiled, int[] game_pixels, double player_x, double player_z) {
 		int i = y * Main.GAME_WID + x;
 		if (game_pixels[i]<0) {
 			double perp_dist = reverseProject(height_offset, screen_y_offset, ray_angle_correct);
 			double full_euclid_minus_perp_dist = full_euclid_dist-perp_dist;
 			double tile_scale = 1 + horizontal_tiled;
-			double tile_x = figureOutTile(full_euclid_dist, full_euclid_minus_perp_dist, start_x, Camera.player_x) / tile_scale;
-			double tile_z = figureOutTile(full_euclid_dist, full_euclid_minus_perp_dist, start_z, Camera.player_z) / tile_scale;
+			double tile_x = figureOutTile(full_euclid_dist, full_euclid_minus_perp_dist, start_x, player_x) / tile_scale;
+			double tile_z = figureOutTile(full_euclid_dist, full_euclid_minus_perp_dist, start_z, player_z) / tile_scale;
 			depth_buffer[i] = perp_dist;
 			game_pixels[i] = getTextureTileColor(tile_x, tile_z, horizontal_texture, horizontal_brightness);
 		}	
@@ -330,17 +345,17 @@ public class Screen {
 		}
 	}
 	
-	private void drawSprites(int[] game_pixels) {
+	private void drawSprites(int[] game_pixels, double player_x, double player_y, double player_z, double player_dir) {
 		for (Map.Entry<String, Sprite> entry : ResourceManager.sprites.entrySet()) {
 			Sprite entity = entry.getValue();
-			double vectorx = entity.sprite_x_pos - Camera.player_x;
-			double vectory = entity.sprite_y_pos - Camera.player_y;
-			double vectorz = entity.sprite_z_pos - Camera.player_z;
-			double cam_x = (double)(vectorx * Math.cos(-Camera.direction_rad) - vectorz * Math.sin(-Camera.direction_rad));
+			double vectorx = entity.sprite_x_pos - player_x;
+			double vectory = entity.sprite_y_pos - player_y;
+			double vectorz = entity.sprite_z_pos - player_z;
+			double cam_x = (double)(vectorx * Math.cos(-player_dir) - vectorz * Math.sin(-player_dir));
 			if (cam_x <= 0) {
 				continue;
 			}
-			double cam_z = (double)(vectorx * Math.sin(-Camera.direction_rad) + vectorz * Math.cos(-Camera.direction_rad));
+			double cam_z = (double)(vectorx * Math.sin(-player_dir) + vectorz * Math.cos(-player_dir));
 			double screen_offset_x = (cam_z / cam_x) * Camera.retina_dist;
 			double screen_offset_y = (vectory / cam_x) * Camera.retina_dist;
 			int screen_sprite_x = Table.half_screen_width - (int)(screen_offset_x);
@@ -365,7 +380,7 @@ public class Screen {
 					if (depth_buffer[i]>cam_x) {
 						double spritex = (double)(x - start_x_og) / (end_x_og - start_x_og);
 						double spritey = (double)(y - start_y_og) / (end_y_og - start_y_og);
-			            int color = getTextureSpriteColor(spritex, spritey, entity);
+			            int color = getTextureSpriteColor(spritex, spritey, entity, player_x, player_z);
 			            if (color>=0) {
 			            	depth_buffer[i] = cam_x;
 			            	game_pixels[i] = Table.SHADE_TABLE[entity.sprite_brightness][color];
@@ -376,11 +391,11 @@ public class Screen {
         }
 	}
 	
-	private int getTextureSpriteColor(double spritex, double spritey, Sprite entity) {
+	private int getTextureSpriteColor(double spritex, double spritey, Sprite entity, double player_x, double player_z) {
 		double local_x = spritex - Math.floor(spritex);
 	    double local_y = spritey - Math.floor(spritey);
 	    Texture texture_sprite_obj = ResourceManager.images.get(entity.spritename);
-	    double relative_angle = Math.atan2(Camera.player_z - entity.sprite_z_pos, Camera.player_x - entity.sprite_x_pos) - entity.direction_rad;
+	    double relative_angle = Math.atan2(player_z - entity.sprite_z_pos, player_x - entity.sprite_x_pos) - entity.direction_rad;
 	    while (relative_angle < 0) relative_angle += Table.pi2;
 	    while (relative_angle >= Table.pi2) relative_angle -= Table.pi2;
 	    int directional_frame = (int)(relative_angle / Table.DIRECTIONAL_SLICE_ANGLE);

@@ -353,6 +353,19 @@ function completeRectangle() {
         };
         openConfigPanel(false);
     } else if (mode === 'worldBoundary') {
+        const minX = Math.min(...vertices.map(v => v.x));
+        const minZ = Math.min(...vertices.map(v => v.z));
+
+        if (minX !== 0 || minZ !== 0) {
+            alert('Invalid world boundary!\n\nThe boundary must touch both axes at the origin (0,0).\nMake sure the boundary starts at X=0 and Z=0.');
+            currentShape = [];
+            shapeStartVertex = null;
+            lineStart = null;
+            drawingLine = false;
+            draw();
+            return;
+        }
+
         currentConfigRect = {
             vertices: vertices,
             lines: [...currentShape],
@@ -639,7 +652,7 @@ async function runManhattanPartitioning() {
     await new Promise(resolve => setTimeout(resolve, 50));
 
     finalSectors = [];
-    let sectorId = 1;
+    let sectorId = 0;
 
     for (const gridRect of gridRectangles) {
         const centerX = (gridRect.minX + gridRect.maxX) / 2;
@@ -908,7 +921,11 @@ function updateProgress(percent, message) {
 }
 
 function downloadMap() {
-    let output = '[SECTORS]\n';
+    const mapWidth = Math.max(...worldBoundary.vertices.map(v => v.x)) + 1;
+    const mapHeight = Math.max(...worldBoundary.vertices.map(v => v.z)) + 1;
+
+    let output = `[SIZE]\n${mapWidth} ${mapHeight}\n`;
+    output += '[SECTORS]\n';
 
     for (const sector of finalSectors) {
         // Sector(ID, floor_height, ceil_height, floor_texture, floor_brightness, floor_tiled, floor_skip_texture, ceil_texture, ceil_brightness, ceil_tiled, ceil_skip_texture)

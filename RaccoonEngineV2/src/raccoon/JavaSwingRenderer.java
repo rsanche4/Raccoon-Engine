@@ -35,17 +35,19 @@ public class JavaSwingRenderer implements Renderer {
 
     @Override
     public void render(int[] game_pixels) {
-        upRes(game_pixels);
-        panel.repaint();
-    }
-
-    private void upRes(int[] game_pixels) {
-        for (int y = 0; y < Table.render_h; y++) {
+    	for (int y = 0; y < Table.render_h; y++) {
             int screen_y = Table.screen_y[y];
             int src_offset = Table.src_offset[y];
             for (int x = 0; x < Table.render_w; x++) {
-                pixels[screen_y + x] = Table.PALETTE[game_pixels[src_offset + Table.src_x[x]]];
+            	int color = game_pixels[src_offset + Table.src_x[x]];
+            	int i = screen_y + x;
+            	if (color>=0) {
+            		pixels[i] = Table.PALETTE[color];
+            	} else {
+            		pixels[i] = Table.PALETTE[0];
+            	}
             }
         }
+        panel.repaint();
     }
 }

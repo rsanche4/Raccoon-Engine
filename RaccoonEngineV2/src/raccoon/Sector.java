@@ -31,4 +31,27 @@ public class Sector {
         this.ceil_tiled = ceil_tiled;
         this.ceil_skip_texture = ceil_skip_texture;
     }
+    
+    public void update_sector_boundary(double val, int orientation) {
+    	if (index_set_boundary_z+index_set_boundary_x >= 6) { // this should never happen
+    		return; // TODO Wtf is this
+    	}
+    	if (orientation==0) {
+    		boundary_coords[index_set_boundary_z]=val;
+    		index_set_boundary_z++;
+    		if (index_set_boundary_z==4 && (boundary_coords[2]>boundary_coords[3])) {    		
+    			float temp = boundary_coords[2];
+    			boundary_coords[2] = boundary_coords[3];
+    			boundary_coords[3] = temp;
+    		}
+    	} else {
+    		boundary_coords[index_set_boundary_x]=val;
+    		index_set_boundary_x++;
+    		if (index_set_boundary_x==2 && (boundary_coords[0]>boundary_coords[1])) {
+    			float temp = boundary_coords[0];
+    			boundary_coords[0] = boundary_coords[1];
+    			boundary_coords[1] = temp;
+    		}
+    	}
+    }
 }

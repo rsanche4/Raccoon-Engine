@@ -127,7 +127,8 @@ public class ResourceManager {
 			sounds.put(resource.getName(), resource);
 		} else if (type.contentEquals(map_type) || type.contentEquals(script_type)) {
 			try {
-				level_data.put(resource.getName(), Files.readString(resource.toPath()));
+				String data = Files.readString(resource.toPath()).replace("\r\n", "\n");
+				level_data.put(resource.getName(), data);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
