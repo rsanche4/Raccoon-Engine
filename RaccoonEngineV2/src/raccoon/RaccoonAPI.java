@@ -64,6 +64,7 @@ public class RaccoonAPI {
 			String time = systemWorldTime();
 			System.out.println("[" + time + "] " + system_call + ": " + msg);
 		}
+		// TODO and all Display the text ALSO to the actual game, like garrys mod. Only output. My own Console.
     }
 	
 	public String systemWorldTime() {
@@ -120,7 +121,7 @@ public class RaccoonAPI {
 		Screen.MAX_NUM_SECTORS = lim;
 	}
 	
-	private double[] worldLoadMapHelper(double x1, double z1, double x2, double z2) {
+	private double[] worldLoadMapHelperNormalize(double x1, double z1, double x2, double z2) {
 		if (x1 > x2 || (x1 == x2 && z1 > z2)) {
             double tmpX = x1, tmpZ = z1;
             x1 = x2; z1 = z2;
@@ -129,16 +130,12 @@ public class RaccoonAPI {
 		return new double[] {x1, z1, x2, z2};
 	}
 	
-	private 
-	
 	public void worldLoadMap(String mapname) {
 		systemLog("Loading map " + mapname + ".", "worldLoadMap");
 		Screen.sectors = new Sector[Screen.MAX_NUM_SECTORS];
-		Screen.walls = new Wall[Screen.MAX_NUM_WALLS];
-		Screen.portals = new Portal[Screen.MAX_NUM_WALLS];
 		Screen.map_width = 0;
 		Screen.map_height = 0;
-		Screen.sectors_length = 0;
+		Screen.sectors_count = 0;
 		int selected = -1;
 		try {
 			systemLog("Reading level data.", "worldLoadMap");
@@ -150,6 +147,11 @@ public class RaccoonAPI {
 			String[] lines = maptxt.split("\n");
 			for (String line : lines) {
 				line = line.trim();
+				if (line.equals("[SIZE]")) { 
+                	systemLog("Reading map size and establishing verticals.", "worldLoadMap");
+                	selected = 3; 
+                	continue; 
+                }
 				if (line.equals("[SECTORS]")) { 
 					systemLog("Reading sectors.", "worldLoadMap");
 					selected = 0; 
@@ -161,21 +163,28 @@ public class RaccoonAPI {
                 	continue; 
                 }
                 if (line.equals("[PORTALS]")) { 
-                	systemLog("Reading portals.", "worldLoadMap");
+                	systemLog("Reading portals and initializing collision.", "worldLoadMap");
+                	Screen.portal_collision_data = new boolean[Screen.sectors_count*Screen.sectors_count];
                 	selected = 2; 
-                	continue; 
-                }
-                if (line.equals("[SIZE]")) { 
-                	systemLog("Reading map size.", "worldLoadMap");
-                	selected = 3; 
                 	continue; 
                 }
                 
                 String[] parts = line.split("\\s+");
                 switch (selected) {
                 	case 0 -> {
-                		Screen.sectors[Screen.sectors_length] = new Sector(Integer.parseInt(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), parts[3], Integer.parseInt(parts[4]), Double.parseDouble(parts[5]), Boolean.parseBoolean(parts[6]), parts[7], Integer.parseInt(parts[8]), Double.parseDouble(parts[9]), Boolean.parseBoolean(parts[10]));
-                		Screen.sectors_length++;
+                		if (Screen.sectors_count>=Screen.MAX_NUM_SECTORS) {
+                			systemLog("Failed! Too many sectors. This means your map is too big. Try simplifying it with less sectors!", "worldLoadMap");
+                			return;
+                		}
+                		int sector_id = Integer.parseInt(parts[0]);
+                		double floor_height = Double.parseDouble(parts[1]);
+                		double ceil_height = Double.parseDouble(parts[2]);
+                		if (floor_height<0 || floor_height>Screen.LIMIT_MAP_COORD || ceil_height<0 || ceil_height>Screen.LIMIT_MAP_COORD) {
+                			systemLog("Failed! Your height value is bigger than the world coordinate limit of " + Screen.LIMIT_MAP_COORD + ".", "worldLoadMap");
+                			return;
+                		}
+                		Screen.sectors[sector_id] = new Sector(sector_id, floor_height, ceil_height, parts[3], Integer.parseInt(parts[4]), Double.parseDouble(parts[5]), Boolean.parseBoolean(parts[6]), parts[7], Integer.parseInt(parts[8]), Double.parseDouble(parts[9]), Boolean.parseBoolean(parts[10]));
+                		Screen.sectors_count++;
                 	}
                 	case 1 -> {
                 		double[] xz = new double[4];
@@ -183,39 +192,176 @@ public class RaccoonAPI {
                 		xz[1] = Double.parseDouble(parts[1]);
                 		xz[2] = Double.parseDouble(parts[2]);
                 		xz[3] = Double.parseDouble(parts[3]);
-                		xz = worldLoadMapHelper(xz[0], xz[1], xz[2], xz[3]);
+                		xz = worldLoadMapHelperNormalize(xz[0], xz[1], xz[2], xz[3]);
                 		double x1 = xz[0];
                 		double z1 = xz[1];
                 		double x2 = xz[2];
                 		double z2 = xz[3];
+                		if (x1<0 || z1<0 || x2<0 || z2<0) {
+                			systemLog("Failed! Your map has negative values! No bueno!", "worldLoadMap");
+                			return;
+                		}
                 		int sector_id = Integer.parseInt(parts[4]);
-                		if (z1 == z2) { // TODO trying to figure this out. left here
-                        	Screen.sectors[sector_id].update_sector_boundary(z1, 0);
-                            int startX = (int) Math.floor(x1);
-                            int endX = (int) Math.floor(x2);
-                            for (int x = startX; x < endX; x++) {
-                                String key = Screen.makeWallKey((float)x, z1, (float)(x + 1), z1);
-                                Wall w = new Wall((float)x, z1, (float)(x + 1), z1, sectorId, texture, brightness);
-                                Screen.wallMap.put(key, w);
+                		String wall_texture = parts[5];
+                		int brightness = Integer.parseInt(parts[6]);
+                		double tiled = Double.parseDouble(parts[7]);
+                		boolean skip_texture = Boolean.parseBoolean(parts[8]);
+                		int is_vertical;
+                		if (z1 == z2) {
+                			is_vertical = 0;
+                			Screen.sectors[sector_id].updateSectorBoundary(z1, is_vertical);
+                			int start_x = (int) Math.floor(x1);
+                            int end_x = (int) Math.floor(x2);
+                            for (int x = start_x; x < end_x; x++) {
+                                int key = Screen.makeWallIndex(x, (int)z1, is_vertical);
+                                Screen.verticals[key] = new Wall(x, z1, x2, z2, sector_id, wall_texture, brightness, tiled, skip_texture);
+                            }
+                        } else if (x1 == x2) {
+                        	is_vertical = 1;
+                        	Screen.sectors[sector_id].updateSectorBoundary(x1, is_vertical);
+                            int start_z = (int) Math.floor(z1);
+                            int end_z = (int) Math.floor(z2);
+                            for (int z = start_z; z < end_z; z++) {
+                            	int key = Screen.makeWallIndex((int)x1, z, is_vertical);
+                                Screen.verticals[key] = new Wall(x1, z, x2, z2, sector_id, wall_texture, brightness, tiled, skip_texture);
                             }
                         }
-                		
                 	}
                 	case 2 -> {
-                    	
+                		double[] xz = new double[4];
+                		xz[0] = Double.parseDouble(parts[0]);
+                		xz[1] = Double.parseDouble(parts[1]);
+                		xz[2] = Double.parseDouble(parts[2]);
+                		xz[3] = Double.parseDouble(parts[3]);
+                		xz = worldLoadMapHelperNormalize(xz[0], xz[1], xz[2], xz[3]);
+                		double x1 = xz[0];
+                		double z1 = xz[1];
+                		double x2 = xz[2];
+                		double z2 = xz[3];
+                		if (x1<0 || z1<0 || x2<0 || z2<0) {
+                			systemLog("Failed! Your map has negative values! No bueno!", "worldLoadMap");
+                			return;
+                		}
+                		int sector_a = Integer.parseInt(parts[4]);
+                		int sector_b = Integer.parseInt(parts[5]);
+                		String bottom_tex = parts[6];
+                		int bottom_brightness = Integer.parseInt(parts[7]);
+                		double bottom_tiled = Double.parseDouble(parts[8]);
+                		boolean bottom_skip_texture = Boolean.parseBoolean(parts[9]);
+                		String middle_tex = parts[10];
+                		int middle_brightness = Integer.parseInt(parts[11]);
+                		double middle_tiled = Double.parseDouble(parts[12]);
+                		boolean middle_skip_texture = Boolean.parseBoolean(parts[13]);
+                		String top_tex = parts[14];
+                		int top_brightness = Integer.parseInt(parts[15]);
+                		double top_tiled = Double.parseDouble(parts[16]);
+                		boolean top_skip_texture = Boolean.parseBoolean(parts[17]);
+                		boolean is_solid = Boolean.parseBoolean(parts[18]);
+                		Screen.portal_collision_data[sector_a * Screen.sectors_count + sector_b] = is_solid;
+                		Screen.portal_collision_data[sector_b * Screen.sectors_count + sector_a] = is_solid;
+                		int is_vertical;
+                		if (z1 == z2) {
+                			is_vertical = 0;
+                        	Screen.sectors[sector_a].updateSectorBoundary(z1, is_vertical);
+                        	Screen.sectors[sector_b].updateSectorBoundary(z1, is_vertical);
+                            int start_x = (int) Math.floor(x1);
+                            int end_x = (int) Math.floor(x2);
+                            for (int x = start_x; x < end_x; x++) {
+                                int key = Screen.makeWallIndex(x, (int)z1, is_vertical);
+                                Screen.verticals[key] = new Portal(x, z1, x2, z2, sector_a, sector_b, bottom_tex, bottom_brightness, bottom_tiled, bottom_skip_texture, middle_tex, middle_brightness, middle_tiled, middle_skip_texture, top_tex, top_brightness, top_tiled, top_skip_texture);
+                            }
+                        } else if (x1 == x2) {
+                        	is_vertical = 1;
+                        	Screen.sectors[sector_a].updateSectorBoundary(x1, is_vertical);
+                        	Screen.sectors[sector_b].updateSectorBoundary(x1, is_vertical);
+                            int start_z = (int) Math.floor(z1);
+                            int end_z = (int) Math.floor(z2);
+                            for (int z = start_z; z < end_z; z++) {
+                                int key = Screen.makeWallIndex((int)x1, z, is_vertical);
+                                Screen.verticals[key] = new Portal(x1, z, x2, z2, sector_a, sector_b, bottom_tex, bottom_brightness, bottom_tiled, bottom_skip_texture, middle_tex, middle_brightness, middle_tiled, middle_skip_texture, top_tex, top_brightness, top_tiled, top_skip_texture);
+                            }
+                        }
                 	}
                 	case 3 -> {
                 		Screen.map_width = Integer.parseInt(parts[0]);
                 		Screen.map_height = Integer.parseInt(parts[1]);
+                		if (Screen.map_width>Screen.LIMIT_MAP_COORD || Screen.map_height>Screen.LIMIT_MAP_COORD) {
+                			systemLog("Failed! Your world is bigger than the world coordinate limit of " + Screen.LIMIT_MAP_COORD + ".", "worldLoadMap");
+                			return;
+                		}
+                		Screen.vertical_length = (Screen.map_width+1)*(Screen.map_height+1)*2;
+                		Screen.verticals = new Object[Screen.vertical_length];
                 	}
                 }
 			
 			}
 		} catch (Exception e) {
-			systemLog("Failed to read map data.", "worldLoadMap");
-			e.printStackTrace();
+			systemLog("Failed to read map data. Exception " + e.getMessage(), "worldLoadMap");
 		}
 		
 	}
+	
+	public void worldSetPortalCollision(int sector_a, int sector_b, boolean is_solid) {
+		systemLog("Setting collision to " + is_solid + " from sector " + sector_a + " to " + sector_b + ".", "worldSetPortalCollision");
+		Screen.portal_collision_data[sector_a * Screen.sectors_count + sector_b] = is_solid;
+	}
+	
+	public double playerGetPosition(int dimension_number) {
+		systemLog("Getting player position at dimension " + dimension_number + ".", "playerGetPosition");
+		switch (dimension_number) {
+        	case 0: return Camera.player_x;
+        	case 1: return Camera.player_y;
+        	case 2: return Camera.player_z;
+        	default: systemLog("Invalid dimension " + dimension_number, "playerGetPosition");
+		}
+		return -1;
+	}
+	
+	public void playerSetPosition(double x, double y, double z, double dir) { 
+    	if (x<0 || y<0 || z<0 || dir<0) {
+    		systemLog("Failed to set player at given position. Negative values.", "playerSetPosition");
+    		return;
+    	}
+		systemLog("Setting player position to [" + x + ", " + y + ", " + z + "]. Direction=" + dir + ".", "playerSetPosition");
+    	Camera.player_x = x;
+    	Camera.player_y = y;
+    	Camera.player_z = z;
+    	Camera.direction_rad = dir % Table.pi2;
+    }
+	
+	public int playerGetSector() {
+		systemLog("Getting player sector.", "playerGetSector");
+		return Camera.player_sector; 
+	}
+	
+	public void playerSetMoveSpeed(double move_speed) {
+		systemLog("Setting move speed to" + move_speed + ".", "playerSetMoveSpeed");
+		Camera.move_speed = move_speed;
+	}
+	
+	public void playerSetTurnSpeed(double turn_speed) {
+		systemLog("Setting turn speed to" + turn_speed + ".", "playerSetTurnSpeed");
+		Camera.turn_speed = turn_speed;
+	}
+	
+	public void playerSetPitchSpeed(double pitch_speed) {
+		systemLog("Setting pitch speed to" + pitch_speed + ".", "playerSetPitchSpeed");
+		Camera.pitch_speed = pitch_speed;
+	}
+	
+	public void inputSetMouseSensitivity(double sens) {
+		systemLog("Setting mouse sensitivity to" + sens + ".", "inputSetMouseSensitivity");
+		Camera.mouse_sens = sens;
+	}
+	
+	public String saveGameState() {
+		return "Implement Me!";
+	}
+	
+	public String saveLoadGameState() {
+		return "Implement Me!";
+	}
+	
+	
 	
 }

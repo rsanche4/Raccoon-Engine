@@ -7,16 +7,17 @@ import java.util.concurrent.CountDownLatch;
 public class Screen {
 
 	public static int MAX_NUM_SECTORS = 1024;
-	public static int MAX_NUM_WALLS = 8192;
+	public static int vertical_length;
 	public static Sector[] sectors=null;
-	public static int sectors_length = 0;
-	public static Wall[] walls;
-	public static Portal[] portals;
+	public static Object[] verticals;
+	public static int sectors_count = 0;
 	public static int map_width;
 	public static int map_height;
+	public static int LIMIT_MAP_COORD = 512;
 	public static String skybox = null;
 	public static int sky_offset = 0;
 	public static int skybox_brightness = 31;
+	public static boolean[] portal_collision_data; 
 	
 	private int[] phantom_rays;
 	private int phantom_hunters = 10;
@@ -29,7 +30,7 @@ public class Screen {
 	}
 	
 	public static int updatePlayerSector(double player_x, double player_z) {
-		for (int i=0; i<sectors_length; i++) {
+		for (int i=0; i<sectors_count; i++) {
 	        Sector sector = sectors[i];
 			if (player_x >= sector.boundary_coords[0] && player_x <= sector.boundary_coords[1] && player_z >= sector.boundary_coords[2] && player_z <= sector.boundary_coords[3]) {
 	            return sector.ID;
@@ -142,9 +143,9 @@ public class Screen {
 			
 			double ray_angle_correct = ray_angle-player_dir;
 			
-			if (walls[wall_index].sector_a>0) {
-				
-				Sector sector_info = sectors[walls[wall_index].sector_a]; 
+			if (verticals[wall_index] instanceof Wall) {
+				Wall w = (Wall)verticals[wall_index];
+				Sector sector_info = sectors[w.sector_a]; 
 				int dy_walltop = Table.half_screen_height - projectColumn(start_x, sector_info.ceil_height, start_z, ray_angle_correct, player_x, player_y, player_z);
 				int dy_wallbottom = Table.half_screen_height - projectColumn(start_x, sector_info.floor_height, start_z, ray_angle_correct, player_x, player_y, player_z);
 				
@@ -157,10 +158,10 @@ public class Screen {
 				
 				int dy_walltop_clipped = clipColumn(dy_walltop);
 				int dy_wallbottom_clipped = clipColumn(dy_wallbottom);
-				if (!walls[wall_index].skip_wall_texture) {
+				if (!w.skip_wall_texture) {
 					int column_pixel_size = dy_wallbottom-dy_walltop;
 					for (int y=dy_walltop_clipped; y < dy_wallbottom_clipped; y++) {
-						drawVerticalTexture(x, y, perc_wall_hit, dy_walltop, dy_wallbottom, walls[wall_index].wall_texture, walls[wall_index].wall_brightness, walls[wall_index].wall_tiled, column_pixel_size, full_euclid_dist, game_pixels);
+						drawVerticalTexture(x, y, perc_wall_hit, dy_walltop, dy_wallbottom, w.wall_texture, w.wall_brightness, w.wall_tiled, column_pixel_size, full_euclid_dist, game_pixels);
 					}
 				}
 				
@@ -174,13 +175,13 @@ public class Screen {
 				return;
 			}
 			
-			if (portals[wall_index].sector_a>0) {
-				
+			if (verticals[wall_index] instanceof Portal) {
+				Portal p = (Portal)verticals[wall_index];
 				int prev_ray_sector = ray_sector;
-				if (ray_sector==portals[wall_index].sector_a) {
-					ray_sector = portals[wall_index].sector_b;
+				if (ray_sector==p.sector_a) {
+					ray_sector = p.sector_b;
 				} else {
-					ray_sector = portals[wall_index].sector_a;
+					ray_sector = p.sector_a;
 				}
 				Sector cur_sector = sectors[prev_ray_sector];
 				Sector next_sector = sectors[ray_sector];
@@ -213,24 +214,24 @@ public class Screen {
 					}
 				}
 				
-				if (!portals[wall_index].top_skip_texture) {
+				if (!p.top_skip_texture) {
 					int column_pixel_size = dy_wall_top_bottom-dy_wall_top_top;
 					for (int y=dy_wall_top_top_clipped; y < dy_wall_top_bottom_clipped; y++) {
-						drawVerticalTexture(x, y, perc_wall_hit, dy_wall_top_top, dy_wall_top_bottom, portals[wall_index].top_texture, portals[wall_index].top_brightness, portals[wall_index].top_tiled, column_pixel_size, full_euclid_dist, game_pixels);
+						drawVerticalTexture(x, y, perc_wall_hit, dy_wall_top_top, dy_wall_top_bottom, p.top_texture, p.top_brightness, p.top_tiled, column_pixel_size, full_euclid_dist, game_pixels);
 					}
 				}
 				
-				if (!portals[wall_index].middle_skip_texture) {
+				if (!p.middle_skip_texture) {
 					int column_pixel_size = dy_wall_bottom_top-dy_wall_top_bottom;
 					for (int y=dy_wall_top_bottom_clipped; y < dy_wall_bottom_top_clipped; y++) {
-						drawVerticalTexture(x, y, perc_wall_hit, dy_wall_top_bottom, dy_wall_bottom_top, portals[wall_index].middle_texture, portals[wall_index].middle_brightness, portals[wall_index].middle_tiled, column_pixel_size, full_euclid_dist, game_pixels);
+						drawVerticalTexture(x, y, perc_wall_hit, dy_wall_top_bottom, dy_wall_bottom_top, p.middle_texture, p.middle_brightness, p.middle_tiled, column_pixel_size, full_euclid_dist, game_pixels);
 					}
 				}
 				
-				if (!portals[wall_index].bottom_skip_texture) {
+				if (!p.bottom_skip_texture) {
 					int column_pixel_size = dy_wall_bottom_bottom-dy_wall_bottom_top;
 					for (int y=dy_wall_bottom_top_clipped; y < dy_wall_bottom_bottom_clipped; y++) {
-						drawVerticalTexture(x, y, perc_wall_hit, dy_wall_bottom_top, dy_wall_bottom_bottom, portals[wall_index].bottom_texture, portals[wall_index].bottom_brightness, portals[wall_index].bottom_tiled, column_pixel_size, full_euclid_dist, game_pixels);
+						drawVerticalTexture(x, y, perc_wall_hit, dy_wall_bottom_top, dy_wall_bottom_bottom, p.bottom_texture, p.bottom_brightness, p.bottom_tiled, column_pixel_size, full_euclid_dist, game_pixels);
 					}	
 				}
 
@@ -244,11 +245,13 @@ public class Screen {
 				continue;
 			}
 			
+			
+			
 		}
 		
 	}
 	
-	private int makeWallIndex(int x, int z, int isVertical) {
+	public static int makeWallIndex(int x, int z, int isVertical) {
 		if (x>=map_width || z>=map_height) {
 			return -1;
 		}

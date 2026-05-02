@@ -500,8 +500,8 @@ function openConfigPanel(isWorldBoundary) {
                         <input type="number" class="edge-bot-tiled" data-dir="${dir}" value="${saved ? saved.botTiled : 1}" step="1" min="0">
                         <label>Bottom Skip Texture:</label>
                         <input type="checkbox" class="edge-bot-skip" data-dir="${dir}" ${saved && saved.botSkip ? 'checked' : ''}>
-                        <label>Solid (1) or Passthrough (0):</label>
-                        <input type="number" class="edge-solid" data-dir="${dir}" value="${saved ? saved.solid : 0}" min="0" max="1" step="1">
+                        <label>Solid:</label>
+                        <input type="checkbox" class="edge-solid" data-dir="${dir}" ${saved && saved.solid ? 'checked' : ''}>
                     `;
         }
 
@@ -577,7 +577,7 @@ function saveConfiguration() {
                 botBrightness: parseFloat(botBrightnesses[idx].value),
                 botTiled: parseInt(botTileds[idx].value),
                 botSkip: botSkips[idx].checked,
-                solid: parseInt(solids[idx].value)
+                solid: solids[idx].checked
             };
         });
 
@@ -652,7 +652,7 @@ async function runManhattanPartitioning() {
     await new Promise(resolve => setTimeout(resolve, 50));
 
     finalSectors = [];
-    let sectorId = 0;
+    let sectorId = 1;
 
     for (const gridRect of gridRectangles) {
         const centerX = (gridRect.minX + gridRect.maxX) / 2;
@@ -886,7 +886,7 @@ function getEdgeProperties(x1, z1, x2, z2) {
         botBrightness: 1.0,
         botTiled: 1,
         botSkip: false,
-        solid: 0
+        solid: false
     };
 }
 
@@ -941,7 +941,7 @@ function downloadMap() {
     output += '[PORTALS]\n';
     for (const portal of finalPortals) {
         // Portal(x1, z1, x2, z2, sector_a, sector_b, bottom_texture, bottom_brightness, bottom_tiled, bottom_skip_texture, middle_texture, middle_brightness, middle_tiled, middle_skip_texture, top_texture, top_brightness, top_tiled, top_skip_texture)
-        output += `${portal.x1} ${portal.z1} ${portal.x2} ${portal.z2} ${portal.sectorA} ${portal.sectorB} ${portal.botTexture} ${portal.botBrightness} ${portal.botTiled} ${portal.botSkip} ${portal.midTexture} ${portal.midBrightness} ${portal.midTiled} ${portal.midSkip} ${portal.topTexture} ${portal.topBrightness} ${portal.topTiled} ${portal.topSkip}\n`;
+        output += `${portal.x1} ${portal.z1} ${portal.x2} ${portal.z2} ${portal.sectorA} ${portal.sectorB} ${portal.botTexture} ${portal.botBrightness} ${portal.botTiled} ${portal.botSkip} ${portal.midTexture} ${portal.midBrightness} ${portal.midTiled} ${portal.midSkip} ${portal.topTexture} ${portal.topBrightness} ${portal.topTiled} ${portal.topSkip} ${portal.solid}\n`;
     }
 
     const blob = new Blob([output], {

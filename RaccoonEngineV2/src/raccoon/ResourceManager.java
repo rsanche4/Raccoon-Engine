@@ -42,14 +42,12 @@ public class ResourceManager {
 	public static HashMap<String, String> level_data = new HashMap<>();
 	public static HashMap<String, Sprite> sprites = new HashMap<>();
 
-	private static void unpackRPK() {
-		// TODO
-		return;
+	private static String unpackRPK() {
+		return "Implement Me!";
 	}
 
-	private static void packRPK() {
-		// TODO
-		return;
+	private static String packRPK() {
+		return "Implement Me!";
 	}
 
 	private static void saveResource(File resource, String type) {
