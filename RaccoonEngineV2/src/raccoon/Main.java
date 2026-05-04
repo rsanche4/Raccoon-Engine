@@ -8,6 +8,7 @@ public class Main implements Runnable {
 	public static int frame_num = 0;
 	public static int GAME_WID = 640;
     public static int GAME_HEI = 480;
+    public static int MAX_FPS = 60;
     public static int cores = Runtime.getRuntime().availableProcessors();
     public static ExecutorService executor_threads = Executors.newFixedThreadPool(cores);
     private Thread thread;
@@ -36,7 +37,7 @@ public class Main implements Runnable {
 
     @Override
     public void run() {
-        final double targetFPS = 60.0;
+        final double targetFPS = MAX_FPS;
         final double nsPerFrame = 1_000_000_000.0 / targetFPS;
         long lastTime = System.nanoTime();
         double delta = 0;

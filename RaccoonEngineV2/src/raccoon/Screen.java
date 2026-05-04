@@ -251,11 +251,11 @@ public class Screen {
 		
 	}
 	
-	public static int makeWallIndex(int x, int z, int isVertical) {
-		if (x>=map_width || z>=map_height) {
+	public static int makeWallIndex(int x, int z, int is_vertical) {
+		if (x>=map_width || z>=map_height || x<0 || z<0) {
 			return -1;
 		}
-	    return (z * map_width + x) * 2 + isVertical;
+	    return (z * map_width + x) * 2 + is_vertical;
 	}
 	
 	private double euclidDist(double x1, double z1, double x2, double z2) {

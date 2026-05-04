@@ -16,7 +16,7 @@ public class RaccoonAPI {
 	private static final RaccoonAPI api_instance = new RaccoonAPI();
     private static HashMap<String, Object> user_variables = new HashMap<>();
     private static boolean debug_console = true;
-	
+    
 	public static void runUserScripts() {
 		ResourceManager.active_scripts.sort(Comparator.comparingInt(e -> e.priority));
 		
@@ -76,6 +76,14 @@ public class RaccoonAPI {
 		 return (int)((System.currentTimeMillis() - Main.start_time) / 1000);
 	}
 	
+	public int systemGetMaxFPS() {
+    	return Main.MAX_FPS;
+    }
+	
+	public int systemGetFrameNumber() {
+    	return Main.frame_num;
+    }
+	
 	public void systemQuit() {
 		System.exit(0);
     }
@@ -98,6 +106,30 @@ public class RaccoonAPI {
 				return;
 			}
 		}
+	}
+	
+	public String audioPlayBGM(String bgm_name, boolean loop, float volume) {
+		return "Implement me!";
+	}
+    
+    public String audioChangeBGMVol(float volume) {
+    	return "Implement me!";
+    }
+	
+	public String audioStopBGM() {
+		return "Implement me!";
+	}
+	
+	public String audioPlaySE(String se_name, boolean loop, float volume) {
+		return "Implement me!";
+	}
+	
+	public String audioChangeSEVol(String se_name, float volume) {
+		return "Implement me!";
+	}
+	
+	public String audioStopSE(String se_name) {
+		return "Implement me!";
 	}
 	
 	public void worldSetSkybox(String skyboxname, int brightness) {
@@ -203,7 +235,8 @@ public class RaccoonAPI {
                 		}
                 		int sector_id = Integer.parseInt(parts[4]);
                 		String wall_texture = parts[5];
-                		int brightness = Integer.parseInt(parts[6]);
+                		double brightness = Integer.parseInt(parts[6]);
+                		int actual_brightness = (int)(brightness*(Table.NUM_LIGHT_LEVELS-1));
                 		double tiled = Double.parseDouble(parts[7]);
                 		boolean skip_texture = Boolean.parseBoolean(parts[8]);
                 		int is_vertical;
@@ -214,7 +247,7 @@ public class RaccoonAPI {
                             int end_x = (int) Math.floor(x2);
                             for (int x = start_x; x < end_x; x++) {
                                 int key = Screen.makeWallIndex(x, (int)z1, is_vertical);
-                                Screen.verticals[key] = new Wall(x, z1, x2, z2, sector_id, wall_texture, brightness, tiled, skip_texture);
+                                Screen.verticals[key] = new Wall(x, z1, x2, z2, sector_id, wall_texture, actual_brightness, tiled, skip_texture);
                             }
                         } else if (x1 == x2) {
                         	is_vertical = 1;
@@ -223,7 +256,7 @@ public class RaccoonAPI {
                             int end_z = (int) Math.floor(z2);
                             for (int z = start_z; z < end_z; z++) {
                             	int key = Screen.makeWallIndex((int)x1, z, is_vertical);
-                                Screen.verticals[key] = new Wall(x1, z, x2, z2, sector_id, wall_texture, brightness, tiled, skip_texture);
+                                Screen.verticals[key] = new Wall(x1, z, x2, z2, sector_id, wall_texture, actual_brightness, tiled, skip_texture);
                             }
                         }
                 	}
@@ -245,15 +278,18 @@ public class RaccoonAPI {
                 		int sector_a = Integer.parseInt(parts[4]);
                 		int sector_b = Integer.parseInt(parts[5]);
                 		String bottom_tex = parts[6];
-                		int bottom_brightness = Integer.parseInt(parts[7]);
+                		double bottom_brightness = Integer.parseInt(parts[7]);
+                		int actual_bottom_brightness = (int)(bottom_brightness*(Table.NUM_LIGHT_LEVELS-1));
                 		double bottom_tiled = Double.parseDouble(parts[8]);
                 		boolean bottom_skip_texture = Boolean.parseBoolean(parts[9]);
                 		String middle_tex = parts[10];
-                		int middle_brightness = Integer.parseInt(parts[11]);
+                		double middle_brightness = Integer.parseInt(parts[11]);
+                		int actual_middle_brightness = (int)(middle_brightness*(Table.NUM_LIGHT_LEVELS-1));
                 		double middle_tiled = Double.parseDouble(parts[12]);
                 		boolean middle_skip_texture = Boolean.parseBoolean(parts[13]);
                 		String top_tex = parts[14];
-                		int top_brightness = Integer.parseInt(parts[15]);
+                		double top_brightness = Integer.parseInt(parts[15]);
+                		int actual_top_brightness = (int)(top_brightness*(Table.NUM_LIGHT_LEVELS-1));
                 		double top_tiled = Double.parseDouble(parts[16]);
                 		boolean top_skip_texture = Boolean.parseBoolean(parts[17]);
                 		boolean is_solid = Boolean.parseBoolean(parts[18]);
@@ -268,7 +304,7 @@ public class RaccoonAPI {
                             int end_x = (int) Math.floor(x2);
                             for (int x = start_x; x < end_x; x++) {
                                 int key = Screen.makeWallIndex(x, (int)z1, is_vertical);
-                                Screen.verticals[key] = new Portal(x, z1, x2, z2, sector_a, sector_b, bottom_tex, bottom_brightness, bottom_tiled, bottom_skip_texture, middle_tex, middle_brightness, middle_tiled, middle_skip_texture, top_tex, top_brightness, top_tiled, top_skip_texture);
+                                Screen.verticals[key] = new Portal(x, z1, x2, z2, sector_a, sector_b, bottom_tex, actual_bottom_brightness, bottom_tiled, bottom_skip_texture, middle_tex, actual_middle_brightness, middle_tiled, middle_skip_texture, top_tex, actual_top_brightness, top_tiled, top_skip_texture);
                             }
                         } else if (x1 == x2) {
                         	is_vertical = 1;
@@ -278,7 +314,7 @@ public class RaccoonAPI {
                             int end_z = (int) Math.floor(z2);
                             for (int z = start_z; z < end_z; z++) {
                                 int key = Screen.makeWallIndex((int)x1, z, is_vertical);
-                                Screen.verticals[key] = new Portal(x1, z, x2, z2, sector_a, sector_b, bottom_tex, bottom_brightness, bottom_tiled, bottom_skip_texture, middle_tex, middle_brightness, middle_tiled, middle_skip_texture, top_tex, top_brightness, top_tiled, top_skip_texture);
+                                Screen.verticals[key] = new Portal(x1, z, x2, z2, sector_a, sector_b, bottom_tex, actual_bottom_brightness, bottom_tiled, bottom_skip_texture, middle_tex, actual_middle_brightness, middle_tiled, middle_skip_texture, top_tex, actual_top_brightness, top_tiled, top_skip_texture);
                             }
                         }
                 	}
@@ -304,6 +340,75 @@ public class RaccoonAPI {
 	public void worldSetPortalCollision(int sector_a, int sector_b, boolean is_solid) {
 		systemLog("Setting collision to " + is_solid + " from sector " + sector_a + " to " + sector_b + ".", "worldSetPortalCollision");
 		Screen.portal_collision_data[sector_a * Screen.sectors_count + sector_b] = is_solid;
+	}
+	
+	public void worldChangeSectorVals(boolean is_floor, int sector_id, String texture, double brightness, int tiled, boolean skip_texture) {
+    	systemLog("Setting sector values.", "worldChangeSectorVals");
+		if (sector_id<0 || sector_id >= Screen.sectors_count) {
+			systemLog("Failed! Sector ID must be valid.", "worldChangeSectorVals");
+			return;
+		}
+    	if (is_floor) {
+    		Screen.sectors[sector_id].floor_texture = texture;
+    		Screen.sectors[sector_id].floor_tiled = tiled;
+    		Screen.sectors[sector_id].floor_brightness = (int)(brightness*(Table.NUM_LIGHT_LEVELS-1));
+    		Screen.sectors[sector_id].floor_skip_texture = skip_texture;
+    	} else {
+    		Screen.sectors[sector_id].ceil_texture = texture;
+    		Screen.sectors[sector_id].ceil_tiled = tiled;
+    		Screen.sectors[sector_id].ceil_brightness = (int)(brightness*(Table.NUM_LIGHT_LEVELS-1));
+    		Screen.sectors[sector_id].ceil_skip_texture = skip_texture;
+    	}
+    }
+	
+	public void worldChangeVerticalVals(int x, int z, int is_vertical, String wall_texture, boolean skip_wall_texture, double brightness, int tiled, int portal_texture_type) {
+		systemLog("Setting vertical values.", "worldChangeVerticalVals");
+		int index = Screen.makeWallIndex(x, z, is_vertical);
+		if (index < 0) {
+			systemLog("Failed! Out of bounds index.", "worldChangeVerticalVals");
+			return;
+		}
+		Object w = Screen.verticals[index];
+		int actual_brightness = (int)(brightness*(Table.NUM_LIGHT_LEVELS-1));
+		if (w instanceof Wall) {
+			Wall wall = (Wall) w;
+			wall.wall_texture = wall_texture;
+			wall.skip_wall_texture = skip_wall_texture;
+			wall.wall_brightness = actual_brightness;
+			wall.wall_tiled = tiled;
+		} else if (w instanceof Portal) {
+			Portal portal = (Portal) w;
+			if (portal_texture_type==0) {
+				portal.bottom_texture = wall_texture;
+				portal.bottom_skip_texture = skip_wall_texture;
+				portal.bottom_brightness = actual_brightness;
+				portal.bottom_tiled = tiled;
+			} else if (portal_texture_type==1) {
+				portal.middle_texture = wall_texture;
+				portal.middle_skip_texture = skip_wall_texture;
+				portal.middle_brightness = actual_brightness;
+				portal.middle_tiled = tiled;
+			} else if (portal_texture_type==2) {
+				portal.top_texture = wall_texture;
+				portal.top_skip_texture = skip_wall_texture;
+				portal.top_brightness = actual_brightness;
+				portal.top_tiled = tiled;
+			} else {
+				systemLog("Failed! Incorrect portal texture type.", "worldChangeVerticalVals");
+				return;
+			}
+		}
+    }
+	
+	public void entityUpsertSprite(String sprite_id, double sprite_x_pos, double sprite_y_pos, double sprite_z_pos, double sprite_length, double sprite_brightness, String spritename, String behavior_script, double collision_radius, double direction_rad) {
+		systemLog("Upserting entity " + sprite_id + ".", "entityUpsertSprite");
+		int actual_brightness = (int)(sprite_brightness*(Table.NUM_LIGHT_LEVELS-1));
+		ResourceManager.sprites.put(sprite_id, new Sprite(sprite_id, sprite_x_pos, sprite_y_pos, sprite_z_pos, sprite_length, spritename, behavior_script, actual_brightness, collision_radius, direction_rad));
+	}
+		
+	public void entityRemoveSprite(String sprite_id) {
+		systemLog("Removing entity " + sprite_id + ".", "entityRemoveSprite");
+		ResourceManager.sprites.remove(sprite_id);
 	}
 	
 	public double playerGetPosition(int dimension_number) {
@@ -354,14 +459,39 @@ public class RaccoonAPI {
 		Camera.mouse_sens = sens;
 	}
 	
-	public String saveGameState() {
-		return "Implement Me!";
+	public String inputGetKeyStatus(boolean is_once, String keyname) {
+		return "Implement me!";
 	}
 	
-	public String saveLoadGameState() {
-		return "Implement Me!";
+	public void storeSet(String key, Object val) {
+		systemLog("Storing variable " + key + ".", "storeSet");
+		user_variables.put(key, val);
 	}
 	
+	public Object storeGet(String key) {
+		systemLog("Getting variable " + key + ".", "storeGet");
+		return user_variables.get(key);
+	}
 	
+	public String storeSaveGameState() {
+		return "Implement me!";
+	}
+	
+	public String storeLoadGameState() {
+		return "Implement me!";
+	}
+	
+	public String uiDraw() {
+		return "Implement me!";
+	}
+	
+	public String uiText() {
+		return "Implement me!";
+	}
+	
+	public String userExampleFunc() {
+		systemLog("Calling dummy user function.", "userExampleFunc");
+		return "This is a dummy function. Create your wonderful user-specific functions like this! Feel free to add specific variables you need at the top of this file as well!";
+	}
 	
 }

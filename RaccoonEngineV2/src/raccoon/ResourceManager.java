@@ -43,11 +43,11 @@ public class ResourceManager {
 	public static HashMap<String, Sprite> sprites = new HashMap<>();
 
 	private static String unpackRPK() {
-		return "Implement Me!";
+		return "Implement me!";
 	}
 
 	private static String packRPK() {
-		return "Implement Me!";
+		return "Implement me!";
 	}
 
 	private static void saveResource(File resource, String type) {

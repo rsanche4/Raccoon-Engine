@@ -71,16 +71,32 @@ public class Table {
             PALETTE[232 + i] = (0xFF << 24) | (v << 16) | (v << 8) | v;
         }
     	
+        int middleindex = (NUM_LIGHT_LEVELS/2)-1;
         for (int light = 0; light < NUM_LIGHT_LEVELS; light++) {
-            double factor = (double) light / (NUM_LIGHT_LEVELS - 1);
             for (int i = 0; i < NUM_COLORS; i++) {
                 int color = PALETTE[i];
                 int r = (color >> 16) & 0xFF;
-                int g = (color >> 8) & 0xFF;
-                int b = color & 0xFF;
-                int nr = (int)(r * factor);
-                int ng = (int)(g * factor);
-                int nb = (int)(b * factor);
+                int g = (color >> 8)  & 0xFF;
+                int b =  color        & 0xFF;
+
+                int nr, ng, nb;
+
+                if (light == middleindex) {
+                    nr = r; ng = g; nb = b;
+                } else if (light < 15) {
+                    // black → color
+                    double t = (double) light / 15;
+                    nr = (int)(r * t);
+                    ng = (int)(g * t);
+                    nb = (int)(b * t);
+                } else {
+                    // color → white
+                    double t = (double)(light - 15) / 15;
+                    nr = (int)(r + (255 - r) * t);
+                    ng = (int)(g + (255 - g) * t);
+                    nb = (int)(b + (255 - b) * t);
+                }
+
                 SHADE_TABLE[light][i] = findClosestColorIndex(nr, ng, nb);
             }
         }
