@@ -179,10 +179,10 @@ public class RaccoonAPI {
 		return "Implement me!";
 	}
 	
-	public void worldSetSkybox(String skyboxname, int brightness) {
+	public void worldSetSkybox(String skyboxname, double brightness) {
     	systemLog("Setting skybox to " + skyboxname + ".", "worldSetSkybox");
 		Screen.skybox = skyboxname;
-    	Screen.skybox_brightness = brightness;
+    	Screen.skybox_brightness = (int)(brightness*(Table.NUM_LIGHT_LEVELS-1));
     }
 	
 	public void worldSetSkyboxOffset(int offset) {

@@ -77,7 +77,7 @@ public class ResourceManager {
 			}
 		} else if (type.contentEquals(font_type)) {
 			try {
-		        Font font = Font.createFont(Font.TRUETYPE_FONT, resource).deriveFont(12f);
+		        Font font = Font.createFont(Font.TRUETYPE_FONT, resource).deriveFont(16f);
 		        String font_file_name = resource.getName();
 		        BufferedImage probe = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 		        Graphics2D probe_g = probe.createGraphics();
@@ -95,8 +95,6 @@ public class ResourceManager {
 		            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 		            g.setFont(font);
-		            g.setColor(Color.BLACK);
-		            g.fillRect(0, 0, glyph_width, glyph_height);
 		            g.setColor(Color.WHITE);
 		            g.drawString(char_str, 0, metrics.getAscent());
 		            g.dispose();

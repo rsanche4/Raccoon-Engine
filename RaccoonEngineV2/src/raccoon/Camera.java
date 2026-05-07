@@ -281,10 +281,10 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
         direction_rad -= consumeMouseDX() * mouse_sens;
         direction_rad = ((direction_rad % Table.pi2) + Table.pi2) % Table.pi2;
         pitch -= consumeMouseDY() * pitch_speed;
-        if (isHeld(KeyEvent.VK_PAGE_UP)) {
-        	pitch -= pitch_speed;
-        } else if (isHeld(KeyEvent.VK_PAGE_DOWN)) {
-        	pitch += pitch_speed;
+        if (isHeld(KeyEvent.VK_PAGE_DOWN)) {
+        	pitch -= pitch_speed*2;
+        } else if (isHeld(KeyEvent.VK_PAGE_UP)) {
+        	pitch += pitch_speed*2;
         }
         if (pitch > max_pitch) pitch = max_pitch;
         if (pitch < min_pitch) pitch = min_pitch;
