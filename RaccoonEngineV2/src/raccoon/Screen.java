@@ -258,7 +258,7 @@ public class Screen {
 	    return (z * map_width + x) * 2 + is_vertical;
 	}
 	
-	private double euclidDist(double x1, double z1, double x2, double z2) {
+	public static double euclidDist(double x1, double z1, double x2, double z2) {
 		return Math.sqrt((z2-z1)*(z2-z1)+(x2-x1)*(x2-x1));
 	}
 	

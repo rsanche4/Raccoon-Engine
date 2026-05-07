@@ -62,10 +62,15 @@ public class RaccoonAPI {
 	public void systemLog(String msg, String system_call) { 
 		if (debug_console) {
 			String time = systemWorldTime();
-			System.out.println("[" + time + "] " + system_call + ": " + msg);
+			String output = "[" + time + "] " + system_call + ": " + msg;
+			System.out.println(output);
+			systemConsole(output);
 		}
-		// TODO and all Display the text ALSO to the actual game, like garrys mod. Only output. My own Console.
     }
+	
+	private String systemConsole(String msg) {
+		return "Implement me!";
+	}
 	
 	public String systemWorldTime() {
 		LocalDateTime now = LocalDateTime.now();
@@ -459,8 +464,14 @@ public class RaccoonAPI {
 		Camera.mouse_sens = sens;
 	}
 	
-	public String inputGetKeyStatus(boolean is_once, String keyname) {
-		return "Implement me!";
+	public boolean inputGetKeyStatus(boolean is_once, String keyname) {
+		systemLog("Getting input key status.", "inputGetKeyStatus");
+		Integer vk = Camera.KEY_MAP.get(keyname.toLowerCase());
+	    if (vk == null) {
+	        System.err.println("Unknown key: " + keyname);
+	        return false;
+	    }
+	    return is_once ? Camera.isOnce(vk) : Camera.isHeld(vk);
 	}
 	
 	public void storeSet(String key, Object val) {
