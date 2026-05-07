@@ -178,7 +178,7 @@ public class RaccoonAPI {
 			systemLog("Reading level data.", "worldLoadMap");
 			String maptxt = ResourceManager.level_data.get(mapname);
 			if (maptxt==null) {
-				systemLog("Failed! Map not found.", "worldLoadMap");
+				systemLog("Not a map. Resetting sectors to 0.", "worldLoadMap");
 				return;
 			}
 			String[] lines = maptxt.split("\n");
@@ -428,15 +428,15 @@ public class RaccoonAPI {
 	}
 	
 	public void playerSetPosition(double x, double y, double z, double dir) { 
-    	if (x<0 || y<0 || z<0 || dir<0) {
-    		systemLog("Failed to set player at given position. Negative values.", "playerSetPosition");
+    	if (x<0 || y<0 || z<0 || dir<0 || dir>=Table.pi2) {
+    		systemLog("Failed to set player at given position. Invalid values.", "playerSetPosition");
     		return;
     	}
 		systemLog("Setting player position to [" + x + ", " + y + ", " + z + "]. Direction=" + dir + ".", "playerSetPosition");
     	Camera.player_x = x;
     	Camera.player_y = y;
     	Camera.player_z = z;
-    	Camera.direction_rad = dir % Table.pi2;
+    	Camera.direction_rad = dir;
     }
 	
 	public int playerGetSector() {
@@ -457,6 +457,11 @@ public class RaccoonAPI {
 	public void playerSetPitchSpeed(double pitch_speed) {
 		systemLog("Setting pitch speed to" + pitch_speed + ".", "playerSetPitchSpeed");
 		Camera.pitch_speed = pitch_speed;
+	}
+	
+	public void playerSetFly(boolean fly_on) {
+		systemLog("Setting jetpack to " + fly_on + ".", "playerSetFly");
+		Camera.jetpack = fly_on;
 	}
 	
 	public void inputSetMouseSensitivity(double sens) {

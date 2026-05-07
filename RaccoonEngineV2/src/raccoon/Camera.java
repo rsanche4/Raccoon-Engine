@@ -254,7 +254,11 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
 		return false;
     }
 
-    private boolean isCollision(double val_to_add_x, double val_to_add_z) {
+    private boolean isCollisionVertical(double temp_y) {
+    	return (temp_y>=Screen.sectors[player_sector].ceil_height) || (temp_y<=Screen.sectors[player_sector].floor_height);
+    }
+    
+    private boolean isCollisionHorizontal(double val_to_add_x, double val_to_add_z) {
     	double temp_x = player_x;
 		double temp_z = player_z;
 		temp_x += val_to_add_x;
@@ -266,7 +270,59 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
     }
 
     public void update() {
-    	// TODO
     	tickInput();
+        direction_rad += consumeMouseDX() * mouse_sens;
+        direction_rad = ((direction_rad % Table.pi2) + Table.pi2) % Table.pi2;
+        pitch -= consumeMouseDY();
+        if (pitch > max_pitch) pitch = max_pitch;
+        if (pitch < min_pitch) pitch = min_pitch;
+        if (isHeld(KeyEvent.VK_RIGHT)) {
+            direction_rad = ((direction_rad + turn_speed) % Table.pi2 + Table.pi2) % Table.pi2;
+        } else if (isHeld(KeyEvent.VK_LEFT)) {
+            direction_rad = ((direction_rad - turn_speed) % Table.pi2 + Table.pi2) % Table.pi2;
+        }
+    	
+    	if (Screen.sectors_count!=0) {
+			if (isHeld(KeyEvent.VK_W)) {	
+				if (!isCollisionHorizontal(Math.cos(direction_rad) * (move_speed + buffer_dist), 0)) {
+					player_x += Math.cos(direction_rad) * move_speed;
+				}
+				if (!isCollisionHorizontal(0, Math.sin(direction_rad) * (move_speed + buffer_dist))) {
+					player_z += Math.sin(direction_rad) * move_speed;
+				}
+			} else if (isHeld(KeyEvent.VK_S)) {
+				if (!isCollisionHorizontal(-Math.cos(direction_rad) * (move_speed + buffer_dist), 0)) {
+					player_x -= Math.cos(direction_rad) * move_speed;
+				}
+				if (!isCollisionHorizontal(0, -Math.sin(direction_rad) * (move_speed + buffer_dist))) {
+					player_z -= Math.sin(direction_rad) * move_speed;
+				}
+			}
+			if (isHeld(KeyEvent.VK_D)) {
+				if (!isCollisionHorizontal(Math.cos(direction_rad - Math.PI/2) * (move_speed + buffer_dist), 0)) {
+					player_x += Math.cos(direction_rad - Math.PI/2) * move_speed;
+				}
+				if (!isCollisionHorizontal(0, Math.sin(direction_rad - Math.PI/2) * (move_speed + buffer_dist))) {
+					player_z += Math.sin(direction_rad - Math.PI/2) * move_speed;
+				}
+			} else if (isHeld(KeyEvent.VK_A)) {
+				if (!isCollisionHorizontal(Math.cos(direction_rad + Math.PI/2) * (move_speed + buffer_dist), 0)) {
+					player_x += Math.cos(direction_rad + Math.PI/2) * move_speed;
+				}
+				if (!isCollisionHorizontal(0, Math.sin(direction_rad + Math.PI/2) * (move_speed + buffer_dist))) {
+					player_z += Math.sin(direction_rad + Math.PI/2) * move_speed;
+				}
+			}
+		}
+		
+		if (jetpack) {
+			double temp_y=player_y;
+			if (isHeld(KeyEvent.VK_SPACE)) { temp_y += move_speed; }
+			else if (isHeld(KeyEvent.VK_CONTROL)) { temp_y -= move_speed; }
+			if (!isCollisionVertical(temp_y)) {	player_y = temp_y; }
+		} else {
+			String s = "Implement me!";
+		}
+    	
     }
 }
