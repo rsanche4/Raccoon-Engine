@@ -1,6 +1,7 @@
 package raccoon;
 
 import java.time.LocalDateTime;
+import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,9 +16,14 @@ public class RaccoonAPI {
 
 	private static final RaccoonAPI api_instance = new RaccoonAPI();
     private static HashMap<String, Object> user_variables = new HashMap<>();
-    private static boolean debug_console = true;
+    public static boolean debug_console = true;
+    private String system_font = "system_font.ttf";
+    private static final int CONSOLE_MAX_LINES = 20;
+    private static final ArrayDeque<String> console_lines = new ArrayDeque<>();
+    private static int[] api_game_pixels;
     
-	public static void runUserScripts() {
+	public static void runUserScripts(int[] game_pixels) {
+		api_game_pixels = game_pixels;
 		ResourceManager.active_scripts.sort(Comparator.comparingInt(e -> e.priority));
 		
 		for (int i = 0; i < ResourceManager.active_scripts.size(); i++) {
@@ -68,8 +74,44 @@ public class RaccoonAPI {
 		}
     }
 	
-	private String systemConsole(String msg) {
-		return "Implement me!";
+	private void systemConsole(String msg) {
+		console_lines.addLast(msg);
+	    if (console_lines.size() > CONSOLE_MAX_LINES) {
+	        console_lines.removeFirst();
+	    }
+	}
+	
+	public static void systemDrawConsole() {
+	    if (!debug_console) return;
+	    int line_height = 14;
+	    int x_start = 4;
+	    int y = 4;
+	    for (String line : console_lines) {
+	    	systemDrawConsoleString(line, x_start, y, api_game_pixels);
+	        y += line_height;
+	    }
+	}
+
+	private static void systemDrawConsoleString(String text, int x, int y, int[] game_pixels) {
+	    int cursor_x = x;
+	    for (char c : text.toCharArray()) {
+	        String key = c + "_" + api_instance.system_font;
+	        Texture glyph = ResourceManager.fonts.get(key);
+	        if (glyph == null) continue;
+	        for (int gy = 0; gy < glyph.IMG_HEI; gy++) {
+	            for (int gx = 0; gx < glyph.IMG_WID; gx++) {
+	                int screen_x = cursor_x + gx;
+	                int screen_y = y + gy;
+	                if (screen_x < 0 || screen_x >= Main.GAME_WID) continue;
+	                if (screen_y < 0 || screen_y >= Main.GAME_HEI) continue;
+	                int color = glyph.pixels[gy * glyph.IMG_WID + gx];
+	                if (color >= 0) {
+	                    game_pixels[screen_y * Main.GAME_WID + screen_x] = color;
+	                }
+	            }
+	        }
+	        cursor_x += glyph.IMG_WID + 1;
+	    }
 	}
 	
 	public String systemWorldTime() {
@@ -220,7 +262,15 @@ public class RaccoonAPI {
                 			systemLog("Failed! Your height value is bigger than the world coordinate limit of " + Screen.LIMIT_MAP_COORD + ".", "worldLoadMap");
                 			return;
                 		}
-                		Screen.sectors[sector_id] = new Sector(sector_id, floor_height, ceil_height, parts[3], Integer.parseInt(parts[4]), Double.parseDouble(parts[5]), Boolean.parseBoolean(parts[6]), parts[7], Integer.parseInt(parts[8]), Double.parseDouble(parts[9]), Boolean.parseBoolean(parts[10]));
+                		double floor_brightness = Double.parseDouble(parts[4]);
+                		double ceil_brightness = Double.parseDouble(parts[8]);
+                		if (floor_brightness < 0 || floor_brightness > 1 || ceil_brightness < 0 || ceil_brightness > 1) {
+                			systemLog("Failed! Your brightness value is invalid.", "worldLoadMap");
+                			return;
+                		}
+                		int actual_floor_brightness = (int)(floor_brightness*(Table.NUM_LIGHT_LEVELS-1));
+                		int actual_ceil_brightness = (int)(ceil_brightness*(Table.NUM_LIGHT_LEVELS-1));
+                		Screen.sectors[sector_id] = new Sector(sector_id, floor_height, ceil_height, parts[3], actual_floor_brightness, Double.parseDouble(parts[5]), Boolean.parseBoolean(parts[6]), parts[7], actual_ceil_brightness, Double.parseDouble(parts[9]), Boolean.parseBoolean(parts[10]));
                 		Screen.sectors_count++;
                 	}
                 	case 1 -> {
@@ -240,13 +290,17 @@ public class RaccoonAPI {
                 		}
                 		int sector_id = Integer.parseInt(parts[4]);
                 		String wall_texture = parts[5];
-                		double brightness = Integer.parseInt(parts[6]);
+                		double brightness = Double.parseDouble(parts[6]);
+                		if (brightness < 0 || brightness > 1) {
+                			systemLog("Failed! Your brightness value is invalid.", "worldLoadMap");
+                			return;
+                		}
                 		int actual_brightness = (int)(brightness*(Table.NUM_LIGHT_LEVELS-1));
                 		double tiled = Double.parseDouble(parts[7]);
                 		boolean skip_texture = Boolean.parseBoolean(parts[8]);
                 		int is_vertical;
                 		if (z1 == z2) {
-                			is_vertical = 0;
+                			is_vertical = 1;
                 			Screen.sectors[sector_id].updateSectorBoundary(z1, is_vertical);
                 			int start_x = (int) Math.floor(x1);
                             int end_x = (int) Math.floor(x2);
@@ -255,7 +309,7 @@ public class RaccoonAPI {
                                 Screen.verticals[key] = new Wall(x, z1, x2, z2, sector_id, wall_texture, actual_brightness, tiled, skip_texture);
                             }
                         } else if (x1 == x2) {
-                        	is_vertical = 1;
+                        	is_vertical = 0;
                         	Screen.sectors[sector_id].updateSectorBoundary(x1, is_vertical);
                             int start_z = (int) Math.floor(z1);
                             int end_z = (int) Math.floor(z2);
@@ -283,17 +337,29 @@ public class RaccoonAPI {
                 		int sector_a = Integer.parseInt(parts[4]);
                 		int sector_b = Integer.parseInt(parts[5]);
                 		String bottom_tex = parts[6];
-                		double bottom_brightness = Integer.parseInt(parts[7]);
+                		double bottom_brightness = Double.parseDouble(parts[7]);
+                		if (bottom_brightness < 0 || bottom_brightness > 1) {
+                			systemLog("Failed! Your brightness value is invalid.", "worldLoadMap");
+                			return;
+                		}
                 		int actual_bottom_brightness = (int)(bottom_brightness*(Table.NUM_LIGHT_LEVELS-1));
                 		double bottom_tiled = Double.parseDouble(parts[8]);
                 		boolean bottom_skip_texture = Boolean.parseBoolean(parts[9]);
                 		String middle_tex = parts[10];
-                		double middle_brightness = Integer.parseInt(parts[11]);
+                		double middle_brightness = Double.parseDouble(parts[11]);
+                		if (middle_brightness < 0 || middle_brightness > 1) {
+                			systemLog("Failed! Your brightness value is invalid.", "worldLoadMap");
+                			return;
+                		}
                 		int actual_middle_brightness = (int)(middle_brightness*(Table.NUM_LIGHT_LEVELS-1));
                 		double middle_tiled = Double.parseDouble(parts[12]);
                 		boolean middle_skip_texture = Boolean.parseBoolean(parts[13]);
                 		String top_tex = parts[14];
-                		double top_brightness = Integer.parseInt(parts[15]);
+                		double top_brightness = Double.parseDouble(parts[15]);
+                		if (top_brightness < 0 || top_brightness > 1) {
+                			systemLog("Failed! Your brightness value is invalid.", "worldLoadMap");
+                			return;
+                		}
                 		int actual_top_brightness = (int)(top_brightness*(Table.NUM_LIGHT_LEVELS-1));
                 		double top_tiled = Double.parseDouble(parts[16]);
                 		boolean top_skip_texture = Boolean.parseBoolean(parts[17]);
@@ -302,7 +368,7 @@ public class RaccoonAPI {
                 		Screen.portal_collision_data[sector_b * Screen.sectors_count + sector_a] = is_solid;
                 		int is_vertical;
                 		if (z1 == z2) {
-                			is_vertical = 0;
+                			is_vertical = 1;
                         	Screen.sectors[sector_a].updateSectorBoundary(z1, is_vertical);
                         	Screen.sectors[sector_b].updateSectorBoundary(z1, is_vertical);
                             int start_x = (int) Math.floor(x1);
@@ -312,7 +378,7 @@ public class RaccoonAPI {
                                 Screen.verticals[key] = new Portal(x, z1, x2, z2, sector_a, sector_b, bottom_tex, actual_bottom_brightness, bottom_tiled, bottom_skip_texture, middle_tex, actual_middle_brightness, middle_tiled, middle_skip_texture, top_tex, actual_top_brightness, top_tiled, top_skip_texture);
                             }
                         } else if (x1 == x2) {
-                        	is_vertical = 1;
+                        	is_vertical = 0;
                         	Screen.sectors[sector_a].updateSectorBoundary(x1, is_vertical);
                         	Screen.sectors[sector_b].updateSectorBoundary(x1, is_vertical);
                             int start_z = (int) Math.floor(z1);
@@ -353,6 +419,10 @@ public class RaccoonAPI {
 			systemLog("Failed! Sector ID must be valid.", "worldChangeSectorVals");
 			return;
 		}
+		if (brightness < 0 || brightness > 1) {
+			systemLog("Failed! Invalid brightness.", "worldChangeSectorVals");
+			return;
+		}
     	if (is_floor) {
     		Screen.sectors[sector_id].floor_texture = texture;
     		Screen.sectors[sector_id].floor_tiled = tiled;
@@ -371,6 +441,10 @@ public class RaccoonAPI {
 		int index = Screen.makeWallIndex(x, z, is_vertical);
 		if (index < 0) {
 			systemLog("Failed! Out of bounds index.", "worldChangeVerticalVals");
+			return;
+		}
+		if (brightness < 0 || brightness > 1) {
+			systemLog("Failed! Invalid brightness.", "worldChangeVerticalVals");
 			return;
 		}
 		Object w = Screen.verticals[index];
@@ -459,9 +533,27 @@ public class RaccoonAPI {
 		Camera.pitch_speed = pitch_speed;
 	}
 	
-	public void playerSetFly(boolean fly_on) {
-		systemLog("Setting jetpack to " + fly_on + ".", "playerSetFly");
-		Camera.jetpack = fly_on;
+	public void playerSetFly() {
+		systemLog("Turning on jetpack.", "playerSetFly");
+		Camera.jetpack = true;;
+	}
+	
+	public void playerSetWalk(double floor_offset, double bob_speed, double bob_amount) {
+		systemLog("Turning off jetpack. Setting walking variables.", "playerSetWalk");
+	    Camera.jetpack = false;
+	    Camera.FLOOR_OFFSET = floor_offset;
+	    Camera.BOB_SPEED = bob_speed;
+	    Camera.BOB_AMOUNT = bob_amount;
+	}
+	
+	public void playerSetGravity(double grav) {
+		systemLog("Setting player gravity.", "playerSetGravity");
+		Camera.GRAVITY = grav;
+	}
+	
+	public double playerGetGravity() {
+		systemLog("Getting player gravity.", "playerGetGravity");
+		return Camera.GRAVITY;
 	}
 	
 	public void inputSetMouseSensitivity(double sens) {

@@ -8,6 +8,7 @@ public class Table {
 	public static int USER_SCREEN_SIZE_H = Toolkit.getDefaultToolkit().getScreenSize().height;
 	public static double pi = 3.141592654;
 	public static double pi2 = 2*pi;
+	public static double pi_half_2 = pi/2;
 	public static double MAX_DOUBLE_VAL = 9999999999.99;
 	public static int SKYBOX_WID = Main.GAME_WID * 4;
 	public static int LAST_WID_INDEX = Main.GAME_WID-1;

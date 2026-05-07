@@ -10,7 +10,7 @@ public class JavaSwingRenderer implements Renderer {
     private int[] pixels;
     private BufferedImage image;
     private JFrame frame;
-    private JPanel panel;
+    public JPanel panel;
 
     public JavaSwingRenderer() {
         image = new BufferedImage(Table.USER_SCREEN_SIZE_W, Table.USER_SCREEN_SIZE_H, BufferedImage.TYPE_INT_RGB);

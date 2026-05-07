@@ -3,6 +3,8 @@ package raccoon;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.JPanel;
+
 public class Main implements Runnable {
 
 	public static int frame_num = 0;
@@ -21,11 +23,16 @@ public class Main implements Runnable {
 
     public Main(Renderer renderer) {
         this.renderer = renderer;
-    	thread = new Thread(this, "game_loop_thread");
-    	
+        thread = new Thread(this, "game_loop_thread");
     	ResourceManager.loadData();
-
         camera = new Camera();
+        JPanel panel = ((JavaSwingRenderer) renderer).panel;
+        panel.addKeyListener(camera);
+        panel.addMouseListener(camera);
+        panel.addMouseMotionListener(camera);
+        panel.addMouseWheelListener(camera);
+        panel.setFocusable(true);
+        panel.requestFocusInWindow();
         screen = new Screen();
         running = true;
         thread.start();

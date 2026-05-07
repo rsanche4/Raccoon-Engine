@@ -1,0 +1,10 @@
+[SIZE]
+20 15
+[SECTORS]
+0 0 4 tex.png 0.5 1 false tex.png 0.5 0 true
+[WALLS]
+0 0 19 0 0 tex.png 0.5 1 false
+19 0 19 14 0 tex.png 0.5 1 false
+0 14 19 14 0 tex.png 0.5 1 false
+0 0 0 14 0 tex.png 0.5 1 false
+[PORTALS]

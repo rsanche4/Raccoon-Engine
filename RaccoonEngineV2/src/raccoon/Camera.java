@@ -28,11 +28,19 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
     public static double direction_rad = 0;
     public static double retina_dist = Main.GAME_WID / 2.0;
     public static boolean jetpack = false;
-    public static double move_speed = 0;
-    public static double turn_speed = 0;
-    public static double pitch_speed = 0;
-    public static double mouse_sens = 0;
+    public static double move_speed = 0.08;
+    public static double turn_speed = 0.04;
+    public static double pitch_speed = 1;
+    public static double mouse_sens = 0.005;
 
+    private double velocity_y = 0;
+    private double walk_time = 0;
+    
+    public static double GRAVITY = 0.008;
+    public static double FLOOR_OFFSET = 1.0;
+    public static double BOB_SPEED = 0.15;
+    public static double BOB_AMOUNT = 0.03;
+    
     private final Set<Integer> DOWN_SET = new HashSet<>(); 
     private static Set<Integer> curr = new HashSet<>();  
     private static Set<Integer> prev = new HashSet<>();
@@ -46,10 +54,9 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
     private static final int VK_MOUSE_WHEEL_DOWN = 10_004;
 
     private final double buffer_dist = 0.2;
-    private int pitch = 0;
-    private final int max_pitch = 125;
+    public static double pitch = 0;
+    private final int max_pitch = 200;
     private final int min_pitch = -max_pitch;
-    private final int half_screen_h = Table.half_screen_height;
 
     private Point lastMousePos;
     private Robot robot;
@@ -264,53 +271,65 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
 		temp_x += val_to_add_x;
 		temp_z += val_to_add_z;
 		int possible_sector = Screen.updatePlayerSector(temp_x, temp_z);
-		int sector_a = Math.min(possible_sector, player_sector);
-		int sector_b = Math.max(possible_sector, player_sector);
+		int sector_a = player_sector;
+		int sector_b = possible_sector;
         return (possible_sector<0) || (sector_a!=sector_b && isPortalSolid(sector_a, sector_b)) || (Screen.sectors[possible_sector].floor_height>=player_y) || (player_y>=Screen.sectors[possible_sector].ceil_height) || (collisionWithSprites(temp_x, temp_z));
     }
 
     public void update() {
     	tickInput();
-        direction_rad += consumeMouseDX() * mouse_sens;
+        direction_rad -= consumeMouseDX() * mouse_sens;
         direction_rad = ((direction_rad % Table.pi2) + Table.pi2) % Table.pi2;
-        pitch -= consumeMouseDY();
+        pitch -= consumeMouseDY() * pitch_speed;
+        if (isHeld(KeyEvent.VK_PAGE_UP)) {
+        	pitch -= pitch_speed;
+        } else if (isHeld(KeyEvent.VK_PAGE_DOWN)) {
+        	pitch += pitch_speed;
+        }
         if (pitch > max_pitch) pitch = max_pitch;
         if (pitch < min_pitch) pitch = min_pitch;
+        
         if (isHeld(KeyEvent.VK_RIGHT)) {
-            direction_rad = ((direction_rad + turn_speed) % Table.pi2 + Table.pi2) % Table.pi2;
-        } else if (isHeld(KeyEvent.VK_LEFT)) {
             direction_rad = ((direction_rad - turn_speed) % Table.pi2 + Table.pi2) % Table.pi2;
+        } else if (isHeld(KeyEvent.VK_LEFT)) {
+            direction_rad = ((direction_rad + turn_speed) % Table.pi2 + Table.pi2) % Table.pi2;
         }
-    	
+        
     	if (Screen.sectors_count!=0) {
-			if (isHeld(KeyEvent.VK_W)) {	
-				if (!isCollisionHorizontal(Math.cos(direction_rad) * (move_speed + buffer_dist), 0)) {
+    		if (isHeld(KeyEvent.VK_W)) {	
+    			double step = move_speed + buffer_dist;
+				if (!isCollisionHorizontal(Math.cos(direction_rad) * step, 0)) {
 					player_x += Math.cos(direction_rad) * move_speed;
 				}
-				if (!isCollisionHorizontal(0, Math.sin(direction_rad) * (move_speed + buffer_dist))) {
+				if (!isCollisionHorizontal(0, Math.sin(direction_rad) * step)) {
 					player_z += Math.sin(direction_rad) * move_speed;
 				}
 			} else if (isHeld(KeyEvent.VK_S)) {
-				if (!isCollisionHorizontal(-Math.cos(direction_rad) * (move_speed + buffer_dist), 0)) {
+				double step = move_speed + buffer_dist;
+				if (!isCollisionHorizontal(-Math.cos(direction_rad) * step, 0)) {
 					player_x -= Math.cos(direction_rad) * move_speed;
 				}
-				if (!isCollisionHorizontal(0, -Math.sin(direction_rad) * (move_speed + buffer_dist))) {
+				if (!isCollisionHorizontal(0, -Math.sin(direction_rad) * step)) {
 					player_z -= Math.sin(direction_rad) * move_speed;
 				}
 			}
 			if (isHeld(KeyEvent.VK_D)) {
-				if (!isCollisionHorizontal(Math.cos(direction_rad - Math.PI/2) * (move_speed + buffer_dist), 0)) {
-					player_x += Math.cos(direction_rad - Math.PI/2) * move_speed;
+				double step = move_speed + buffer_dist;
+				double theta = direction_rad - Table.pi_half_2;
+				if (!isCollisionHorizontal(Math.cos(theta) * step, 0)) {
+					player_x += Math.cos(theta) * move_speed;
 				}
-				if (!isCollisionHorizontal(0, Math.sin(direction_rad - Math.PI/2) * (move_speed + buffer_dist))) {
-					player_z += Math.sin(direction_rad - Math.PI/2) * move_speed;
+				if (!isCollisionHorizontal(0, Math.sin(theta) * step)) {
+					player_z += Math.sin(theta) * move_speed;
 				}
 			} else if (isHeld(KeyEvent.VK_A)) {
-				if (!isCollisionHorizontal(Math.cos(direction_rad + Math.PI/2) * (move_speed + buffer_dist), 0)) {
-					player_x += Math.cos(direction_rad + Math.PI/2) * move_speed;
+				double step = move_speed + buffer_dist;
+				double theta = direction_rad + Table.pi_half_2;
+				if (!isCollisionHorizontal(Math.cos(theta) * step, 0)) {
+					player_x += Math.cos(theta) * move_speed;
 				}
-				if (!isCollisionHorizontal(0, Math.sin(direction_rad + Math.PI/2) * (move_speed + buffer_dist))) {
-					player_z += Math.sin(direction_rad + Math.PI/2) * move_speed;
+				if (!isCollisionHorizontal(0, Math.sin(theta) * step)) {
+					player_z += Math.sin(theta) * move_speed;
 				}
 			}
 		}
@@ -321,7 +340,32 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
 			else if (isHeld(KeyEvent.VK_CONTROL)) { temp_y -= move_speed; }
 			if (!isCollisionVertical(temp_y)) {	player_y = temp_y; }
 		} else {
-			String s = "Implement me!";
+		    // gravity
+		    velocity_y -= GRAVITY;
+		    double temp_y = player_y + velocity_y;
+		    double floor = Screen.sectors[player_sector].floor_height + FLOOR_OFFSET;
+
+		    if (temp_y <= floor) {
+		        temp_y = floor;
+		        velocity_y = 0;
+		    }
+
+		    // jump
+		    if (isOnce(KeyEvent.VK_SPACE) && Math.abs(player_y - floor) < 0.05) {
+		        velocity_y = 0.15;
+		    }
+
+		    player_y = temp_y;
+
+		    // bob only when moving and on the floor
+		    boolean on_floor = Math.abs(player_y - floor) < 0.05;
+		    boolean moving = isHeld(KeyEvent.VK_W) || isHeld(KeyEvent.VK_S) || isHeld(KeyEvent.VK_A) || isHeld(KeyEvent.VK_D);
+		    if (on_floor && moving) {
+		        walk_time += BOB_SPEED;
+		        player_y = temp_y + Math.sin(walk_time) * BOB_AMOUNT;
+		    } else {
+		        walk_time = 0;
+		    }
 		}
     	
     }

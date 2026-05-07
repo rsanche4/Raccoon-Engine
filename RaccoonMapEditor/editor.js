@@ -339,8 +339,8 @@ function completeRectangle() {
         currentConfigRect = {
             vertices: vertices,
             lines: [...currentShape],
-            floorHeight: -2,
-            ceilingHeight: 2,
+            floorHeight: 0,
+            ceilingHeight: 4,
             floorTexture: 'floor.png',
             floorBrightness: 1.0,
             floorTiled: 1,
@@ -369,8 +369,8 @@ function completeRectangle() {
         currentConfigRect = {
             vertices: vertices,
             lines: [...currentShape],
-            floorHeight: -2,
-            ceilingHeight: 2,
+            floorHeight: 0,
+            ceilingHeight: 4,
             floorTexture: 'floor.png',
             floorBrightness: 1.0,
             floorTiled: 1,
@@ -652,7 +652,7 @@ async function runManhattanPartitioning() {
     await new Promise(resolve => setTimeout(resolve, 50));
 
     finalSectors = [];
-    let sectorId = 1;
+    let sectorId = 0;
 
     for (const gridRect of gridRectangles) {
         const centerX = (gridRect.minX + gridRect.maxX) / 2;
