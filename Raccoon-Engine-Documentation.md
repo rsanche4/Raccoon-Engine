@@ -645,6 +645,7 @@ Several of the constraints above are deliberate, not accidental, and the commit 
 - Only one `Renderer` implementation exists (`JavaSwingRenderer`); the interface is an extension point, but nothing else implements it yet
 - Requires a real display — verified to throw `HeadlessException` in headless/server/CI environments
 - Single-player only; there is no networking code anywhere in the codebase
+- Wall.java and Portal.java is redundant since we could instead define 1 class: Edge.java and then have a type variable and go from there.
 - `map.txt`'s section order is required but not validated — getting it wrong throws a low-level exception rather than a clear error
 - A hand-authored, non-rectangular sector will confuse the bounding-box-based player-location lookup (not an issue for editor-generated maps, which are always rectangular by construction)
 - The editor's global-coordinate partitioning can inject unexpected seams between unrelated shapes that happen to share a coordinate (see [Manhattan Partitioning](#manhattan-partitioning))
