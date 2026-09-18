@@ -55,7 +55,8 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
 
     private final double buffer_dist = 0.2;
     public static double pitch = 0;
-    private final int max_pitch = 200;
+    // Lives in Table now so the skybox can size its vertical headroom to match.
+    private final int max_pitch = Table.MAX_PITCH;
     private final int min_pitch = -max_pitch;
 
     private Point lastMousePos;

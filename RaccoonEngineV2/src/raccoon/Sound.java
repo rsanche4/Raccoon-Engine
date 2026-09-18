@@ -1,6 +1,8 @@
 package raccoon;
 
 import javax.sound.sampled.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -12,12 +14,32 @@ public class Sound implements AutoCloseable {
     public Sound(File file, boolean loop, float volume) {
         this.looping = loop;
         this.volume = Math.max(0.0f, Math.min(1.0f, volume));
-        playSound(file);
-    }
-    
-    private void playSound(File file) {
         try {
-            AudioInputStream audio_stream = AudioSystem.getAudioInputStream(file);
+            playStream(AudioSystem.getAudioInputStream(file));
+        } catch (Exception e) {
+            reportFailure(e);
+        }
+    }
+
+    /**
+     * Plays straight from WAV bytes in memory. This is the path the engine
+     * actually uses, because assets can come out of a data.rpk where there is
+     * no File to point at.
+     */
+    public Sound(byte[] wav_bytes, boolean loop, float volume) {
+        this.looping = loop;
+        this.volume = Math.max(0.0f, Math.min(1.0f, volume));
+        try {
+            // AudioSystem needs mark/reset to sniff the format, hence the buffer.
+            playStream(AudioSystem.getAudioInputStream(
+                    new BufferedInputStream(new ByteArrayInputStream(wav_bytes))));
+        } catch (Exception e) {
+            reportFailure(e);
+        }
+    }
+
+    private void playStream(AudioInputStream audio_stream) {
+        try {
             clip = AudioSystem.getClip();
             clip.open(audio_stream);
             
@@ -35,9 +57,25 @@ public class Sound implements AutoCloseable {
             }
             
             clip.start();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            // Catch broadly on purpose. A machine with no sound device makes
+            // AudioSystem.getClip() throw IllegalArgumentException, which is
+            // not a LineUnavailableException - letting that escape would take
+            // down whichever Lua script asked for the sound. A game with no
+            // audio should keep running, just silently.
+            reportFailure(e);
         }
+    }
+
+    private void reportFailure(Exception e) {
+        System.err.println("[Sound] Could not play audio (" + e.getClass().getSimpleName()
+                + ": " + e.getMessage() + "). Continuing without sound.");
+        clip = null;
+    }
+
+    /** True while the clip is still playing. */
+    public boolean isPlaying() {
+        return clip != null && clip.isRunning();
     }
     
     public void setVolume(float volume) {

@@ -932,13 +932,13 @@ function downloadMap() {
         output += `${sector.id} ${sector.floorHeight} ${sector.ceilingHeight} ${sector.floorTexture} ${sector.floorBrightness} ${sector.floorTiled} ${sector.floorSkipTexture} ${sector.ceilingTexture} ${sector.ceilingBrightness} ${sector.ceilingTiled} ${sector.ceilingSkipTexture}\n`;
     }
 
-    output += '[WALLS]\n';
+    output += '[BOUNDARIES]\n';
     for (const wall of finalWalls) {
         // Wall(x1, z1, x2, z2, sector_a, wall_texture, wall_brightness, wall_tiled, skip_wall_texture)
         output += `${wall.x1} ${wall.z1} ${wall.x2} ${wall.z2} ${wall.sectorId} ${wall.texture} ${wall.brightness} ${wall.tiled} ${wall.skipTexture}\n`;
     }
 
-    output += '[PORTALS]\n';
+    output += '[EDGES]\n';
     for (const portal of finalPortals) {
         // Portal(x1, z1, x2, z2, sector_a, sector_b, bottom_texture, bottom_brightness, bottom_tiled, bottom_skip_texture, middle_texture, middle_brightness, middle_tiled, middle_skip_texture, top_texture, top_brightness, top_tiled, top_skip_texture)
         output += `${portal.x1} ${portal.z1} ${portal.x2} ${portal.z2} ${portal.sectorA} ${portal.sectorB} ${portal.botTexture} ${portal.botBrightness} ${portal.botTiled} ${portal.botSkip} ${portal.midTexture} ${portal.midBrightness} ${portal.midTiled} ${portal.midSkip} ${portal.topTexture} ${portal.topBrightness} ${portal.topTiled} ${portal.topSkip} ${portal.solid}\n`;

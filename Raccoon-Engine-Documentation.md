@@ -627,6 +627,16 @@ Several of the constraints above are deliberate, not accidental, and the commit 
 - **Transparency, engine-wide.** A `TODO` in `Main.java` flags that the engine has never settled how to handle transparency — of UI elements, or of sprites against their background — and floats the possibility that it may not be needed at all. In practice, the only transparency handling that exists today is binary: `ResourceManager` maps a fully-transparent source pixel to a `-1` "no pixel" sentinel at load time (see [Palette, Shading and Lighting](#palette-shading-and-lighting)); there's no partial alpha or blending anywhere in the render path.
 - **Should `Wall` and `Portal` be one class?** A second `TODO` in `Main.java` calls this "the one part I always got confused by" and asks whether a single class with inheritance could replace both. The two classes do share most of their fields (`x1,z1,x2,z2`, and a texture/brightness/tiled/skip group), with `Portal` additionally tracking a second sector and two extra texture bands (middle/top) beyond the bottom band both classes have — a plausible refactor would be a common base class holding the shared geometry and bottom-band fields, with `Portal` extending it to add `sector_b` and the middle/top bands. Not yet done.
 - **Loading everything into RAM at once.** A `TODO` in `ResourceManager.java` notes this is being worked on but isn't resolved — `loadData()` currently loads every image, font, sound, map, and script into static `HashMap`s up front at startup, with no streaming or lazy-loading path yet.
+- Also lets try to change things so that there is just one Edge.java class instead of Wall or Portal
+- Also the skybox, make it so that when we look up or down, we see more of the skybox, so its not just vertically locked.
+- Allow for loading screens as well that are actually loading stuff in the background
+- Cache the compiled LuaValue chunk per script (and per sprite id) instead of re-parsing the source text every frame
+- Reuse the Globals environment across frames instead of rebuilding the whole Lua stdlib every call
+- (Optional, bigger change) Move to a "parse once, call an update() function every frame" pattern instead of re-running the whole file each time
+- Rendering — portals: Add the early-out: once a portal's remaining vertical opening closes to zero, treat it like a solid wall (return) instead of continuing to march the ray through it
+- Rendering — sprites: Add culling to drawSprites — right now it iterates every sprite in the loaded map every frame regardless of distance or visibility
+- Texture sampling Cache the Texture object once per wall/floor/ceiling span instead of doing a HashMap.get(textureName) on every individual pixel
+- Ensure too that we keep the ability to add stuff to java since Lua might be slow, so we can keep persistance through out
 
 **Architectural constraints** — deliberate tradeoffs, see [Design Tradeoffs](#design-tradeoffs) above:
 - Grid-aligned walls only; no diagonal or angled geometry, no sloped floors/ceilings
@@ -645,7 +655,6 @@ Several of the constraints above are deliberate, not accidental, and the commit 
 - Only one `Renderer` implementation exists (`JavaSwingRenderer`); the interface is an extension point, but nothing else implements it yet
 - Requires a real display — verified to throw `HeadlessException` in headless/server/CI environments
 - Single-player only; there is no networking code anywhere in the codebase
-- Wall.java and Portal.java is redundant since we could instead define 1 class: Edge.java and then have a type variable and go from there.
 - `map.txt`'s section order is required but not validated — getting it wrong throws a low-level exception rather than a clear error
 - A hand-authored, non-rectangular sector will confuse the bounding-box-based player-location lookup (not an issue for editor-generated maps, which are always rectangular by construction)
 - The editor's global-coordinate partitioning can inject unexpected seams between unrelated shapes that happen to share a coordinate (see [Manhattan Partitioning](#manhattan-partitioning))

@@ -11,6 +11,15 @@ public class Table {
 	public static double pi_half_2 = pi/2;
 	public static double MAX_DOUBLE_VAL = 9999999999.99;
 	public static int SKYBOX_WID = Main.GAME_WID * 4;
+	/** How far up/down the view can tilt. Camera clamps pitch to +/- this. */
+	public static int MAX_PITCH = 200;
+	/**
+	 * Recommended skybox height. The extra 2*MAX_PITCH rows are the headroom
+	 * that lets the sky slide vertically as you look up and down. A skybox that
+	 * is exactly GAME_HEI tall still works - it just stays vertically locked,
+	 * exactly like it did before.
+	 */
+	public static int SKYBOX_HEI = Main.GAME_HEI + (2 * MAX_PITCH);
 	public static int LAST_WID_INDEX = Main.GAME_WID-1;
 	public static double[] screen_x;
 	public static double[] ray_offset;
@@ -30,7 +39,6 @@ public class Table {
 	public static int[] PALETTE = new int[NUM_COLORS];
 	public static int NUM_LIGHT_LEVELS = 32;
 	public static int[][] SHADE_TABLE = new int[NUM_LIGHT_LEVELS][NUM_COLORS];
-	public static int[] sky_y = new int[Main.GAME_HEI];
 	public static int SPRITE_NUM_DIRECTIONS = 8;
 	public static double DIRECTIONAL_SLICE_ANGLE = pi2 / SPRITE_NUM_DIRECTIONS;
 	
@@ -52,11 +60,7 @@ public class Table {
     		src_x[x] = (int) (x * inv_scale);
     	}
     	
-    	for (int y = 0; y < Main.GAME_HEI; y++) {
-    		sky_y[y] = y * Main.GAME_HEI / Main.GAME_HEI; 
-    	}
-    	
-        int[] base = {0xFF000000, 0xFF800000, 0xFF008000, 0xFF808000, 0xFF000080, 0xFF800080, 0xFF008080, 0xFFC0C0C0, 0xFF808080, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF0000FF, 0xFFFF00FF, 0xFF00FFFF, 0xFFFFFFFF};
+            int[] base = {0xFF000000, 0xFF800000, 0xFF008000, 0xFF808000, 0xFF000080, 0xFF800080, 0xFF008080, 0xFFC0C0C0, 0xFF808080, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF0000FF, 0xFFFF00FF, 0xFF00FFFF, 0xFFFFFFFF};
         System.arraycopy(base, 0, PALETTE, 0, 16);
         int[] steps = {0x00, 0x5F, 0x87, 0xAF, 0xD7, 0xFF};
         int idx = 16;

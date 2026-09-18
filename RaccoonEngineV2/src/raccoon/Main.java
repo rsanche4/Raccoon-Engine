@@ -24,7 +24,8 @@ public class Main implements Runnable {
     public Main(Renderer renderer) {
         this.renderer = renderer;
         thread = new Thread(this, "game_loop_thread");
-    	ResourceManager.loadData();
+    	// Builds the asset catalog only. Assets themselves load when first used.
+        ResourceManager.index();
         camera = new Camera();
         JPanel panel = ((JavaSwingRenderer) renderer).panel;
         panel.addKeyListener(camera);
@@ -69,8 +70,25 @@ public class Main implements Runnable {
     }
 
     public static void main(String[] args) {
-    	Table.init();
-    	Renderer renderer = new JavaSwingRenderer();
+        // "--pack" writes data/ out as a single data.rpk and exits. Ship the
+        // .rpk on its own; the engine prefers a loose data/ folder when both
+        // are present, so keep developing exactly as before.
+        boolean pack_only = false;
+        for (String arg : args) {
+            if (arg.equals("--pack")) {
+                pack_only = true;
+            }
+        }
+        if (pack_only) {
+            Table.init();
+            ResourceManager.pack_into_rpk = true;
+            ResourceManager.index();
+            System.out.println("[Main] Pack complete.");
+            return;
+        }
+
+        Table.init();
+        Renderer renderer = new JavaSwingRenderer();
         new Main(renderer);
     }
 }
