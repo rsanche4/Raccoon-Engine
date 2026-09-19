@@ -57,7 +57,10 @@ def parse(text: str) -> Dict[str, str]:
         key, _, value = line.partition("=")
         key = key.strip().lstrip("\ufeff")          # strip BOM from Notepad
         value = value.strip().strip('"').strip("'")
-        if key and value and value.upper() != "PLACEHOLDER":
+        # Only the literal template word is skipped. This used to be a
+        # case-insensitive compare, which silently swallowed the perfectly
+        # valid line "ASSET_PROVIDER=placeholder".
+        if key and value and value != "PLACEHOLDER":
             out[key] = value
     return out
 
@@ -99,27 +102,51 @@ def loaded_from() -> Optional[Path]:
 
 
 TEMPLATE = """\
-# Raccoon Engine agent — API keys
+# Raccoon Engine agent - settings and API keys
 # Keep this file OUTSIDE your git repo. Nothing here is ever committed.
-#
-# Only fill in what you actually use. Everything is optional except AWS,
-# and even that is only needed to let the agent think and write scripts.
 
-# --- AWS Bedrock: the agent's brain (required) -----------------------------
+# =========================================================================
+# THE BRAIN - which AI the agent thinks with. Pick ONE.
+# =========================================================================
+# nvidia     FREE, no credit card, no approval wait.  <-- easiest start
+# bedrock    AWS. Needs an account and model access approval.
+# openai     Needs OPENAI_API_KEY.
+# openrouter Needs OPENROUTER_API_KEY.
+# ollama     Runs on your own machine. Free, no key, no internet.
+# custom     Any OpenAI-compatible server (set LLM_BASE_URL yourself).
+LLM_PROVIDER=nvidia
+
+# Free key from build.nvidia.com - takes 2 minutes, no card.
+NVIDIA_API_KEY=PLACEHOLDER
+
+# Leave LLM_MODEL blank to use the default for your provider.
+# NVIDIA examples: nvidia/nemotron-3-super-120b-a12b
+#                  nvidia/nemotron-3-ultra-550b-a55b
+# The model MUST support tool/function calling or the agent cannot work.
+LLM_MODEL=
+
+# =========================================================================
+# AWS - only needed if you set LLM_PROVIDER=bedrock or ASSET_PROVIDER=bedrock
+# =========================================================================
 AWS_REGION=us-west-2
 AWS_ACCESS_KEY_ID=PLACEHOLDER
 AWS_SECRET_ACCESS_KEY=PLACEHOLDER
 
-# --- Asset generation ------------------------------------------------------
-# placeholder = free, instant, offline, no key  (recommended while building)
-# pollinations = free online AI images, no key needed, slower
-# bedrock      = paid AI images, best quality, ~$0.04 each
+# =========================================================================
+# ART AND MUSIC
+# =========================================================================
+# placeholder  free, instant, offline, no key   <-- recommended
+# pollinations free online AI images, no key, slower
+# bedrock      paid AI images through AWS, about $0.04 each
 ASSET_PROVIDER=placeholder
 
-# --- Tavily: market research + web search (optional, free tier) ------------
+# =========================================================================
+# OPTIONAL
+# =========================================================================
+# Market research and web lookups. Free tier at tavily.com.
 TAVILY_API_KEY=PLACEHOLDER
 
-# --- Replicate: AI music (optional; placeholder music is free) -------------
+# Paid AI music. Placeholder music is synthesised locally for free.
 REPLICATE_API_TOKEN=PLACEHOLDER
 """
 

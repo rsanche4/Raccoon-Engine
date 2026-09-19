@@ -24,11 +24,12 @@ import sys
 from pathlib import Path
 from typing import Any, List, Optional
 
-from langchain_aws import ChatBedrockConverse
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.tools import tool
 
-import raccoon_tools as rt   # importing this loads your keys file
+import raccoon_config as cfg
+import raccoon_tools as rt
+from raccoon_llm import LLMSetupError, get_llm
 
 try:
     from tavily import TavilyClient
@@ -36,20 +37,9 @@ except ImportError:
     TavilyClient = None
 
 
-AWS_REGION = os.environ.get("AWS_REGION", "us-west-2")
-BEDROCK_TEXT_MODEL_ID = os.environ.get(
-    "BEDROCK_TEXT_MODEL_ID", "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
-)
-TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")
-
-MAX_BUILD_STEPS = 40   # tool calls allowed per build iteration
+TAVILY_API_KEY = cfg.TAVILY_API_KEY
+MAX_BUILD_STEPS = cfg.MAX_BUILD_STEPS
 BUILD_LOG: List[str] = []
-
-
-def get_llm(temperature: float = 0.4) -> ChatBedrockConverse:
-    return ChatBedrockConverse(
-        model=BEDROCK_TEXT_MODEL_ID, region_name=AWS_REGION, temperature=temperature
-    )
 
 
 # ===========================================================================
@@ -447,9 +437,19 @@ def package_release(slug: str, notes: List[str]) -> None:
 
 def main() -> None:
     print("=== Raccoon Engine Game-Building Agent ===\n")
+    print(cfg.describe())
+    print()
+
     if not rt.ENGINE_DIR.is_dir():
         sys.exit(f"Can't find {rt.ENGINE_DIR}. Run this from the repo root, "
                  f"or set RACCOON_REPO to point at it.")
+
+    # Fail here with something readable rather than deep inside a build.
+    try:
+        get_llm()
+    except LLMSetupError as exc:
+        sys.exit(f"\nCan't set up the model:\n\n{exc}\n\n"
+                 f"Run 'python preflight.py' for a full check.")
 
     raw = load_prompt_file()
     report = run_market_research(raw)

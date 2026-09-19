@@ -34,15 +34,12 @@ import requests
 from PIL import Image
 
 import raccoon_assets as ra
-import raccoon_keys
-
-# Keys come from a plain text file outside the repo. Nothing git can see.
-raccoon_keys.load()
+import raccoon_config as cfg   # single source of truth for every setting
 
 # ---------------------------------------------------------------------------
 # Repo layout
 # ---------------------------------------------------------------------------
-REPO_ROOT = Path(os.environ.get("RACCOON_REPO", ".")).resolve()
+REPO_ROOT = cfg.REPO_ROOT
 ENGINE_DIR = REPO_ROOT / "RaccoonEngineV2"
 ENGINE_SRC = ENGINE_DIR / "src"
 ENGINE_BIN = ENGINE_DIR / "bin"
@@ -73,10 +70,8 @@ SPRITE_NUM_DIRECTIONS = 8
 LIMIT_MAP_COORD = 512
 MAX_NUM_SECTORS = 1024
 
-AWS_REGION = os.environ.get("AWS_REGION", "us-west-2")
-BEDROCK_IMAGE_MODEL_ID = os.environ.get(
-    "BEDROCK_IMAGE_MODEL_ID", "stability.stable-image-core-v1:1"
-)
+AWS_REGION = cfg.AWS_REGION
+BEDROCK_IMAGE_MODEL_ID = cfg.IMAGE_MODEL
 
 # Solid magenta backdrop we ask the model for, then key out for transparency.
 CHROMA_KEY = (255, 0, 255)
@@ -305,8 +300,8 @@ def generate_pic(description: str, filename: str,
 # -- audio ------------------------------------------------------------------
 # The engine reads .wav only (ResourceManager.REQUIRED_EXT for bgm and se).
 # Placeholder audio is synthesised locally: no API, no key, no ffmpeg.
-REPLICATE_API_TOKEN = os.environ.get("REPLICATE_API_TOKEN", "")
-REPLICATE_MUSIC_MODEL = os.environ.get("REPLICATE_MUSIC_MODEL", "meta/musicgen")
+REPLICATE_API_TOKEN = cfg.REPLICATE_API_TOKEN
+REPLICATE_MUSIC_MODEL = cfg.REPLICATE_MUSIC_MODEL
 
 
 def _to_wav(raw: bytes, out: Path) -> bool:

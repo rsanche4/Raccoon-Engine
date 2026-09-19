@@ -459,18 +459,18 @@ def bedrock_image(prompt: str, seed: Optional[int] = None) -> Image.Image:
     body = {"prompt": prompt, "aspect_ratio": "1:1", "output_format": "png"}
     if seed is not None:
         body["seed"] = seed
-    client = boto3.client("bedrock-runtime",
-                          region_name=os.environ.get("AWS_REGION", "us-west-2"))
-    resp = client.invoke_model(
-        modelId=os.environ.get("BEDROCK_IMAGE_MODEL_ID",
-                               "stability.stable-image-core-v1:1"),
-        body=json.dumps(body))
+    import raccoon_config as cfg
+
+    client = boto3.client("bedrock-runtime", region_name=cfg.AWS_REGION)
+    resp = client.invoke_model(modelId=cfg.IMAGE_MODEL, body=json.dumps(body))
     payload = json.loads(resp["body"].read())
     return Image.open(io.BytesIO(base64.b64decode(payload["images"][0])))
 
 
 def provider() -> str:
-    return os.environ.get("ASSET_PROVIDER", "placeholder").strip().lower()
+    # Read live rather than cached, so preflight can flip it for one test.
+    import raccoon_config as cfg
+    return os.environ.get("ASSET_PROVIDER", cfg.ASSET_PROVIDER).strip().lower()
 
 
 def ai_image(prompt: str, seed: Optional[int] = None) -> Image.Image:

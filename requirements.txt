@@ -1,6 +1,10 @@
-boto3>=1.34.0
 langchain-core>=0.3.0
-langchain-aws>=0.2.0
-tavily-python>=0.5.0
+langchain-openai>=0.2.0
 requests>=2.31.0
 Pillow>=10.0.0
+tavily-python>=0.5.0
+
+# Only needed if you use AWS Bedrock (LLM_PROVIDER=bedrock or
+# ASSET_PROVIDER=bedrock). Harmless to install either way.
+boto3>=1.34.0
+langchain-aws>=0.2.0
