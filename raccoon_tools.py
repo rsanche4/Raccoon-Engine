@@ -33,6 +33,12 @@ import boto3
 import requests
 from PIL import Image
 
+import raccoon_assets as ra
+import raccoon_keys
+
+# Keys come from a plain text file outside the repo. Nothing git can see.
+raccoon_keys.load()
+
 # ---------------------------------------------------------------------------
 # Repo layout
 # ---------------------------------------------------------------------------
@@ -155,23 +161,15 @@ def chroma_key(img: Image.Image, key=CHROMA_KEY, tol=CHROMA_TOLERANCE) -> Image.
 
 
 # ===========================================================================
-# 2. ASSET GENERATION — Bedrock (Stability) + music provider
+# 2. ASSET GENERATION — three cost tiers, see raccoon_assets.py
 # ===========================================================================
-def _bedrock_runtime():
-    return boto3.client("bedrock-runtime", region_name=AWS_REGION)
-
-
-def _generate_raw_image(prompt: str, seed: Optional[int] = None) -> Image.Image:
-    """One Stable Image Core call -> a PIL image at the model's native size."""
-    body: Dict = {"prompt": prompt, "aspect_ratio": "1:1", "output_format": "png"}
-    if seed is not None:
-        body["seed"] = seed
-
-    resp = _bedrock_runtime().invoke_model(
-        modelId=BEDROCK_IMAGE_MODEL_ID, body=json.dumps(body)
-    )
-    payload = json.loads(resp["body"].read())
-    return Image.open(io.BytesIO(base64.b64decode(payload["images"][0])))
+#   ASSET_PROVIDER=placeholder   free, instant, offline   <- default
+#   ASSET_PROVIDER=pollinations  free online AI, no key
+#   ASSET_PROVIDER=bedrock       paid AI, ~$0.04 per image
+#
+# Whatever the source, output always goes through the same finishing pass:
+# downscale -> engine palette -> correct folder and dimensions. So switching
+# providers changes quality and cost, never compatibility.
 
 
 def _asset_path(folder: str, filename: str) -> Path:
@@ -183,34 +181,43 @@ def _asset_path(folder: str, filename: str) -> Path:
     return out
 
 
-# -- textures ---------------------------------------------------------------
+def asset_provider() -> str:
+    return ra.provider()
+
+
 PIXEL_STYLE = (
     "retro DOOM-era pixel art, low colour count, flat shading, hard edges, "
     "no text, no watermark, no border"
 )
+CHROMA_KEY = (255, 0, 255)
 
 
+# -- textures ---------------------------------------------------------------
 def generate_texture(description: str, filename: str, size: int = 64) -> str:
-    """Wall/floor/ceiling texture -> data/tex/. Should tile, so we ask for a
-    seamless pattern and fill the whole frame."""
-    prompt = (
-        f"Seamless tileable square texture of {description}. "
-        f"Top-down flat pattern filling the entire frame edge to edge. "
-        f"{PIXEL_STYLE}."
-    )
-    img = _generate_raw_image(prompt)
-    img = quantize_to_engine_palette(pixelate(img.convert("RGB"), size))
+    """Wall/floor/ceiling texture -> data/tex/."""
+    if asset_provider() == "placeholder":
+        img = ra.placeholder_texture(description, size)
+    else:
+        img = ra.ai_image(
+            f"Seamless tileable square texture of {description}. Top-down flat "
+            f"pattern filling the entire frame. {PIXEL_STYLE}.")
+        img = pixelate(img.convert("RGB"), size)
+
+    img = quantize_to_engine_palette(img.convert("RGB"))
     out = _asset_path("tex", filename)
     img.save(out)
-    return f"texture -> {out.relative_to(REPO_ROOT)} ({size}x{size})"
+    return f"texture -> {out.relative_to(REPO_ROOT)} ({size}x{size}, {asset_provider()})"
 
 
 # -- sprites ----------------------------------------------------------------
-# Screen.drawSprites: relative_angle = atan2(player_z - sprite_z,
-# player_x - sprite_x) - direction_rad, sliced into 8 frames laid out
-# left-to-right. Frame 0 is the view with the player straight ahead of the
-# sprite's facing direction, i.e. the FRONT view; each later frame rotates
-# 45 degrees. ResourceManager.validateImage throws unless width == 8 * height.
+# Screen.drawSprites slices (atan2(player_z - sprite_z, player_x - sprite_x)
+# - direction_rad) into 8 frames laid left to right, and
+# ResourceManager.validateImage throws unless width == 8 * height. Frame 0 is
+# the front view; each later frame rotates 45 degrees.
+#
+# The sheet format has no room for animation frames, so an animated sprite is
+# several sheets: name_0.png, name_1.png, ... Swap between them from Lua by
+# calling entityUpsertSprite with the same id and a different spritename.
 SPRITE_VIEW_LABELS = [
     "front view, facing the viewer directly",
     "front three-quarter view, turned 45 degrees to its right",
@@ -223,77 +230,86 @@ SPRITE_VIEW_LABELS = [
 ]
 
 
-def generate_sprite_sheet(description: str, filename: str, size: int = 64) -> str:
-    """Builds an 8-direction sprite sheet -> data/sprites/.
+def generate_sprite_sheet(description: str, filename: str, size: int = 64,
+                          frames: int = 1) -> str:
+    """8-direction sprite sheet(s) -> data/sprites/.
 
-    Makes 8 generations (one per facing) with a shared seed so the character
-    stays recognisable across frames, keys out the magenta backdrop, then
-    tiles them horizontally into the 8*size x size sheet the engine wants.
+    frames > 1 writes name_0.png .. name_(n-1).png for an animation cycle.
+    On the placeholder provider this is free and instant; on a paid provider
+    it costs 8 * frames image generations, so it warns you.
     """
-    seed = int(time.time()) % 4_000_000_000
-    sheet = Image.new("RGBA", (size * SPRITE_NUM_DIRECTIONS, size), (0, 0, 0, 0))
+    stem = Path(filename).stem
+    written = []
 
-    for i, view in enumerate(SPRITE_VIEW_LABELS):
-        prompt = (
-            f"A single {description}, {view}. "
-            f"Full body, centred, standing upright, isolated on a plain solid "
-            f"magenta (#FF00FF) background. Consistent character design. "
-            f"{PIXEL_STYLE}."
-        )
-        frame = _generate_raw_image(prompt, seed=seed)
-        frame = chroma_key(frame)
-        frame = quantize_to_engine_palette(pixelate(frame, size))
-        sheet.paste(frame, (i * size, 0), frame)
+    for f in range(frames):
+        name = f"{stem}.png" if frames == 1 else f"{stem}_{f}.png"
+        out = _asset_path("sprites", name)
 
-    out = _asset_path("sprites", filename)
-    sheet.save(out)
-    return (
-        f"sprite sheet -> {out.relative_to(REPO_ROOT)} "
-        f"({size * SPRITE_NUM_DIRECTIONS}x{size}, 8 facings)"
-    )
+        if asset_provider() == "placeholder":
+            sheet = ra.placeholder_sprite_sheet(description, size, f, frames)
+        else:
+            seed = abs(hash(description)) % 4_000_000_000
+            sheet = Image.new("RGBA", (size * SPRITE_NUM_DIRECTIONS, size),
+                              (0, 0, 0, 0))
+            for i, view in enumerate(SPRITE_VIEW_LABELS):
+                frame = ra.ai_image(
+                    f"A single {description}, {view}. Full body, centred, "
+                    f"isolated on a plain solid magenta (#FF00FF) background. "
+                    f"{PIXEL_STYLE}.", seed=seed)
+                frame = quantize_to_engine_palette(
+                    pixelate(chroma_key(frame), size))
+                sheet.paste(frame, (i * size, 0), frame)
+
+        sheet.save(out)
+        written.append(out.name)
+
+    cost = "" if asset_provider() == "placeholder" else \
+        f", ~${0.04 * 8 * frames:.2f}" if asset_provider() == "bedrock" else ""
+    return (f"sprite sheet -> data/sprites/{', '.join(written)} "
+            f"({size * SPRITE_NUM_DIRECTIONS}x{size}, 8 facings"
+            f"{f', {frames} anim frames' if frames > 1 else ''}, "
+            f"{asset_provider()}{cost})")
 
 
 # -- skybox / pics ----------------------------------------------------------
 def generate_skybox(description: str, filename: str) -> str:
-    """Skybox -> data/skybox/. validateImage requires width == 2560 exactly
-    and height >= 480; 880 gives the full look-up/down range. Generated as a
-    square then stretched, since the engine wraps it horizontally anyway."""
-    prompt = (
-        f"A wide panoramic sky: {description}. Horizon line across the middle. "
-        f"{PIXEL_STYLE}."
-    )
-    img = _generate_raw_image(prompt).convert("RGB")
-    img = img.resize((SKYBOX_WID, SKYBOX_HEI), Image.Resampling.LANCZOS)
-    img = quantize_to_engine_palette(img)
+    """Skybox -> data/skybox/. Must be exactly 2560x880."""
+    if asset_provider() == "placeholder":
+        img = ra.placeholder_skybox(description, SKYBOX_WID, SKYBOX_HEI)
+    else:
+        img = ra.ai_image(f"A wide panoramic sky: {description}. Horizon line "
+                          f"across the middle. {PIXEL_STYLE}.").convert("RGB")
+        img = img.resize((SKYBOX_WID, SKYBOX_HEI), Image.Resampling.LANCZOS)
+
+    img = quantize_to_engine_palette(img.convert("RGB"))
     out = _asset_path("skybox", filename)
     img.save(out)
-    return f"skybox -> {out.relative_to(REPO_ROOT)} ({SKYBOX_WID}x{SKYBOX_HEI})"
+    return f"skybox -> {out.relative_to(REPO_ROOT)} ({SKYBOX_WID}x{SKYBOX_HEI}, {asset_provider()})"
 
 
 def generate_pic(description: str, filename: str,
                  width: int = GAME_WID, height: int = GAME_HEI) -> str:
-    """Full-screen picture (title card, HUD art) -> data/pics/."""
-    prompt = f"{description}. {PIXEL_STYLE}."
-    img = _generate_raw_image(prompt).convert("RGB")
-    img = quantize_to_engine_palette(
-        img.resize((width, height), Image.Resampling.BOX)
-    )
+    """Full-screen picture -> data/pics/."""
+    if asset_provider() == "placeholder":
+        img = ra.placeholder_pic(description, width, height)
+    else:
+        img = ra.ai_image(f"{description}. {PIXEL_STYLE}.").convert("RGB")
+        img = img.resize((width, height), Image.Resampling.BOX)
+
+    img = quantize_to_engine_palette(img.convert("RGB"))
     out = _asset_path("pics", filename)
     img.save(out)
-    return f"pic -> {out.relative_to(REPO_ROOT)} ({width}x{height})"
+    return f"pic -> {out.relative_to(REPO_ROOT)} ({width}x{height}, {asset_provider()})"
 
 
 # -- audio ------------------------------------------------------------------
-# The engine only reads .wav (ResourceManager.REQUIRED_EXT for bgm and se).
+# The engine reads .wav only (ResourceManager.REQUIRED_EXT for bgm and se).
+# Placeholder audio is synthesised locally: no API, no key, no ffmpeg.
 REPLICATE_API_TOKEN = os.environ.get("REPLICATE_API_TOKEN", "")
-REPLICATE_MUSIC_MODEL = os.environ.get(
-    "REPLICATE_MUSIC_MODEL", "meta/musicgen"
-)
+REPLICATE_MUSIC_MODEL = os.environ.get("REPLICATE_MUSIC_MODEL", "meta/musicgen")
 
 
 def _to_wav(raw: bytes, out: Path) -> bool:
-    """Converts whatever the provider returned into a .wav. Uses ffmpeg when
-    it's on PATH; if the bytes are already RIFF we just write them."""
     if raw[:4] == b"RIFF":
         out.write_bytes(raw)
         return True
@@ -301,57 +317,41 @@ def _to_wav(raw: bytes, out: Path) -> bool:
         return False
     tmp = out.with_suffix(".tmp_audio")
     tmp.write_bytes(raw)
-    subprocess.run(
-        ["ffmpeg", "-y", "-i", str(tmp), "-ar", "44100", "-ac", "2", str(out)],
-        capture_output=True, check=False,
-    )
+    subprocess.run(["ffmpeg", "-y", "-i", str(tmp), "-ar", "44100",
+                    "-ac", "2", str(out)], capture_output=True, check=False)
     tmp.unlink(missing_ok=True)
     return out.exists()
 
 
-def _silent_wav(out: Path, seconds: float = 2.0) -> None:
-    """Placeholder track so a missing music provider can't crash the build."""
-    with wave.open(str(out), "w") as w:
-        w.setnchannels(1)
-        w.setsampwidth(2)
-        w.setframerate(22050)
-        w.writeframes(b"\x00\x00" * int(22050 * seconds))
-
-
 def generate_audio(description: str, filename: str, folder: str = "bgm",
                    duration: int = 20) -> str:
-    """Music/SFX -> data/bgm/ or data/se/, always as .wav.
+    """Music or a sound effect -> data/bgm/ or data/se/, always .wav.
 
-    Uses Replicate because it's a single token and a single HTTP endpoint —
-    no SDK, no account plumbing. Swap the block below for ElevenLabs or
-    Mubert and nothing else in the agent has to change.
+    Uses synthesised placeholder audio unless REPLICATE_API_TOKEN is set AND
+    the provider is not 'placeholder'. The placeholder is a real playable
+    track, not silence, so you can judge pacing before paying for music.
     """
     out = _asset_path(folder, filename)
+    use_ai = REPLICATE_API_TOKEN and asset_provider() != "placeholder"
 
-    if not REPLICATE_API_TOKEN:
-        _silent_wav(out)
-        return (f"[no REPLICATE_API_TOKEN] wrote silent placeholder "
-                f"{out.relative_to(REPO_ROOT)} for: {description}")
+    if not use_ai:
+        if folder == "se":
+            ra.placeholder_sfx(description, out)
+            return f"sfx -> {out.relative_to(REPO_ROOT)} (synthesised, free)"
+        ra.placeholder_music(description, out, duration)
+        return f"music -> {out.relative_to(REPO_ROOT)} ({duration}s, synthesised, free)"
 
     try:
         resp = requests.post(
             f"https://api.replicate.com/v1/models/{REPLICATE_MUSIC_MODEL}/predictions",
-            headers={
-                "Authorization": f"Bearer {REPLICATE_API_TOKEN}",
-                "Content-Type": "application/json",
-                "Prefer": "wait",
-            },
-            json={"input": {
-                "prompt": f"{description}, retro video game soundtrack, chiptune",
-                "duration": duration,
-                "output_format": "wav",
-            }},
-            timeout=300,
-        )
+            headers={"Authorization": f"Bearer {REPLICATE_API_TOKEN}",
+                     "Content-Type": "application/json", "Prefer": "wait"},
+            json={"input": {"prompt": f"{description}, retro video game, chiptune",
+                            "duration": duration, "output_format": "wav"}},
+            timeout=300)
         resp.raise_for_status()
         result = resp.json()
 
-        # "Prefer: wait" usually returns a finished prediction; poll if not.
         for _ in range(60):
             if result.get("status") in ("succeeded", "failed", "canceled"):
                 break
@@ -359,27 +359,21 @@ def generate_audio(description: str, filename: str, folder: str = "bgm",
             result = requests.get(
                 result["urls"]["get"],
                 headers={"Authorization": f"Bearer {REPLICATE_API_TOKEN}"},
-                timeout=60,
-            ).json()
+                timeout=60).json()
 
         if result.get("status") != "succeeded":
-            _silent_wav(out)
-            return f"audio generation did not succeed; wrote placeholder at {out.name}"
+            raise RuntimeError(f"status {result.get('status')}")
 
         url = result["output"]
         if isinstance(url, list):
             url = url[0]
-        raw = requests.get(url, timeout=180).content
-
-        if not _to_wav(raw, out):
-            _silent_wav(out)
-            return (f"got audio but could not convert to .wav (install ffmpeg); "
-                    f"wrote placeholder at {out.name}")
-        return f"audio -> {out.relative_to(REPO_ROOT)} ({duration}s)"
+        if not _to_wav(requests.get(url, timeout=180).content, out):
+            raise RuntimeError("could not convert to wav (install ffmpeg)")
+        return f"audio -> {out.relative_to(REPO_ROOT)} ({duration}s, replicate)"
 
     except Exception as exc:  # noqa: BLE001
-        _silent_wav(out)
-        return f"audio generation failed ({exc}); wrote placeholder at {out.name}"
+        ra.placeholder_music(description, out, duration)
+        return f"AI audio failed ({exc}); wrote synthesised placeholder instead"
 
 
 # ===========================================================================
@@ -478,6 +472,33 @@ class _Cell:
     room: Optional[Room]   # None = void
 
 
+def sector_warning(n_cells: int) -> Optional[str]:
+    """Advice, not a veto. Costs worth knowing about:
+
+    * Screen.MAX_NUM_SECTORS defaults to 1024. Above that the map needs
+      RA:worldSetSectorCountLimit(n) called BEFORE worldLoadMap, since
+      worldLoadMap allocates Screen.sectors from that value on entry.
+    * Screen.portal_collision_data is allocated as sectors_count squared
+      booleans, so memory grows quadratically. 2,000 sectors is 4 MB;
+      10,000 is 100 MB; 30,000 is 900 MB and will likely fall over.
+    """
+    if n_cells <= MAX_NUM_SECTORS:
+        return None
+    mb = (n_cells * n_cells) / 1_048_576
+    msg = (f"{n_cells} sectors — above the engine default of {MAX_NUM_SECTORS}. "
+           f"Call RA:worldSetSectorCountLimit({n_cells + 64}) in init.lua "
+           f"BEFORE worldLoadMap, or the load will bail out. "
+           f"Collision table will use about {mb:.0f} MB.")
+    if n_cells > 20000:
+        msg += (" That is very large — expect a slow load and heavy memory use. "
+                "Aligning rooms to shared x/z coordinates cuts far fewer grid "
+                "lines and would reduce this a lot.")
+    elif n_cells > 5000:
+        msg += (" Consider aligning rooms to shared x/z coordinates; every "
+                "distinct coordinate cuts a line across the whole map.")
+    return msg
+
+
 def _covering_room(rooms: List[Room], cx: float, cz: float) -> Optional[Room]:
     for r in rooms:
         if r.x1 <= cx <= r.x2 and r.z1 <= cz <= r.z2:
@@ -549,12 +570,13 @@ def partition(spec: MapSpec) -> Tuple[List[_Cell], int, int]:
     zs = sorted(z for z in zs if 0 <= z <= world_z2)
 
     n_cells = (len(xs) - 1) * (len(zs) - 1)
-    if n_cells > MAX_NUM_SECTORS:
-        raise ValueError(
-            f"partitioning produces {n_cells} sectors, over the engine's limit "
-            f"of {MAX_NUM_SECTORS}. Rooms sharing x/z coordinates cut fewer "
-            f"lines — align them to a common grid, or use fewer rooms."
-        )
+    # No hard cap. The engine's default MAX_NUM_SECTORS is 1024, but
+    # RA:worldSetSectorCountLimit(n) raises it at runtime, so a big map is
+    # allowed — it just has to say so in Lua before loading. We warn instead
+    # of refusing, and write_map tells the agent the exact call to make.
+    warning = sector_warning(n_cells)
+    if warning:
+        print(f"  ! {warning}")
 
     # Step 2: every cell becomes a sector. Void cells included, so the world
     # is tiled with no gaps.
@@ -787,13 +809,15 @@ def write_map(spec_dict: dict, filename: str = "map.txt") -> str:
     project.parent.mkdir(parents=True, exist_ok=True)
     project.write_text(json.dumps(build_editor_project(spec), indent=2))
 
-    n_sectors = text.split("[BOUNDARIES]")[0].strip().splitlines()
-    return (
-        f"map -> {out.relative_to(REPO_ROOT)} "
-        f"({len(n_sectors) - 3} sectors from {len(spec.rooms)} rooms, "
-        f"{len(spec.doorways)} doorways); "
-        f"editable project -> {project.relative_to(REPO_ROOT)}"
-    )
+    n_sectors = len(text.split("[BOUNDARIES]")[0].strip().splitlines()) - 3
+    msg = (f"map -> {out.relative_to(REPO_ROOT)} "
+           f"({n_sectors} sectors from {len(spec.rooms)} rooms, "
+           f"{len(spec.doorways)} doorways); "
+           f"editable project -> {project.relative_to(REPO_ROOT)}")
+    warning = sector_warning(n_sectors)
+    if warning:
+        msg += f"\n  WARNING: {warning}"
+    return msg
 
 
 # ===========================================================================

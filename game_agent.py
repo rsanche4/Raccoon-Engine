@@ -28,13 +28,7 @@ from langchain_aws import ChatBedrockConverse
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.tools import tool
 
-import raccoon_tools as rt
-
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass
+import raccoon_tools as rt   # importing this loads your keys file
 
 try:
     from tavily import TavilyClient
@@ -72,7 +66,9 @@ true 3D). Content is data + Lua. You never write Java.
 
 ASSET FOLDERS (data/), each with a required extension:
   tex/ .png      wall, floor and ceiling textures
-  sprites/ .png  8-direction sprite sheets (width MUST equal 8 * height)
+  sprites/ .png  8-direction sprite sheets (width MUST equal 8 * height).
+                 Animation is separate files (name_0.png, name_1.png, ...)
+                 swapped from Lua, not extra rows in the sheet.
   skybox/ .png   2560x880 exactly
   pics/ .png     full-screen images (title cards, HUD art)
   bgm/ .wav      music        se/ .wav   sound effects
@@ -100,9 +96,14 @@ Rules that matter, because make_map enforces them and will reject you:
   * A doorway must be axis-aligned (x1==x2 or z1==z2) and must lie on the
     shared line.
   * Every distinct x or z coordinate you use cuts a grid line across the
-    WHOLE map, and every grid cell becomes a sector. So rooms at sloppy
-    offsets multiply the sector count fast and can blow the 1024 limit.
-    Align rooms to shared coordinates wherever you can.
+    WHOLE map, and every grid cell becomes a sector. Rooms at sloppy offsets
+    multiply the sector count fast, so align rooms to shared coordinates
+    wherever you can. There is no hard cap, but see the next point.
+  * The engine's default sector limit is 1024. If make_map reports MORE
+    sectors than that, your init.lua MUST call
+    RA:worldSetSectorCountLimit(n) with a number above the reported count,
+    BEFORE worldLoadMap — otherwise the load stops early and most of the
+    map silently goes missing. make_map tells you the exact call to use.
   * Room 0's corner should sit at or near the origin; the world rectangle is
     measured from (0,0).
 
@@ -189,12 +190,15 @@ def make_texture(description: str, filename: str, size: int = 64) -> str:
 
 
 @tool
-def make_sprite_sheet(description: str, filename: str, size: int = 64) -> str:
-    """Generate an 8-direction character/object sprite sheet into
-    data/sprites/. Handles the 8 facings and required dimensions for you.
-    Costs 8 image generations, so use it only for things that need to be
-    seen from multiple angles."""
-    return _log(rt.generate_sprite_sheet(description, filename, size))
+def make_sprite_sheet(description: str, filename: str, size: int = 64,
+                      frames: int = 1) -> str:
+    """Generate an 8-direction sprite sheet into data/sprites/.
+
+    frames > 1 makes an animation cycle, written as name_0.png, name_1.png,
+    and so on — the sheet format has no room for animation, so each frame is
+    its own file. Swap between them from Lua with entityUpsertSprite using
+    the same sprite id and a different spritename."""
+    return _log(rt.generate_sprite_sheet(description, filename, size, frames))
 
 
 @tool
@@ -387,9 +391,11 @@ def build_iteration(prompt: str, n: int) -> str:
         f"iteration {n}.\n{ENGINE_BRIEF}\n"
         "Build the game described below by calling tools, in this order:\n"
         "1. list_existing_assets, so you reuse what's there.\n"
-        "2. Generate only the assets this iteration genuinely needs. Image "
-        "generation costs money — a sprite sheet is 8 generations. Prefer "
-        "reusing a texture over making a near-duplicate.\n"
+        f"2. Generate the assets this iteration needs. Asset provider is "
+        f"'{rt.asset_provider()}'. On 'placeholder' art is free, instant and "
+        f"offline, so generate everything the game needs without hesitating. "
+        f"On 'bedrock' each image costs about $0.04 and a sprite sheet is 8 "
+        f"of them, so be frugal and reuse textures.\n"
         "3. make_map for the level.\n"
         "4. write_lua for init.lua and any behaviour or HUD scripts.\n"
         "5. build_engine, then smoke_test.\n"
