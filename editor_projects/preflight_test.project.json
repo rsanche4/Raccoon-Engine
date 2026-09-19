@@ -1,0 +1,322 @@
+{
+  "userRectangles": [
+    {
+      "vertices": [
+        {
+          "x": 0,
+          "z": 0
+        },
+        {
+          "x": 8,
+          "z": 0
+        },
+        {
+          "x": 8,
+          "z": 8
+        },
+        {
+          "x": 0,
+          "z": 8
+        }
+      ],
+      "lines": [
+        {
+          "x1": 0,
+          "z1": 0,
+          "x2": 8,
+          "z2": 0
+        },
+        {
+          "x1": 8,
+          "z1": 0,
+          "x2": 8,
+          "z2": 8
+        },
+        {
+          "x1": 0,
+          "z1": 8,
+          "x2": 8,
+          "z2": 8
+        },
+        {
+          "x1": 0,
+          "z1": 0,
+          "x2": 0,
+          "z2": 8
+        }
+      ],
+      "floorHeight": 0.0,
+      "ceilingHeight": 4.0,
+      "floorTexture": "tex.png",
+      "floorBrightness": 0.5,
+      "floorTiled": 1,
+      "floorSkipTexture": false,
+      "ceilingTexture": "tex.png",
+      "ceilingBrightness": 0.5,
+      "ceilingTiled": 1,
+      "ceilingSkipTexture": false,
+      "edges": {
+        "north": {
+          "topTexture": "wood.png",
+          "topBrightness": 0.5,
+          "topTiled": 1,
+          "topSkip": false,
+          "midTexture": "wood.png",
+          "midBrightness": 0.5,
+          "midTiled": 1,
+          "midSkip": false,
+          "botTexture": "wood.png",
+          "botBrightness": 0.5,
+          "botTiled": 1,
+          "botSkip": false,
+          "solid": true
+        },
+        "south": {
+          "topTexture": "wood.png",
+          "topBrightness": 0.5,
+          "topTiled": 1,
+          "topSkip": false,
+          "midTexture": "wood.png",
+          "midBrightness": 0.5,
+          "midTiled": 1,
+          "midSkip": false,
+          "botTexture": "wood.png",
+          "botBrightness": 0.5,
+          "botTiled": 1,
+          "botSkip": false,
+          "solid": true
+        },
+        "east": {
+          "topTexture": "wood.png",
+          "topBrightness": 0.5,
+          "topTiled": 1,
+          "topSkip": true,
+          "midTexture": "wood.png",
+          "midBrightness": 0.5,
+          "midTiled": 1,
+          "midSkip": true,
+          "botTexture": "wood.png",
+          "botBrightness": 0.5,
+          "botTiled": 1,
+          "botSkip": true,
+          "solid": false
+        },
+        "west": {
+          "topTexture": "wood.png",
+          "topBrightness": 0.5,
+          "topTiled": 1,
+          "topSkip": false,
+          "midTexture": "wood.png",
+          "midBrightness": 0.5,
+          "midTiled": 1,
+          "midSkip": false,
+          "botTexture": "wood.png",
+          "botBrightness": 0.5,
+          "botTiled": 1,
+          "botSkip": false,
+          "solid": true
+        }
+      }
+    },
+    {
+      "vertices": [
+        {
+          "x": 8,
+          "z": 2
+        },
+        {
+          "x": 14,
+          "z": 2
+        },
+        {
+          "x": 14,
+          "z": 6
+        },
+        {
+          "x": 8,
+          "z": 6
+        }
+      ],
+      "lines": [
+        {
+          "x1": 8,
+          "z1": 2,
+          "x2": 14,
+          "z2": 2
+        },
+        {
+          "x1": 14,
+          "z1": 2,
+          "x2": 14,
+          "z2": 6
+        },
+        {
+          "x1": 8,
+          "z1": 6,
+          "x2": 14,
+          "z2": 6
+        },
+        {
+          "x1": 8,
+          "z1": 2,
+          "x2": 8,
+          "z2": 6
+        }
+      ],
+      "floorHeight": 0.0,
+      "ceilingHeight": 4.0,
+      "floorTexture": "tex.png",
+      "floorBrightness": 0.5,
+      "floorTiled": 1,
+      "floorSkipTexture": false,
+      "ceilingTexture": "tex.png",
+      "ceilingBrightness": 0.5,
+      "ceilingTiled": 1,
+      "ceilingSkipTexture": false,
+      "edges": {
+        "north": {
+          "topTexture": "wood.png",
+          "topBrightness": 0.5,
+          "topTiled": 1,
+          "topSkip": false,
+          "midTexture": "wood.png",
+          "midBrightness": 0.5,
+          "midTiled": 1,
+          "midSkip": false,
+          "botTexture": "wood.png",
+          "botBrightness": 0.5,
+          "botTiled": 1,
+          "botSkip": false,
+          "solid": true
+        },
+        "south": {
+          "topTexture": "wood.png",
+          "topBrightness": 0.5,
+          "topTiled": 1,
+          "topSkip": false,
+          "midTexture": "wood.png",
+          "midBrightness": 0.5,
+          "midTiled": 1,
+          "midSkip": false,
+          "botTexture": "wood.png",
+          "botBrightness": 0.5,
+          "botTiled": 1,
+          "botSkip": false,
+          "solid": true
+        },
+        "east": {
+          "topTexture": "wood.png",
+          "topBrightness": 0.5,
+          "topTiled": 1,
+          "topSkip": false,
+          "midTexture": "wood.png",
+          "midBrightness": 0.5,
+          "midTiled": 1,
+          "midSkip": false,
+          "botTexture": "wood.png",
+          "botBrightness": 0.5,
+          "botTiled": 1,
+          "botSkip": false,
+          "solid": true
+        },
+        "west": {
+          "topTexture": "wood.png",
+          "topBrightness": 0.5,
+          "topTiled": 1,
+          "topSkip": true,
+          "midTexture": "wood.png",
+          "midBrightness": 0.5,
+          "midTiled": 1,
+          "midSkip": true,
+          "botTexture": "wood.png",
+          "botBrightness": 0.5,
+          "botTiled": 1,
+          "botSkip": true,
+          "solid": false
+        }
+      }
+    }
+  ],
+  "worldBoundary": {
+    "vertices": [
+      {
+        "x": 0,
+        "z": 0
+      },
+      {
+        "x": 14,
+        "z": 0
+      },
+      {
+        "x": 14,
+        "z": 8
+      },
+      {
+        "x": 0,
+        "z": 8
+      }
+    ],
+    "lines": [
+      {
+        "x1": 0,
+        "z1": 0,
+        "x2": 14,
+        "z2": 0
+      },
+      {
+        "x1": 14,
+        "z1": 0,
+        "x2": 14,
+        "z2": 8
+      },
+      {
+        "x1": 0,
+        "z1": 8,
+        "x2": 14,
+        "z2": 8
+      },
+      {
+        "x1": 0,
+        "z1": 0,
+        "x2": 0,
+        "z2": 8
+      }
+    ],
+    "floorHeight": 0,
+    "ceilingHeight": 4,
+    "floorTexture": "wood.png",
+    "floorBrightness": 0.5,
+    "floorTiled": 1,
+    "floorSkipTexture": false,
+    "ceilingTexture": "wood.png",
+    "ceilingBrightness": 0.5,
+    "ceilingTiled": 1,
+    "ceilingSkipTexture": false,
+    "walls": {
+      "north": {
+        "texture": "wood.png",
+        "brightness": 0.5,
+        "tiled": 1,
+        "skipTexture": false
+      },
+      "south": {
+        "texture": "wood.png",
+        "brightness": 0.5,
+        "tiled": 1,
+        "skipTexture": false
+      },
+      "east": {
+        "texture": "wood.png",
+        "brightness": 0.5,
+        "tiled": 1,
+        "skipTexture": false
+      },
+      "west": {
+        "texture": "wood.png",
+        "brightness": 0.5,
+        "tiled": 1,
+        "skipTexture": false
+      }
+    }
+  }
+}
