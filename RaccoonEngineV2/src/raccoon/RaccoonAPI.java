@@ -30,7 +30,7 @@ public class RaccoonAPI {
 
 	private static final RaccoonAPI api_instance = new RaccoonAPI();
 	private static HashMap<String, Object> user_variables = new HashMap<>();
-	public static boolean debug_console = true;
+	public static boolean debug_console = false;
 	private String system_font = "system_font.ttf";
 	private static final int CONSOLE_MAX_LINES = 20;
 	private static final ArrayDeque<String> console_lines = new ArrayDeque<>();

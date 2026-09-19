@@ -1,0 +1,204 @@
+{
+  "userRectangles": [
+    {
+      "vertices": [
+        {
+          "x": 0,
+          "z": 0
+        },
+        {
+          "x": 32,
+          "z": 0
+        },
+        {
+          "x": 32,
+          "z": 32
+        },
+        {
+          "x": 0,
+          "z": 32
+        }
+      ],
+      "lines": [
+        {
+          "x1": 0,
+          "z1": 0,
+          "x2": 32,
+          "z2": 0
+        },
+        {
+          "x1": 32,
+          "z1": 0,
+          "x2": 32,
+          "z2": 32
+        },
+        {
+          "x1": 0,
+          "z1": 32,
+          "x2": 32,
+          "z2": 32
+        },
+        {
+          "x1": 0,
+          "z1": 0,
+          "x2": 0,
+          "z2": 32
+        }
+      ],
+      "floorHeight": 0,
+      "ceilingHeight": 8,
+      "floorTexture": "grass.png",
+      "floorBrightness": 0.8,
+      "floorTiled": 1,
+      "floorSkipTexture": false,
+      "ceilingTexture": "wall.png",
+      "ceilingBrightness": 0.8,
+      "ceilingTiled": 1,
+      "ceilingSkipTexture": false,
+      "edges": {
+        "north": {
+          "topTexture": "wall.png",
+          "topBrightness": 0.8,
+          "topTiled": 1,
+          "topSkip": false,
+          "midTexture": "wall.png",
+          "midBrightness": 0.8,
+          "midTiled": 1,
+          "midSkip": false,
+          "botTexture": "wall.png",
+          "botBrightness": 0.8,
+          "botTiled": 1,
+          "botSkip": false,
+          "solid": true
+        },
+        "south": {
+          "topTexture": "wall.png",
+          "topBrightness": 0.8,
+          "topTiled": 1,
+          "topSkip": false,
+          "midTexture": "wall.png",
+          "midBrightness": 0.8,
+          "midTiled": 1,
+          "midSkip": false,
+          "botTexture": "wall.png",
+          "botBrightness": 0.8,
+          "botTiled": 1,
+          "botSkip": false,
+          "solid": true
+        },
+        "east": {
+          "topTexture": "wall.png",
+          "topBrightness": 0.8,
+          "topTiled": 1,
+          "topSkip": false,
+          "midTexture": "wall.png",
+          "midBrightness": 0.8,
+          "midTiled": 1,
+          "midSkip": false,
+          "botTexture": "wall.png",
+          "botBrightness": 0.8,
+          "botTiled": 1,
+          "botSkip": false,
+          "solid": true
+        },
+        "west": {
+          "topTexture": "wall.png",
+          "topBrightness": 0.8,
+          "topTiled": 1,
+          "topSkip": false,
+          "midTexture": "wall.png",
+          "midBrightness": 0.8,
+          "midTiled": 1,
+          "midSkip": false,
+          "botTexture": "wall.png",
+          "botBrightness": 0.8,
+          "botTiled": 1,
+          "botSkip": false,
+          "solid": true
+        }
+      }
+    }
+  ],
+  "worldBoundary": {
+    "vertices": [
+      {
+        "x": 0,
+        "z": 0
+      },
+      {
+        "x": 32,
+        "z": 0
+      },
+      {
+        "x": 32,
+        "z": 32
+      },
+      {
+        "x": 0,
+        "z": 32
+      }
+    ],
+    "lines": [
+      {
+        "x1": 0,
+        "z1": 0,
+        "x2": 32,
+        "z2": 0
+      },
+      {
+        "x1": 32,
+        "z1": 0,
+        "x2": 32,
+        "z2": 32
+      },
+      {
+        "x1": 0,
+        "z1": 32,
+        "x2": 32,
+        "z2": 32
+      },
+      {
+        "x1": 0,
+        "z1": 0,
+        "x2": 0,
+        "z2": 32
+      }
+    ],
+    "floorHeight": 0,
+    "ceilingHeight": 4,
+    "floorTexture": "wood.png",
+    "floorBrightness": 0.5,
+    "floorTiled": 1,
+    "floorSkipTexture": false,
+    "ceilingTexture": "wood.png",
+    "ceilingBrightness": 0.5,
+    "ceilingTiled": 1,
+    "ceilingSkipTexture": false,
+    "walls": {
+      "north": {
+        "texture": "wood.png",
+        "brightness": 0.5,
+        "tiled": 1,
+        "skipTexture": false
+      },
+      "south": {
+        "texture": "wood.png",
+        "brightness": 0.5,
+        "tiled": 1,
+        "skipTexture": false
+      },
+      "east": {
+        "texture": "wood.png",
+        "brightness": 0.5,
+        "tiled": 1,
+        "skipTexture": false
+      },
+      "west": {
+        "texture": "wood.png",
+        "brightness": 0.5,
+        "tiled": 1,
+        "skipTexture": false
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+For this, we will do a very simple game where we are in a field of grass, the sky is blue, and we are surrounded by 4 walls. And we can walk around. Very simple walking-sim. Nothing fancy, just for testing engine.
