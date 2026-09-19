@@ -1,0 +1,6 @@
+# --- append these to your existing .gitignore ---
+.env
+__pycache__/
+*.pyc
+releases/
+RaccoonEngineV2/data.rpk
