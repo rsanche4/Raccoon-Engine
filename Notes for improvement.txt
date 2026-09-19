@@ -1,0 +1,21 @@
+Notes for improvement:
+
+> Explain each component of the engine to the tool so that it knows the map format what each thing means. Etc. We might need to write some documentation so it understands.
+> The whole thing was working well but it had some issues. Somehow it did not know the specifics of using the engine like init.lua being mandatory, etc. It could be just the model not being good enough but thats just a guess.
+> so explain things like that. Also it got stuck on adding a simple Esc button going in loops, it added like 100 scripts of the same attempt at trying to run so somewhere it got confused? Again it could just be the model not knowing enough about how the engine works or the engine itself not working who knows. So the model might not be good enough or context might not be good. We will see or somehow something is broken. Allow it so that it is able to read the engine or errors or anything. But we have to be careful not get broken at the engine because that can happen too. The engine could be turned broken if we are not careful so yeah. Maybe only Lua scripts but if there is an issue in engine we should be able to catch that or something.
+> So we might need visibility to make sure model is actually seeing what it needs to as well. Because somehow it seemed to not see the changes I made locally after I said ok I am not satisfied and I changed this or that etc.
+> Error: LinkageError occurred while loading main class raccoon.Main
+	java.lang.UnsupportedClassVersionError: raccoon/Main has been compiled by a more recent version of the Java Runtime (class file version 69.0), this version of the Java Runtime only recognizes class file versions up to 65.0 So that doesnt even let us run the stuff ourselves
+> Above error happens on Eclipse when I run it after the model did their changes
+> somehow when I change the files the whole Model seems to put them BACK to how they were after i override with my values. Kind of terrible
+> We may also need to somehow teach it what a fully built game looks like in this thing. I might hand it over a fully built custom game.
+> And also if the engine needs to be edited somehow, it should be able to do that is my understanding. In case we find a bug etc. BUt again careful here cuz it could absolutely break the engine like it broke all lua scripts so.
+
+
+
+Other than these issues it ran really well! I DID get a game back and it was really simple and the idea was there. Map was good, assets were good, it was really good so good job on this.
+
+
+
+Claude currently recommended fixes and things, but we basically have to go through the project ourselves. The whole engine basically and check that this is in fact working and not broken just so we know.
+And so that we understand everything. That way we can pass it to the agent so it knows what its doing and not just running random stuff. Make sure I understand.
