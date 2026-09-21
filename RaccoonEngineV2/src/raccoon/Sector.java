@@ -33,8 +33,13 @@ public class Sector {
     }
     
     public void updateSectorBoundary(double val, int orientation) {
-    	if (index_set_boundary_z+index_set_boundary_x >= 6) {
-    		return;
+    	// Every sector is one Manhattan-partition cell: exactly 2 X values and
+    	// 2 Z values. A third on either axis means the map is not valid editor
+    	// output, so refuse it instead of silently ignoring or overflowing.
+    	if ((orientation==0 && index_set_boundary_z >= 4) || (orientation!=0 && index_set_boundary_x >= 2)) {
+    		throw new IllegalStateException("Sector " + ID + " got a third " + (orientation==0 ? "X" : "Z")
+    				+ " boundary value (" + val + "). Each sector must be a single partition cell with exactly "
+    				+ "2 X and 2 Z values. Re-export this map from the editor.");
     	}
     	if (orientation==0) {
     		boundary_coords[index_set_boundary_z]=val;

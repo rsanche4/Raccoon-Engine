@@ -597,7 +597,11 @@ public class RaccoonAPI {
 				switch (selected) {
 					case 0 -> {
 						if (Screen.sectors_count >= Screen.MAX_NUM_SECTORS) {
-							systemLog("Failed! Too many sectors. This means your map is too big. Try simplifying it with less sectors!", "worldLoadMap");
+							System.err.println("[worldLoadMap] FAILED: map '" + mapname + "' has more than "
+									+ Screen.MAX_NUM_SECTORS + " sectors. Raise the cap BEFORE loading with "
+									+ "RA:worldSetSectorCountLimit(n), or simplify the map. The world is now "
+									+ "half-built and will not render correctly.");
+							systemLog("Failed! Too many sectors. Raise the limit with worldSetSectorCountLimit before loading.", "worldLoadMap");
 							return;
 						}
 						int sector_id = Integer.parseInt(parts[0]);
@@ -741,6 +745,11 @@ public class RaccoonAPI {
 				}
 			}
 		} catch (Exception e) {
+			// Deliberately printed to stderr, not just systemLog: systemLog is a
+			// no-op whenever the debug console is off, so a broken map used to
+			// fail completely silently and leave a half-built world behind.
+			System.err.println("[worldLoadMap] FAILED to read '" + mapname + "': " + e);
+			e.printStackTrace();
 			systemLog("Failed to read map data. Exception " + e.getMessage(), "worldLoadMap");
 		}
 	}

@@ -6,7 +6,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class Screen {
 
-	public static int MAX_NUM_SECTORS = 1024;
+	public static int MAX_NUM_SECTORS = 3400;
 	public static int vertical_length;
 	public static Sector[] sectors = null;
 	/** Every grid edge in the map. Nulls are open space. */
@@ -14,7 +14,7 @@ public class Screen {
 	public static int sectors_count = 0;
 	public static int map_width;
 	public static int map_height;
-	public static int LIMIT_MAP_COORD = 512;
+	public static int LIMIT_MAP_COORD = 2000;
 	public static String skybox = null;
 	public static int sky_offset = 0;
 	public static int skybox_brightness = 31;

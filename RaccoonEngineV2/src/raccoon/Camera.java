@@ -335,7 +335,17 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
 			}
 		}
 		
-		if (jetpack) {
+		// No world yet? Then there is no floor to fall onto and no ceiling to
+		// bump into. This is the normal state during a main menu or a loading
+		// screen, and without this guard Camera.update() threw a
+		// NullPointerException on Screen.sectors every single frame before the
+		// first map was loaded. player_sector can also be -1 when the player is
+		// outside every sector, which would index the array with -1.
+		if (Screen.sectors == null || Screen.sectors_count == 0
+				|| player_sector < 0 || player_sector >= Screen.sectors_count) {
+			velocity_y = 0;
+			walk_time = 0;
+		} else if (jetpack) {
 			double temp_y=player_y;
 			if (isHeld(KeyEvent.VK_SPACE)) { temp_y += move_speed; }
 			else if (isHeld(KeyEvent.VK_CONTROL)) { temp_y -= move_speed; }

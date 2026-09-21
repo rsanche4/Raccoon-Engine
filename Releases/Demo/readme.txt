@@ -1,0 +1,1 @@
+This is a sample game. Bare bones simply showing a very basic start up.
