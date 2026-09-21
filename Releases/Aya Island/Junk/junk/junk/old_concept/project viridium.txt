@@ -1,0 +1,15 @@
+You start in the Hub, this is a really huge expanse of doors that extend for a very long distance. We are of course not going to extend too much, we will simply show a subset. And if we extend further then we will reach the next set of doors. Each door is on each side of the hall or big hub location.
+
+and each door has a seed number basically, starting from 0 and goes ofc from negative to positive. All of them are valid.
+
+The idea now is that you as you enter let's say a certain door. This will lead you to the next location, which will generate randomly procedurally we will be smart about this so it feels like all the different levels of the backrooms. 
+
+we will try to collect textures and stuff all possible things we already see from the real world. But anyways we do that, and then we enter. And yeah that's kinda it. It should be a very calming kind of world, where you just get to do whatever you feel like doing.
+
+Ok so far the problem is the vibe this is taking, is a very different vibe from what i had in mind. Which was more something along the lines of my life. And some crazy stuff. 
+
+It taking a very creepy kind of strange game. Like a key into a very strange world. 
+
+I think that should be good enough as we do that. So what we are doing is a really huge complex type of game it seems. Like a huge map, and we are just exploring it all.
+
+I think its ok if there is influence of my life in the making of the map. But its not like fully an autobiography type of thing. like it can just be a big complex, and creepy, but hidden throughout things of my own life.

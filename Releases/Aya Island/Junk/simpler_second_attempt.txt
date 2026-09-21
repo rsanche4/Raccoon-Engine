@@ -1,0 +1,39 @@
+A life simulator game.
+
+Jobs to have, money system, Needs based NPCs all around. Kind of like the sims. Then you can explore the island, and fun stuff can happen there.
+
+You only get to play as 1 character. Of course, you can customize him/her even though we won't see them. (Maybe I still deciding this)
+
+In the island, you can explore it, find stuff, etc. You can buy stuff for your home. There are books you can read. There is an extensive dialogue system for the NPCs. All of that.
+
+There is no age that goes on for each NPC frankly. So they all sort of "live forever". So that's different from the sims. And we have of course the calendar system, all of that is good. We also have the day system so there should be that. A weather system. And a general sense that life goes on.
+
+The player can again, own stuff, explore, have some sort of relationships with the NPCs, get weapons and actually kill them if it needs to, in which case we might have the cops on us, which will send up to jail. And we will be forced to stay there as punishment until released. But there can be a general wariness to us as we are on "parole".
+
+So the idea is that I don't necessarily want you to be out killing innocent civilians BUT if you decide to, you can!
+
+There are animals, a cellphone which allows you to take pictures, and all of that. And again, at the last possible day counter, we have the Priest scene where he essentially reinitializes the clock of the world. Just a fun little in game stuff.
+
+There is also the goat easter egg which is kind of like big foot in the game.
+
+And there is also racoony which is "powering" the whole thing. So THE raccoony.
+
+There should be an AI doing stuff. Like the NPCs should feel very much alive and surprising giving you a new gameplay experience and day to inhabit and do fun things.
+
+So again, think of Sakura School Simulator + Minecraft + The Sims + GTA + Rotoscoping Minimal Aesthetics.
+
+And again, the game is like Minecraft in the sense that it's a "timer killer" like it lets you have fun, and do whatever you want in the game.
+
+You COULD have fun little things in game though. So for example, I am thinking you could have a fun "shooting" mini game where you perhaps hallucinate these shadows in town and it's kind of crazy. That could even be an arcade game! Again, all these fun little things that are kind of cool.
+
+Now again, there is no quests in the traditional sense. In that sense it's like Minecraft. Or the sims.
+
+Now on top of that, I would like very much to add a "content" system, for the NPCs that is a bit dynamic. So the idea is that you can do fun stuff with the NPCs all around, giving that vibe that you are busy doing stuff around the island. These can be fun and unlock some cool dialogue, cool scenes, with the NPCs. All of that stuff gives the player something fun to look forward to. They don't have to be crazy, just immersive.
+
+I think this is a VERY deliverable game.
+
+Since there is randomness involved, we can even ask for a "seed" from the player.
+
+And the art style will be lower pixel retro rotoscope stuff.
+
+Is this from a design perspective a good project? Idk.

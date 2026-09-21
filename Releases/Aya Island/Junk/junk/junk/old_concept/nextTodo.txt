@@ -1,0 +1,24 @@
+- Ok the next thing will be to start the first level, a hub of doors with long hallway, each door will be leading to new areas, etc. So have your fun with this.
+- Also when we make this area, immediately do the first save of the game, and as such allow for continue to actually be shown as an option to play. So allow for that save feature functionality. If no saves detected, then only show New Game, Options, and Quit.
+
+
+
+- We are going to either fix the phantom ray or recreate it to the best of our abilities where does it come up. So do an experiment where we go through the debug room and we do a bit of an epsilon as we pan programmatically around.
+- and the other thing will be to speed up the raycasting logic so its more actual raycasting
+- The other thing is ensure that the graphics of the game are up to speed like they are good and im happy with it
+
+
+And honestly the phantom ray is becoming still a hassle even now. So one solution that is super simple is that listen, we will always be having this issue, we can try to tackle it as much as we want but it will always happen. So instead, i propose this: remove all the fixes we did. Simply let it happen on its full glory. Then, make DDA faster, then ensure that we set the max ray steps to be some sensible amount. And then, what we do is when we reach maxray steps, simply store that specific column for later, wait until everyone is done their thing, and then simply copy from the last column. If we happened to have it on the first column, then just copy the column next to it. So to the right.
+- ANOTHER great solution is to skip this hell entirely and go into integers. Think about it. You dont hit this problem with integers. So rewrite the whole thing there using integers instead.
+
+
+
+- the other thing: i dont know what to put in the picture frame to the left. I wanna put something meaningful there though so. Or maybe something funny could work too. And on the opposite end an elevator. The other thing is that maybe this hall is a bit too dark. So maybe we need to brighten everything. Not sure.
+
+- the art style we will improving on it so dont worry. We will always go back and make it look better etc.
+
+- should we add shooting and crazy stuff like shooting stuff kinda like in the pink valley? Is that what we are shooting for?
+
+- Optimize the HECK out of this engine. Are we using too many resources? Is this acceptable? Or not acceptable? So run these tests.
+
+- engine appears to walk really fast when FPS is fast

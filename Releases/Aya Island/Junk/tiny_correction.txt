@@ -1,0 +1,5 @@
+We will not be using pixel art.
+
+We will be using 3D props on 2D. Side scroller.
+
+And the engine GODOT

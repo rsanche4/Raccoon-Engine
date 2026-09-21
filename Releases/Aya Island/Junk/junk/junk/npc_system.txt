@@ -1,0 +1,228 @@
+Location: where are we in the world and how far each object is from us. This is object dependent. Some objects the farther away but not so far that’s ok. Example: our job.
+
+Advertisement: how each object fullfills the need. 
+
+Relationships: Person1: score. Between -100 and 100. With 0 being neutral for most. And negative being bad. And 100 being good. This could be a 2D array and we can just retrieve it per person. This is not symmetrical.
+
+Personality: Blue, Purple, Brown, Green, Yellow. This will simply affect the weights formula so one thing will have higher weights etc.
+
+Gender: Male, Female
+
+Age: Toddler, Teen, Young Adult, Adult, Elder
+
+For a set A of actions, run the following formula:
+
+Needs = [Hunger, Thirst, Fun]
+A = [Toddler, Teen, YA, Adult, Elder]
+G = 0 is female, 1 is male
+
+
+S = 
+{   
+   L: (12, 2, 15, "Zone A"),
+   O: {"Fridge": {(1, 2, 3),[10, 2, 0]}, "Watch TV": {(5, 5, 9),[0, 0, 10]}, "Bottle": {(9, 9, 14),[0, 10, 0]}, "Talk with Alice": {(),[0,0,15]}},
+   R: {"Bob Ross": -50, "Alice Johnson": 75},
+   A: Teen,
+   G: male,
+   P: 
+}
+
+One thing you could do is people add to certain needs themselves. So objects themselves should prob keep track of
+
+
+action score = 
+
+This is so complicated. Idk.
+
+So let us start with something simple.
+We have the following needs (each one ranges from -100 to 100). With 100 being we have the need met, and -100 is we need to meet this need immediately. Keep in mind some needs should be prioritized over others. The most important ones are here and then go down. The ones in the same bucket are prioritized equally more or less:
+Health
+Thirst
+Hunger 
+Energy
+----
+Shelter
+Hygiene
+----
+Social
+----
+Productivity
+----
+Leisure
+Creativity
+Athletics
+Adventure
+Knowledge
+
+So these are our needs. Every NPC has them. And each need will have its own weights that we need to calculate based on where it's currently at. Each will have its own function. The only inputs  to that weight is Ni and the max stuff on the need etc.
+
+If a certain need cannot be fulfilled or is being fulfilled or the NPC thinks of something whatever we are going to have cute emoticons at the top like the sims comic book diologue character thing but it just shows that NPC's Mood. Basically it ranges through a couple of emotions. Like Happy, Sad, etc. And the idea is that if we dont fulfill the needs the overall mood will be negative. Of course not ALL needs can be fulfilled by the NPCs. This is where the player can come in and help.
+
+Ok the other thing though will be the Utility function. This one is more involved because this one takes an entire state as input cuz it needs to calculate how whatever that object is can best fulfill that need. I think really this function honestly comes baked in with every object. So when we define an object in the world, it will have its "own" of telling you "hey this is how i solve your problem."
+
+I do not think we will have a complex network of relationships because that might be way too difficult to simulate with that many NPCs. We can assume they can talk to whoever is kind of around based on whatever and they fulfill their needs. Not like a crazy memory on each one. Just a regular amount of time they spend in certain places due to their routines and shelter and job specific things I will decide for each basically. We are just simply going to .
+
+Ok so let us begin by defining the place of residence for the NPCs, which ideally should be also the place close to where they work. Refer to the Blueprint.png cuz that has the industry of that NPC along with the zone it's at. Their home will also be around those zones. If there is an industry in more than 1 zone then we can evenly distribute the number of NPCs across the zones. 
+
+So that takes care of that. The next question is ok how do they fulfill their needs.
+
+So Throughout the day as time passes, together with the time of year, The productivity thing will vary depending on the task of that year, their job, whatever needs to be done. Etc. So productivity is time depending and even year dependent.
+
+So each will have its own way of being depleted. Also, this depends on the NPC's own traits etc also that influences how it will be depleted. So that is for depletion etc.
+
+For the weights, this will again be kind of universal but tweaked depending on their traits. So we give certain needs more importance based on that stuff etc.
+
+Ok the biggest question is the utility then. So the first thing is we run through the entire zone, and we ask, ok so we have all of that, lets see, 
+
+So we kinda have to populate with objects. 
+
+Water Bottle: 
+
+Question is though, how do we know where each NPC is at the time of day. We could ofc course simply do it in a very simple way. Ask each NPC in the world the question, run the algorithm. And just do a thing where you ask: Are you at work or are you
+
+
+This is getting kind of complicated. And it won't be noticed by the player at all. Do we REALLY need to?
+
+I think it will be easier to just do a schedule. 
+
+The needs based system is nice but like for example the player never even sees that.
+
+Or maybe the player will see that. Perhaps embedded in that needs based system, you can actually have it so you can help the NPCs become happier. Cuz there are times where they need to go to the player. 
+
+This will be absolutely dynamic. And a really good idea. But the question.
+
+Ok so if this is the case, we obviously are going to need
+
+So i am thinking that in the entire world this will be around the world based on those needs. And you actually help out each one in their own thing and they ask you for help. With their own dynamic dialogue and all. And its just a wacky crazy game overall. I think that would be really cool. 
+
+Ofc the story wise we could also add that to it as well, with a lot of actual scripting encounters. With a lot of content borrowing from Skyrim. So yeah.
+
+Ok so then the question is how we run the needs based system is we run this system every frame for each NPC.
+
+So the thing is, NPCs won't travel.
+
+Can we really run this algorithm?
+
+Unless we run it for 1 NPC every frame. So the first frame runs for 1 NPC. Then we rotate. We basically do a rotation. And we do all that. So we don't run it all at once. We run it little by little. That could work.
+
+It would take around 37.5 seconds for each NPC to "play". I mean that is really cool. What you might see though is that they are using that time and performing that action. So it while the rest are doing stuff those NPCs are kinda there doing their thing. "what about walking to a place?" 
+
+Maybe you can define each NPC differently.
+Some NPCs are in fact running this algorithm globally.
+
+We can run it but we have the pathfinding problem and we have the object check problem as well that dont scale too well. Unless we do it like a schedule. But if we do that then we are not going to do the needs. 
+
+So the object check has a solution which is check nearby zone objects only and prob only within the radius objects. Inside house or zone.
+
+The pathfinding is the biggest question. What you could do is define a navmesh. Which basically all you say is you tell the NPC, hey from here to there you can use this path. Etc. So precompute the directions to each path. And then all you need is a function that takes 1 input and the output path that has been redefined and we are good. NPCs will go to specific places so this can actually work in this particular case. 
+
+Ok so that has been sped up. So now what.
+
+Back to the needs. So the day starts, and we run the algorithm of needs for every NPC. So every NPC looks at its needs, and looks at PLACES. PLACES is where they will fulfill those needs. So all NPCs pick a place.
+
+So we start MACRO. THEN, 
+
+Does this sound like a good idea? Like gameplay wise. We have this whole world, and these NPCs. And time. And we can do whatever, explore areas etc. And we could have missions. But the maps won't be big. The maps could be big I'm just trying to think.
+
+Well, the whole grey world is going to be pretty big. You have a combinations of RPG mechnaics they come in mixed with papers please and like all that. And that can be kinda Persona 5 so yes, I think that will be a fun game for sure.
+
+
+Ok so the game starts and we run the every NPC algorithm for their needs.
+
+We could instead have a schedule for the NPCs. But then it's going to be robotic. The needs system allows them to kinda behave in a certain way. Maybe we could have two modes for the NPCs:
+
+Schedule Mode
+Need Mode
+
+So in Schedule Mode, they are just simply working. So the productivity need is essentially just there. 
+So that is the massive scheduler, that essentially puts them where they need to be. Now when they are working, they are essentially performing their duties and they can't really speak.
+
+Maybe this is overkill. And a better way could be just doing it at random?
+
+Like why does the player care you know what i mean?
+
+Also have you realized you will have to draw
+
+What is the reason for all this complexity in NPC behavior?
+
+Maybe World Immersion. Yeah so the idea of you being the priest absolutely kills it. With coming to ya for help. Yeah. No we are doing this. We need to do this. We will have 2250 type of NPCs. The problem is if players will get bored but i think thats fine. This is all combinations.
+
+But then as we beat every "NPC" demons, we can actually explore the whole town, and understand what is going on in Color Island. With the Devil being an important character. So yes, THIS is kind of really cool. Cuz the games can be very different. So yes. We NEED to do this.
+
+But the question will become this NPC system. 
+
+Ok so no. Do not do it in schedule mode. Only do it with Needs Mode active. And they decide. So 1 NPC runs, and what it does is it checks "Am I in the same map as the player?" The game has many maps, but every NPC will ask that question. And how it can decide that is by looking at its needs where that NPC is
+
+So we need to run this for every NPC.
+
+We need to lower the scope of this game. 2250 NPCs sounds cool but I feel like it's getting out of hand because of the animations.
+
+So what I am going to do is KEEP everything as is but actively select the NPCs that you want to include in your game. And we will use THOSE. So maybe idk. Cuz im worried mainly about animations and stuff but. Sure.
+
+Ok the other thing so we basically we run the Needs algorithm. And the NPCs will go to the places that they need to be at whenever it's necessary.
+
+So what we will do is we start macro. Every NPC simply ends up saying "This place is where I need to go".
+
+So we run a Macro algorithm.
+
+That algorithm simply means that they will say ok like i am hungry. So I will eat this or that. So instead allow each NEED to be at a different "abstraction"
+
+So every need has an abstraction.
+Then within maps, we go lower abstraction with more individual objects.
+
+And again each needs depletes with time so ensure it sort of makes sense. Omg what about the player sleeping. When NPCs sleep thats a thing. And when player sleeps, how do we do that? When the player sleeps, we are going to require the NPCs to kinda do a lot of time steps right? Well its ok because they are going to be really predictable at night. At night, they just immediately go to sleep. I will tune the energy so it makes sense for that.
+
+So:
+A
+B
+C
+D
+E
+F
+G
+H
+
+
+Health
+Thirst
+Hunger 
+Energy
+----
+Shelter
+Hygiene
+----
+Social
+----
+Productivity
+----
+Leisure
+Creativity
+Athletics
+Adventure
+Knowledge
+
+So we essentially need to define the macro zones utility thing on how they fulfill each need. And then sub-zone each individual place how those fulfill each need, and then sub THAT how those fulfill each need.
+
+I think that pretty much sums it all up. I dont think i have any more questions. and ofc each object or abstraction or whatever essentially has its own scores about how it fulfills each need. This is universal so this is a change from before. Before i had it so that each object has its own copy of each person but thats too much work. Rather, the macro zones, objects whatever simply has a look up table universal and thats what it can offer to whatever person. 
+
+Now a person where their individuality comes in is through their weights. Because that weight function is how it prioritizes each need that it needs to fulfill and therefore will also priotize the action. And as such, the weight is what gets the State, age, gender, all that stuff for that NPC. And we do a bit of a decision thing based on that which will yet to be discussed but again, its not difficult to think about.
+
+So the idea is the player will help fulfill the needs of the NPCs. And that will be important. We have a LOT of NPCs. Each kinda running on their own but their needs are not super fulfilled so it's going to be a lot of stuff for the player. So whenever they are unhappy the player can always come help. The player itself will be an object that can help fulfill their needs so I will code them so the player? Maybe idk yet. This stuff is intentionally left a little vague cuz we are right now getting the basic NPC system that ideally makes them be ok but still allows for player to interact and affect things.
+
+Then of course comes the question of the social system. How do we even tackle that? I think the social system is kind of important. But the weights will be based on that.
+
+Because the current problem is that its not enough like the social system if i kill someone they live with, it doesn't matter to them. They will be sad but they dont care about the specific NPC. And thats a problem.
+
+So we would need perhaps a different Utility system altogether. So there is the 
+Regular Utility and Social Utility. 
+
+The Regular Utility kinda broadcasts the stuff to everyone and it just says hey here is my table and this is what the needs are fulfilled. So water bottles, pizzas. That stuff is the same for everybody. Where individuality comes in is again weights being different for each NPC and whatever.
+
+NOW, the Social Utility system is different in the sense that it will be a 2250x2250 type of 2D array. And it basically has the relationship between each NPCs. Most will be 0, but there will be specific NPCs that will have a strong relationship etc. Its assymatrical just like real relationships so yeah. And that is essentially a way of saying ok: if you want to fulfill your social need, NPCs that you know in this array if they are close, they will full it better essentially than say a random stranger. So yeah. Now in the Sims you have a situation where NPCs can be enemies. In this game, that will be too complex. Everybody is trying to fulfill its own needs. So I wouldn't necessarily do like an insulting system or something. BUT their relationship does deplete with time as well if they don't interact often, etc. So think of this as a more complicated kind of NEED that is more discriminatory and depends on the NPC AND it depletes per relationship, per NPC. 
+
+Then, all we need to do is check if those NPCs are nearby, and be like, ok awesome. I have my social need? I am going to fulfill it with them since I already know those NPCs. If no one that they know is nearby they might start a friendship with a new NPC.
+
+Ok, I don't think I left anything out. Anything that could possibly be a problem I thought of. 
+
+Could you please summarize the stuff I just wrote if possible? So I can look at it as : Ok this is the a neat system and here is the doc.
+

@@ -1,0 +1,64 @@
+Lone Gungirl: Perfect quick movement.
+
+Visuals:
+SNES like pixel art palette. Perhaps we will do the style visual retro rotoscoping perfection I wanna make
+
+Controls: (Note make sure it is all smooth and feels good. And the gun feels good)
+Right-click to aim better, also slow down pace
+left-click to shoot
+1 for the Magnum (6 shots, infinite)
+2 for the Molotov
+F for push back
+E for interact
+WASD for movement
+Space for jumping
+
+Ok and essentially we have a time scorer so the idea is to beat it all as fast as possible. And the zombies and director is to stop you. Also, map will change its ways to get through to keep you guessing. Also zombies will be spawned in places you least expect to give you the jumpscare. 1 wrong move, 1 slow move, 1 missed shot and the horde runs you down. Also, only head shots, shooting them in the body stuns them. The idea is that we have: 
+Regular: Just the regular running zombie.
+Shooter: From afar, shoots at you so this is long range.
+Stunner: Makes it hard to see on your screen.
+Hitter: Does extra damage. Also has extra health. Kind of like a tank.
+Bomber: Fat and explodes when shot close, causing you extra damage.
+
+Now the next thing is the levels. I want to do a thing where we have a map as if it were on a board pinned of a school as if on a notebook or a thing and that has basically all the levels as we go through.
+Each is broken down into chapters. And each chapter has levels basically.
+
+Now keep in mind that we want to aim for 10 minutes per sub-level. So for example, 1.1 Building A should take us roughly at least 10 minutes the fastest to complete. So that puts us at: 10*4*5+10*2 = about 3.6 hours.
+
+So we have about 6 chapters total.
+Ch 1: School of the Dead
+   1.1: Building A
+   1.2: Building B
+   1.3: Gymnasium
+   1.4: Campus
+Ch 2: Citywide Chaos
+   2.1: Main Street
+   2.2: Train Station
+   2.3: Shopping Mall
+   2.4: Neighborhood 
+Ch 3: Zombie Condominiums
+   3.1: Parking Lots
+   3.2: Apartment Complex
+   3.3: Return from Apartment Complex
+   3.4: Return from Parking Lots
+Ch 4: Armageddon Highway
+   4.1: Tunnels
+   4.2: Traffic Jam
+   4.3: Bridge
+   4.4: Turnpike
+Ch 5: Undead Countryside
+   5.1: Town
+   5.2: Park
+   5.3: Forest
+   5.4: Shrine
+Ch 6: Death Beach
+   6.1: Beach
+   6.2: Pier
+
+So the biggest thing is of course the main menu. The menu will feature its art. And all that. The art of the main menu 
+
+The aesthetics of the game will be anime stuff so we will have animated anime and stuff we will hire someone in between stages, but during the game it will be retro art and all that good stuff.
+
+Molotovs will be in strategic places all around. The game will be mainly using our gun and we will be good to go. Infinite bullets. The idea is she has them in her bag all the time so yeah.
+
+So the only thing left to do is figure the transition but so far so good.

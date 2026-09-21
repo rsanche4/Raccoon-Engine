@@ -1,0 +1,252 @@
+GIMP Palette
+Name: VGA256
+Columns: 0
+#
+  0   0   0 Untitled
+  8   8   8 Untitled
+ 18  18  18 Untitled
+255 215 215 Untitled
+215 255 215 Untitled
+255 255 215 Untitled
+215 215 255 Untitled
+255 215 255 Untitled
+215 255 255 Untitled
+238 238 238 Untitled
+255 255 255 Untitled
+138 138 138 Untitled
+ 28  28  28 Untitled
+ 48  48  48 Untitled
+ 58  58  58 Untitled
+ 68  68  68 Untitled
+ 78  78  78 Untitled
+ 88  88  88 Untitled
+ 95  95  95 Untitled
+ 98  98  98 Untitled
+108 108 108 Untitled
+118 118 118 Untitled
+128 128 128 Untitled
+135 135 135 Untitled
+ 38  38  38 Untitled
+148 148 148 Untitled
+158 158 158 Untitled
+168 168 168 Untitled
+175 175 175 Untitled
+178 178 178 Untitled
+188 188 188 Untitled
+192 192 192 Untitled
+198 198 198 Untitled
+208 208 208 Untitled
+215 215 215 Untitled
+218 218 218 Untitled
+228 228 228 Untitled
+135  95  95 Untitled
+175 135 135 Untitled
+175  95  95 Untitled
+215 175 175 Untitled
+ 95   0   0 Untitled
+215 135 135 Untitled
+215  95  95 Untitled
+128   0   0 Untitled
+135   0   0 Untitled
+175   0   0 Untitled
+215   0   0 Untitled
+255   0   0 Untitled
+255  95  95 Untitled
+255 135 135 Untitled
+255 175 175 Untitled
+215 135  95 Untitled
+255 135  95 Untitled
+175 135  95 Untitled
+215 175 135 Untitled
+215  95   0 Untitled
+255 175 135 Untitled
+175  95   0 Untitled
+255  95   0 Untitled
+255 135   0 Untitled
+255 175  95 Untitled
+255 215 175 Untitled
+215 175  95 Untitled
+135  95   0 Untitled
+175 135   0 Untitled
+215 135   0 Untitled
+215 175   0 Untitled
+255 175   0 Untitled
+255 215  95 Untitled
+255 215 135 Untitled
+135 135  95 Untitled
+175 175 135 Untitled
+175 175  95 Untitled
+215 215 175 Untitled
+ 95  95   0 Untitled
+215 215 135 Untitled
+215 215  95 Untitled
+128 128   0 Untitled
+135 135   0 Untitled
+175 175   0 Untitled
+215 215   0 Untitled
+255 255   0 Untitled
+255 215   0 Untitled
+215 255   0 Untitled
+255 255  95 Untitled
+255 255 135 Untitled
+255 255 175 Untitled
+175 215   0 Untitled
+175 215  95 Untitled
+ 95 135   0 Untitled
+135 175   0 Untitled
+175 255   0 Untitled
+215 255  95 Untitled
+215 255 135 Untitled
+135 175  95 Untitled
+175 215 135 Untitled
+ 95 175   0 Untitled
+135 215   0 Untitled
+ 95 215   0 Untitled
+135 255   0 Untitled
+ 95 255   0 Untitled
+175 255  95 Untitled
+215 255 175 Untitled
+135 215  95 Untitled
+135 255  95 Untitled
+175 255 135 Untitled
+ 95 135  95 Untitled
+135 175 135 Untitled
+ 95 175  95 Untitled
+175 215 175 Untitled
+  0  95   0 Untitled
+135 215 135 Untitled
+ 95 215  95 Untitled
+  0 128   0 Untitled
+  0 135   0 Untitled
+  0 175   0 Untitled
+  0 215   0 Untitled
+  0 255   0 Untitled
+ 95 255  95 Untitled
+135 255 135 Untitled
+175 255 175 Untitled
+ 95 215 135 Untitled
+  0 255  95 Untitled
+ 95 255 135 Untitled
+135 255 175 Untitled
+ 95 175 135 Untitled
+135 215 175 Untitled
+  0 215  95 Untitled
+ 95 255 175 Untitled
+175 255 215 Untitled
+ 95 215 175 Untitled
+  0 175  95 Untitled
+  0 215 135 Untitled
+  0 255 135 Untitled
+  0 135  95 Untitled
+  0 175 135 Untitled
+  0 215 175 Untitled
+  0 255 175 Untitled
+  0 255 215 Untitled
+ 95 255 215 Untitled
+135 255 215 Untitled
+ 95 135 135 Untitled
+135 175 175 Untitled
+ 95 175 175 Untitled
+175 215 215 Untitled
+  0  95  95 Untitled
+135 215 215 Untitled
+ 95 215 215 Untitled
+  0 128 128 Untitled
+  0 135 135 Untitled
+  0 175 175 Untitled
+  0 215 215 Untitled
+  0 215 255 Untitled
+  0 255 255 Untitled
+ 95 255 255 Untitled
+135 255 255 Untitled
+175 255 255 Untitled
+ 95 175 215 Untitled
+  0  95 135 Untitled
+  0 135 175 Untitled
+  0 175 215 Untitled
+  0 175 255 Untitled
+ 95 215 255 Untitled
+135 215 255 Untitled
+ 95 135 175 Untitled
+135 175 215 Untitled
+  0  95 175 Untitled
+  0 135 215 Untitled
+  0  95 215 Untitled
+  0 135 255 Untitled
+ 95 175 255 Untitled
+175 215 255 Untitled
+ 95 135 215 Untitled
+  0  95 255 Untitled
+ 95 135 255 Untitled
+135 175 255 Untitled
+ 95  95 135 Untitled
+135 135 175 Untitled
+ 95  95 175 Untitled
+175 175 215 Untitled
+  0   0  95 Untitled
+135 135 215 Untitled
+ 95  95 215 Untitled
+  0   0 128 Untitled
+  0   0 135 Untitled
+  0   0 175 Untitled
+  0   0 215 Untitled
+  0   0 255 Untitled
+ 95  95 255 Untitled
+135 135 255 Untitled
+175 175 255 Untitled
+135  95 215 Untitled
+135  95 175 Untitled
+175 135 215 Untitled
+ 95   0 215 Untitled
+135   0 255 Untitled
+ 95   0 255 Untitled
+135  95 255 Untitled
+175 135 255 Untitled
+ 95   0 175 Untitled
+135   0 215 Untitled
+175  95 255 Untitled
+215 175 255 Untitled
+175  95 215 Untitled
+ 95   0 135 Untitled
+135   0 175 Untitled
+175   0 255 Untitled
+215  95 255 Untitled
+215 135 255 Untitled
+175   0 215 Untitled
+135  95 135 Untitled
+175 135 175 Untitled
+175  95 175 Untitled
+215 175 215 Untitled
+ 95   0  95 Untitled
+215 135 215 Untitled
+215  95 215 Untitled
+128   0 128 Untitled
+135   0 135 Untitled
+175   0 175 Untitled
+215   0 215 Untitled
+255   0 255 Untitled
+215   0 255 Untitled
+255   0 215 Untitled
+255  95 255 Untitled
+255 135 255 Untitled
+255 175 255 Untitled
+215  95 175 Untitled
+135   0  95 Untitled
+175   0 135 Untitled
+215   0 175 Untitled
+215   0 135 Untitled
+255   0 175 Untitled
+255  95 215 Untitled
+255 135 215 Untitled
+175  95 135 Untitled
+215 135 175 Untitled
+175   0  95 Untitled
+215   0  95 Untitled
+255   0  95 Untitled
+255   0 135 Untitled
+255  95 175 Untitled
+255 175 215 Untitled
+215  95 135 Untitled
+255  95 135 Untitled
+255 135 175 Untitled
+

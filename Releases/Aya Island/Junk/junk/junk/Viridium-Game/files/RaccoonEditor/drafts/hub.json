@@ -1,0 +1,94 @@
+{
+  "userRectangles": [
+    {
+      "vertices": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 220,
+          "y": 0
+        },
+        {
+          "x": 220,
+          "y": 6
+        },
+        {
+          "x": 0,
+          "y": 6
+        }
+      ],
+      "lines": [
+        {
+          "x1": 0,
+          "y1": 0,
+          "x2": 220,
+          "y2": 0
+        },
+        {
+          "x1": 220,
+          "y1": 0,
+          "x2": 220,
+          "y2": 6
+        },
+        {
+          "x1": 220,
+          "y1": 6,
+          "x2": 0,
+          "y2": 6
+        },
+        {
+          "x1": 0,
+          "y1": 6,
+          "x2": 0,
+          "y2": 0
+        }
+      ],
+      "floorHeight": -2,
+      "ceilingHeight": 2,
+      "floorTexture": "floor.png",
+      "floorBrightness": 1,
+      "ceilingTexture": "ceiling.png",
+      "ceilingBrightness": 1,
+      "edges": {
+        "south": {
+          "topTexture": "black.png",
+          "topBrightness": 1,
+          "midTexture": "black.png",
+          "midBrightness": 1,
+          "botTexture": "black.png",
+          "botBrightness": 1,
+          "solid": 0
+        },
+        "east": {
+          "topTexture": "black.png",
+          "topBrightness": 1,
+          "midTexture": "black.png",
+          "midBrightness": 1,
+          "botTexture": "black.png",
+          "botBrightness": 1,
+          "solid": 0
+        },
+        "north": {
+          "topTexture": "black.png",
+          "topBrightness": 1,
+          "midTexture": "black.png",
+          "midBrightness": 1,
+          "botTexture": "black.png",
+          "botBrightness": 1,
+          "solid": 0
+        },
+        "west": {
+          "topTexture": "black.png",
+          "topBrightness": 1,
+          "midTexture": "black.png",
+          "midBrightness": 1,
+          "botTexture": "black.png",
+          "botBrightness": 1,
+          "solid": 0
+        }
+      }
+    }
+  ]
+}

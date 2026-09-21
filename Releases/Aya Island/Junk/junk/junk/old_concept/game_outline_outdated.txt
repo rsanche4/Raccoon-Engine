@@ -1,0 +1,66 @@
+Players jump in the game right away. No fanfare nothing. Very Yume Nikki like. The opening is just the menu and boom.
+
+The music is something akin to brain waves.
+
+And at random times we see color patterns be shown on screen. At the bottom all rights reserved my name.
+
+It should be very mysterious.
+
+Note: We are going to do programmer art. Then we will improve on it once we have a more stable product.
+
+The idea is that it's a Arcade Cabinet shooter game of the era that maybe never resurfaced. And it has a whole lot of all stories. It's strange. it's weird. Abstract. What is GOING on type of shit. With bizarre colors. And again the game can either be super nice and friendly towards everyone. Its got the whole map. Or it can become a living hell that is horrendous. Or somewhere in the middle. It's a really huge map. And you get to choose what you want type of thing. There is no ulterior purpose other than what you decide to do. The entire world is open to you from the very beginning. Not locked or something of the sort. It is a huge world though, with many places to explore type of thing. It's a nice mini world in a way.
+
+And of course in that, you also have access to a lot of other things. For example, a lot of the stories I wanted to tell all of that are included. Everything for every other thing. It's essentially all as one.
+
+And the idea is how this speaks to me is very much about what im trying to figure out.
+
+I guess the bigger question is what is the overall goal of this game. 
+
+Well I am thinking just a big exploration type of thing. But there is a safe file that I guess shows the completion of the game.
+
+There is a lot of stuff that is made in a way. We have an entire world and in that entire world, we have the NPCs. And you can again hand over flowers or kill them. As we explore the world and witness every single NPC here, we choose whether we want to Love or Kill them basically. As we do so, And there is a lot of NPCs out there, our bar starts to go or our game starts to change basically. 
+
+Actually maybe not.
+Ultimately I am struggling on what kind of game i wanna make.
+
+I think we could go for a game where we can choose at first between a gun or a flower.
+I like the idea that there are NPCs in this massive world. And that somehow this world is massive enough to contain mathematical questions and weird worlds, my dreams, my life history, and anything fun i can think of. Even cameos or places I've liked. Procedural in some way or not. Or maybe just massive enough.
+
+I guess the overall point is to find every core memory in the entire game. Every single "special place" if that makes sense which is really a life event or something fun for me. 
+
+Now the bar is basically keeping track of as you explore this whole world and all these "cores" around, and you find more and more of them, you can also choose to kill the NPCs blocking your way or lying around, give them flowers (which sometimes helps sometimes it doesn't), or ignore them. 
+
+So you end up with 3 endings. The Red Ending (If you kill), The Green Ending (if you dont), and The White Ending (if you ignore).
+
+If the bar was this (and we start at 0): -100 to 100, 
+then -100 to -50 would be the Red Ending. 
+-50 to 50 would be the White Ending.
+Then 50 to 100 would be the Green Ending.
+This scale helps the game understand at what level of game are we right now. Which gameplay style are we really into?
+
+The game itself is progressing basically by finding all these things we need to find in the entire world. And they basically unlock our memory.
+
+That's maybe the main kinda path, but there are various ways of getting there.
+
+The infinity sign is a symbol for the infinite nature of thought and how it feels infinite. The game although has an ending once you have found everything, the idea is that no two playthroughs should be the same if that makes sense.
+
+and we can essentially add a procedural nature of it.
+
+
+-------------------------------------------------------
+Ok so i did a couple of changes:
+The menu starts. And if you click New Game it points you to this vast world we will define. No seed. Cuz then procedural takes away from handcrafted beauty. BUT it will be a very big world to explore. We are going away from arcade feel, but it should feel explorable at least.
+
+This world will be vast, it will be different surreal biomes that I myself I basically recall from my life. So some of it is personal, some of it based on my memories of my life, some of it is just interesting stuff I've been wondering about, and other is just other cool stuff. This whole world is then connected of course through its door system, then this world is also inhabited with NPCs. 
+
+The point is you advance, and as you advance you can choose to ignore, kill, or love the NPCs. Of all living creatures. This will give you the score that will either get u to closer to negative side, the positive side, or stay in the middle, each altering the gameplay. So for example the negative side makes the game more violent, more shooter like, more bloody, horror, blood, gore etc. The positive more cheerful more lovey dovey, and just generally wholesome. The one in the middle doesn't lead to much per se. it's very indifferent from others. It might even cause less NPCs to spawn and be more empty.
+
+You have a flower and a gun. If you shoot them, that means kill. If you give them a flower, that means love. Doing nothing well, means nothing.
+
+You also have health of course. And that health will go down as they attack u throughout etc. If u die u get reloaded to latest save. Oh also. Save happens when you visit either a saveroom or a thing. Save needs to still be ironed out cuz i gotta be careful in case players abuse the save feature. ALSO talk about this save feature situation.
+
+The point is that can lead to different 3 endings once u collect all the things u needed to. or u completed ur mission. The Red Ending, the White Ending, or The Green Ending. 
+
+Now with this morality dilemma, the world itself will become accessible as we advance through this thing. So for example only certain doors or certain places will open up as we either are nice or kill. So where you are morally is also where u will go physically. Obviously this affects also your choices in the guns or flowers, the NPCs behaviors, the aesthetics of the game, even the whole vibe. All of that for sure is also onto this. 
+
+Ok so if we did that, the question becomes ok what happens if player "switches" right cuz as the game becomes that more and more, we definitely want it to be not locking the player or anything on a type of gameplay. it should feel "natural" if that makes sense.

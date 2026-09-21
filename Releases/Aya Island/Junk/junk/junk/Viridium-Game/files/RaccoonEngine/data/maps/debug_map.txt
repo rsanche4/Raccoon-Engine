@@ -1,0 +1,8 @@
+[SECTORS]
+1 -2 2 white.png 1 white.png 1
+[WALLS]
+0 0 10 0 1 white.png 1
+10 0 10 10 1 white.png 1
+0 10 10 10 1 white.png 1
+0 0 0 10 1 white.png 1
+[PORTALS]

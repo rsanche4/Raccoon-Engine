@@ -1,0 +1,8 @@
+[SECTORS]
+1 -2 2 carpet.png 0.4 concrete.png 0.1
+[WALLS]
+0 0 220 0 1 concrete_open_tunnel.png 0.08
+220 0 220 6 1 concrete.png 0.12
+0 6 220 6 1 concrete.png 0.2
+0 0 0 6 1 concrete.png 0.14
+[PORTALS]

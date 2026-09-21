@@ -1,0 +1,52 @@
+Hour: 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+
+So we decided that each day would be 24 minutes in real. So each hour in game is 1 minute in real life.
+And essentially the day starts at 00. 
+So the actual day for us starts at 6 am. 
+So the game hour at 00 is basically 6 am.
+00 - 6 am
+01 - 7 am
+02 - 8 am
+03 - 9 am
+04 - 10 am
+05 - 11 am
+06 - 12 pm
+07 - 1 pm
+08 - 2 pm
+09 - 3 pm
+10 - 4 pm
+11 - 5 pm
+12 - 6 pm
+13 - 7 pm
+14 - 8 pm
+15 - 9 pm
+16 - 10 pm
+17 - 11 pm
+18 - 12 am
+19 - 1 am
+20 - 2 am
+21 - 3 am
+22 - 4 am
+23 - 5 am
+
+And each one lasts 1 minute. So simply get the frames per second we got, and simply calculate by getting the FPS we need and divide. 
+So we have it at 60 frames per second.
+So get the initial frame num we started the game at, and now from there count 60 frames. Once we reach 60 frames 1 second passed in the real world. We count 60 seconds for those 60 frames. So actually do it like this. , so 60*60 = 3600 frames basically since we started and that is 1 minute in the real world, and as such 1 hour passed in game. So the hour time would essentially be in this format:
+00:3498 for example. So the first is just the hour and the second is the number of frames in that hour.
+So yes that is cool. Problably not the best method but that is good enough for me.
+Oh! I forgot. Let's do it like this actually: Actually after 60 frames, up 1 number that is supposed to be the number of minutes. That is pretty good for me.
+55:23:59
+
+So the first number is the day of the year in game. So essentially this has all the info that we need.
+0 - 55 is the day of the year index.
+0 - 23 is the hour of the day.
+0 - 59 is the minutes in that hour.
+
+So for example say that we started the game at frame num 1340
+And now we need to start counting, and lets say that 4500 frames passed by. So that corresponds:
+4500 - 1340 = 3160
+So the counter started basically at that is 60*23*56 = 77280 frames in 1 year.
+So the counter started as :
+0:0:0
+
+and the moment we started it went. And as it went up the minutes went up every 60 frames.

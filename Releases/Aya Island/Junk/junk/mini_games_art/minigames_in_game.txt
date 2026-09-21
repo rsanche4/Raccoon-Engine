@@ -1,0 +1,57 @@
+at first we will have it be just a white room, with squares of course. you walk around, and you see an arcade machine. To which you play a game. TankVSAliens.
+Amd you basically play the game. This is a good MVP because it has menu, it has all of that stuff. Transitioning. Etc.
+
+Possible Mini Games:
+- Tank vs Aliens
+- Dead Shot Girl (Improved Fun gameplay version)
+- Blot Dodge
+- Polybius
+- A slot machine game. Where you run slot and get money
+- Spookys House of Jumpscare inspired Arcade Game
+- ofc there is also all the other systems in the world that you can also have fun with.
+- Dance game
+- Betting on horse races or some games like that
+- shooting range game
+
+
+
+
+Honestly, let's just do Dead Shot Girl or Lone Gungirl.
+
+And basically they are running around trying to get out.
+
+Cuz the thing is I already got everything working pretty well, and it is a really fun arcade game.
+
+We do a nice cute intro that really sells it.
+
+Survive for as long as possible is the goal.
+
+So the game is simple:
+feature 3 maps:
+Rooftop
+School Hallways
+Outside Campus
+
+You play the game and it gets harder as you survive longer, similar to LFD Survival
+
+You get powerups that sometimes make it fun. Like HEALTH MAX, BUT you also get a drink dropped at times that makes you move way faster so they cannot catch you
+
+Shoot and kill zombies. Hitter, Stunner, and Runner
+And you also get the regulars. No difference.
+Except some minor variations in speed, etc.
+
+You get basically the same zombies we had in ver 1 of Lone Gungirl.
+
+That's it. Everything else is basically the same just ported with prob slightly better graphics.
+
+Honestly, do it so that once you die, you get a CG of her getting sex'ed. basically
+
+This is a VERY minor game, our engine should be able to do this full end to end.
+
+The idea though is that this game should be FUN to play and kill around.
+
+And it should be inspired by Arcade Machines in Japan.
+
+And she should say to the viewer some witty stuff in the main menu.
+
+Or something like that idk.

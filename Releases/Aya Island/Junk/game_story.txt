@@ -1,0 +1,17 @@
+Intro. 
+Main menu with all the buttons and different screens. 
+Screen of character creation, with name, all that. 
+Location of the island with every single place we can basically visit with camera movement. 
+Then the player, movement all that. 
+Perfect it. 
+Then needs of player, and some objects to satisfy them. 
+Then calendar and time of day moving as we do activities, also affecting needs. 
+Then a few procedural NPCs moving about, satisfying their needs and going with time of day also. 
+Then those NPCs being interactive with the player so we all full fill those needs. 
+Then each NPC will have its role and job in the island. 
+So give them all that, as well as their schedule and all of it naturally dictated by their needs. 
+Then paying rent is important for you also. 
+So simply add the institutions or jobs, or anything like that to stay afloat. 
+Player can now also engage in any activity regarding that specific situation like joint fun clubs etc. 
+Add going to prison, just growing older stuff, all of that. 
+Now naturally age, and life stages, and essentially we die
