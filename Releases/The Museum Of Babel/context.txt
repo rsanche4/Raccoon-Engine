@@ -1,0 +1,7 @@
+This is actually a fun idea. The goal here is that potentially we would have rooms upon rooms, like a musuem, but it's essentially Babel images.
+
+Which is every possible image that could possibly exist in a 256x256 square grid. Using the 256 color palette of the engine. They are hung upon the wall and the rooms are really nice.
+
+So yes that is the idea. The whole idea is that we can also input images and go to where they would be in the gallery.
+
+And since it will procedurally go through it all we should be able to witness really long corridor distances but just looping us and changing the paintings to correspond where we are. We can go back and forth the gallary so yeah.

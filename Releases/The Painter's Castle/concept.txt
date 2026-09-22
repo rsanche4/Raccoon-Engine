@@ -1,0 +1,140 @@
+I have no idea where I put all my documents for this game, but the whole gist and idea behind this is that we are collecting a bunch of paintings through out this castle.
+
+This is inspired by Super Mario 64. And we are here to rescue a princess of sorts. There is a lot of places like lobby, and essentially all sorts of different rooms.
+
+Idk do we actually want to do this? Ideally it’s something silly that we can make to test the engine. 
+
+Wait why not just a silly goofy game of a knight with a sword fighting for his princess somehow. Entering a kingdom. And trying to save his princess? And the kingdom is pretty big and weird and it has truly bizarre stuff, as we discover things in the kingdom we can basically unlock new doors. Which helps us unlock other doors. 
+
+And the princess is… well… she is a really special girl. We can craft. She is special. 
+
+But anyway, so yeah we want to save her. So we will make sure to draw her right. 
+
+And the idea is that we want to unlock all the doors! So the biggest thing we want is something like a big map of sorts. This map will contain a bunch of really fun areas. Of course the mechanics of the game are really simple: 
+You have a sword and that’s it. Although you can throw your sword and then you should get it back. 
+
+The game starts as you and the idea is you kind of start in this random place. And you are here because of a very simple phrase or something like that. The point is that you are here to save your princess of sorts. She has been taken hostage by the grim reaper acronym. And you are here to get her free. This might need to polishing.
+
+The whole thing could be an allegory on Dante’s inferno. Either way you are running to save her.
+
+The place itself is huge. Doors and things warp on themselves. It’s a big place. Yule Nikki inspired ofc. Very surrral places. And you cannot open all doors. You have to clear some doors to open others. Each of the doors lead you to collect or solve some puzzle or defeat some beasts.
+
+There are jumpscares and scary things throughout though so there is that. 
+
+And yeah! Finally at the end you can save your princess though she might leave messages for you throughout. 
+
+And yes that’s the idea. And you gotta go around and kinda fight throughout. 
+
+The game will be using very simple flat visuals for everything. The question I have is how exactly do we make it a thing? I think it’s that with each door we go in it leads us to a new world. And that world will have it
+
+Of course that can be annoying so maybe not. But ideally we want more of that? Or is this too much involvement. 
+
+I mean the idea remains. 
+
+But I’m curious if… hmm… the mission piece is the thing that’s kinda pulling me back. But we could potentially do it if we decide on something worth doing or something fun! 
+
+I think it would be really cool. And yes I wanna do this. I’m just curious exactly how do we do the missions.
+
+So what we could do is that we have X number of paintings that we need to collect. We basically are entering the Painters Castle. And hidden in these paintings there can be a darker secret.
+
+But the point is in this world, which is wild, we have to e ultimate door we need to open. But we can only do that after we have basically found all X paintings. So that’s pretty cool. So the entire visiting of the entire world is basically Yume Nikki. So it’s really simple and possibly boring. With beasts around the world we need to defeat. So essentially a dungeon crawler. Also, we can save the game. And it should be cozy game. Kind of like undertale. If we die, we die. So we definitely need to figure out ways to get life and stuff.
+
+Anyway the other thing is that we basically that’s it. We fight, we collect painting, we save and our life gets to max, and we move on to the next thing. The world will be of course HUGE. And the thing is that it’s somewhat random too in the ways it connects to each other. The worlds themselves are generated a lot or ton with some tool or help, so expedite the process. But that’s it. 
+
+There are beasts or demons throughout the whole game that we essentially fight. But I’m still figuring this out. 
+
+In the end, once we save our princess we get her out, and we finally are with her. We get out of this world through the worlds altar that gets us out of this underworld of fire, to which this big enemy comes in (which is more like Satan) to try and grab us and bring us back but we manage to escape the whole ordeal and that might be the last mission.
+
+Ofc so now the biggest thing is the map itself. We need a general division of the map. Ofc there is a LOT of freedom here. And I haven’t decided on the number of paintings to collect yet. 
+
+I’m thinking 666 paintings. This gives the impression that we are in hell. 
+
+But the world is not like it’s looking like hell. It’s more like a really innocent world. Heck kind of like this: 
+
+We start in this sky world thing with one island feel thing, and a big building or castle in the front of us. Some trees, the sky is pretty, or perhaps heck maybe some mountains and this is more like we are in the middle of the ocean. That might be better. Ocean all around us. (Like we crossed the ocean of death) and we paid the ferry man with a coin.
+
+This might be how we get out. 
+
+But anyways the idea is here we are and we go into this place and it’s quite huge it has a lot of floors, but it connects basically of all them in some way. It’s got 100 doors. Now there a lot more other worlds it’s just that some of them are not accessible through this main door system. And the whole place is divided into 10 floors. Each floor has 10 rooms. 
+
+So yeah! There is that. And the whole place and layout will be pretty cool and interesting. 
+
+There is this sense that this place is HUGE so yeah. 
+
+Ultimately though the important thing is the payoff for all this. We need that constant “you will see your girl!” Messages from her and all that good stuff. 
+
+Either way yeah! I think that’s the overall game. Give me any gaps or potential problems with this game, but overall a pitch and like the project document for this game. Thanks. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Working Title: [The Painter's Castle / Untitled Knight Game]
+Genre: Cozy dungeon-crawler / exploration, first-person Engine target: Raccoon Engine (DOOM-style raycaster) — intended as a test project for engine features Visual style: Simple flat visuals Tone reference: Yume Nikki (surreal, dreamlike exploration) + Undertale (cozy, emotionally warm) + Dante's Inferno (structural/thematic backbone)
+
+Logline
+A knight crosses the ocean of death, pays the ferryman, and enters a vast, surreal castle-world to rescue his princess from a grim reaper–like captor — collecting paintings, unlocking doors, and fighting through increasingly strange and hostile floors before a final confrontation with a Satan-like final boss at the world's altar.
+
+Core Fantasy
+You are a lone knight with a sword. The world is enormous, strange, and not fully explicable — you're not meant to understand all of it, just to keep moving toward her.
+
+The Hook / Premise
+You awaken somewhere in the world, prompted into your quest by a short phrase.
+Your princess has been taken by a grim-reaper-like figure.
+The world is themed like an inverted hell: hellish premise, innocent/dreamlike presentation.
+You cross an ocean to reach it and pay a ferryman a coin — this may double as your way out at the end.
+World Structure
+Main hub area: roughly 10 floors × 10 rooms, interconnected in non-obvious (possibly non-Euclidean) ways. Exact room count is flexible — may end up smaller than the full 100.
+Hidden worlds: additional worlds branch off from rooms within the main hub, initially inaccessible until unlocked — these hidden worlds are where a lot of paintings likely live, not just the main 100 rooms.
+Doors gate progress: clearing certain doors/rooms unlocks access to others.
+Each room may contain: a puzzle, a beast encounter, or a collectible (painting).
+Content approach: No procedural generation — every room/world is hand-designed, with AI used as a speed tool during design (not as a runtime generator). This keeps content quality and tone consistent but means the scope should be planned around what's realistically hand-buildable.
+
+Core Loop
+Enter a room/world through a door.
+Solve a puzzle, fight a beast, or explore.
+Find/collect a painting (or other reward).
+Return to full health / save at designated points.
+Use collected progress to unlock further doors.
+Repeat until the "ultimate door" requirement is met.
+Mechanics
+Combat: Full melee kit — slash, defend/block, throw sword (must be retrieved), pick sword back up. Goal is for it to feel satisfying and varied, not just a single attack verb — this needs dedicated feel/juice work (hit-stop, sound, animation) so it doesn't go stale over many encounters.
+Collectibles: Paintings, scattered across the main hub and hidden worlds. 666 was a thematic placeholder, not a locked target — actual count will depend on how much content actually gets built (see content approach above).
+Progression gate: The final/ultimate door requires collecting some threshold of paintings to open.
+Life/health & death: Mario-style — losing all health sends you back to your last checkpoint rather than wiping progress. No permadeath, no full resets.
+Saving: Game is saveable.
+Painting secrets: Some paintings may contain a darker hidden narrative layer.
+NPC messages: The princess leaves messages throughout the world — recurring emotional throughline ("you will see your girl").
+Ending
+After collecting the required paintings and opening the ultimate door, the player frees the princess.
+Escape is through the world's altar, back out of the underworld.
+A large final antagonist (Satan-like) attempts to stop the escape — climax/final encounter.
+Tone
+Consistently strange throughout, rather than "innocent → dark" linear progression — the world can be happy/whimsical and unsettling/dark in the same breath, room to room. The contrast itself is the tone, not a ramp.
+
+Open Design Questions
+Painting distribution: Roughly how are paintings spread across the main hub vs. hidden worlds? Worth mapping even loosely once room count is finalized.
+Combat feel: Slash/defend/throw/retrieve is a solid kit on paper — the open question is execution (hit feedback, enemy variety, encounter pacing) so it stays fun across many rooms.
+Scope vs. ambition: Since everything is hand-built, worth periodically checking planned room/world count against actual build velocity.
+Non-Euclidean doors: Worth a small isolated prototype in Raccoon Engine before committing the whole map to self-warping geometry, given the engine's raycasting constraints — also a good general level-design testbed for the engine.
+Checkpoint placement: Where checkpoints sit (per room, per floor, per world) determines how punishing death actually feels in practice.
+Suggested Next Steps
+ Prototype one "test room" in Raccoon Engine to validate door-warping/non-Euclidean feel and general level design
+ Build out the core combat kit (slash/defend/throw/retrieve) as an early testable loop
+ Decide checkpoint placement/frequency
+ Draft a rough floor-by-floor outline for the main hub, noting where hidden-world branches connect
+ Pin down what the "darker secret" inside paintings actually is
