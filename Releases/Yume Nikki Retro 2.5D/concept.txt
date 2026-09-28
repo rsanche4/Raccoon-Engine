@@ -1,1 +1,13 @@
 This is very much Yume Nikki recreation but into my engine style. It should look really good. And it is a one to one recreation. It can be shown to people like "hey look" what it can do! The thing is too, I have not seen a single recreation of yume nikki to 3D. There are attemts but they mostly give up halfway thru.
+
+So how do we do this?
+
+- We basically first collect all the material for yume nikki. DONE
+
+- Then, we need to start making the game piece by piece, and simply having each part. We will create all the connections of the entire maps alone for now.
+
+- Then after that, we add the effects through out and sprites and stuff like that.
+
+- And the ending. Add that as well. ANd we are good to go.
+
+- Finally, add any DOOM references and stuff like that.

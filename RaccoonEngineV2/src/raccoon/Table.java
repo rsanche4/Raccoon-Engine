@@ -35,7 +35,7 @@ public class Table {
 	public static int[] screen_y = new int[render_h];
 	public static int[] src_offset = new int[render_h];
 	public static int[] src_x = new int[render_w];
-	public static int NUM_COLORS = 256;
+	public static int NUM_COLORS = 4096;
 	public static int[] PALETTE = new int[NUM_COLORS];
 	public static int NUM_LIGHT_LEVELS = 32;
 	public static int[][] SHADE_TABLE = new int[NUM_LIGHT_LEVELS][NUM_COLORS];
@@ -60,20 +60,16 @@ public class Table {
     		src_x[x] = (int) (x * inv_scale);
     	}
     	
-            int[] base = {0xFF000000, 0xFF800000, 0xFF008000, 0xFF808000, 0xFF000080, 0xFF800080, 0xFF008080, 0xFFC0C0C0, 0xFF808080, 0xFFFF0000, 0xFF00FF00, 0xFFFFFF00, 0xFF0000FF, 0xFFFF00FF, 0xFF00FFFF, 0xFFFFFFFF};
-        System.arraycopy(base, 0, PALETTE, 0, 16);
-        int[] steps = {0x00, 0x5F, 0x87, 0xAF, 0xD7, 0xFF};
-        int idx = 16;
-        for (int r = 0; r < 6; r++) {
-            for (int g = 0; g < 6; g++) {
-                for (int b = 0; b < 6; b++) {
-                	PALETTE[idx++] = (0xFF << 24) | (steps[r] << 16) | (steps[g] << 8) | steps[b];
+        // Palette def
+        // 4096 colours: 16 evenly spaced levels per channel (0, 17, 34, ... 255).
+        // Index = r_level * 256 + g_level * 16 + b_level
+        int idx = 0;
+        for (int r = 0; r < 16; r++) {
+            for (int g = 0; g < 16; g++) {
+                for (int b = 0; b < 16; b++) {
+                    PALETTE[idx++] = 0xFF000000 | ((r * 17) << 16) | ((g * 17) << 8) | (b * 17);
                 }
             }
-        }
-        for (int i = 0; i < 24; i++) {
-            int v = 8 + i * 10;
-            PALETTE[232 + i] = (0xFF << 24) | (v << 16) | (v << 8) | v;
         }
     	
         int middleindex = (NUM_LIGHT_LEVELS/2)-1;
@@ -108,22 +104,9 @@ public class Table {
     }
     
     public static int findClosestColorIndex(int r, int g, int b) {
-        int best_index = 0;
-        int best_dist = Integer.MAX_VALUE;
-        for (int i = 0; i < NUM_COLORS; i++) {
-            int c = PALETTE[i];
-            int cr = (c >> 16) & 0xFF;
-            int cg = (c >> 8) & 0xFF;
-            int cb = c & 0xFF;
-            int dr = r - cr;
-            int dg = g - cg;
-            int db = b - cb;
-            int dist = dr * dr + dg * dg + db * db;
-            if (dist < best_dist) {
-                best_dist = dist;
-                best_index = i;
-            }
-        }
-        return best_index;
+    	r = Math.max(0, Math.min(255, r));
+        g = Math.max(0, Math.min(255, g));
+        b = Math.max(0, Math.min(255, b));
+        return ((r + 8) / 17) * 256 + ((g + 8) / 17) * 16 + ((b + 8) / 17);
     }
 }

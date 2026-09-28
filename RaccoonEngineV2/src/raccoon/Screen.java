@@ -519,7 +519,7 @@ public class Screen {
 		int bar_y = Table.half_screen_height + 8;
 		int bar_h = 10;
 		int bright = Table.NUM_LIGHT_LEVELS - 1;
-		int white = Table.SHADE_TABLE[bright][15];
+		int white = Table.SHADE_TABLE[bright][Table.findClosestColorIndex(255, 255, 255)];
 
 		// Outline.
 		for (int x = bar_x; x < bar_x + bar_w; x++) {

@@ -5,3 +5,7 @@ Which is every possible image that could possibly exist in a 256x256 square grid
 So yes that is the idea. The whole idea is that we can also input images and go to where they would be in the gallery.
 
 And since it will procedurally go through it all we should be able to witness really long corridor distances but just looping us and changing the paintings to correspond where we are. We can go back and forth the gallary so yeah.
+
+THO frankly, we could actually just include the historical paintings because I think that would be way more interesting than the random noise we would see with this thing.
+
+In this case, we have all the paintings there. And their size would be turned into 256x256, with a 4096 color palete of the engine
