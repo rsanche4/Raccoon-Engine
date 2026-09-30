@@ -43,6 +43,8 @@ end
 
 local frame = 0
 
+local start_music = true
+
 function update()
     frame = frame + 1
     local t = frame / FPS          -- seconds since the splash started
@@ -53,6 +55,11 @@ function update()
         RA:uiDraw("logo.png", LOGO_X, LOGO_Y, 4, brightness)
 
     elseif t >= title_start then
+        if start_music then
+            RA:audioPlayBGM("title.wav", true, 0.9)
+        end
+        start_music = false
+
         RA:uiDraw("title.png", 0, 0, 1, TRUE_COLOURS * ramp(t, title_start, TITLE_FADE_IN))
 
         if t >= title_done then

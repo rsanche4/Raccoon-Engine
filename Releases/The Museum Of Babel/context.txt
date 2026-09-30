@@ -9,3 +9,11 @@ And since it will procedurally go through it all we should be able to witness re
 THO frankly, we could actually just include the historical paintings because I think that would be way more interesting than the random noise we would see with this thing.
 
 In this case, we have all the paintings there. And their size would be turned into 256x256, with a 4096 color palete of the engine
+
+
+Very important that we are able to see the paintings name if we get closer to it. This will let us know ah ok so this is the painting. Along with some description. 
+
+Also it would be really nice if we could search through the whole place and get placed in that room for those paintings as well.
+
+
+I am thinking we will have classical music in the background. Played at random
