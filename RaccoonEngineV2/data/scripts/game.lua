@@ -1,16 +1,42 @@
+-- game.lua: the actual game. For now, it loads the first map and lets you walk around.
+
 local script_index = ...
-local FONT = "system_font.ttf"
-RA:worldLoadMapAsync("world.txt", "LOADING WORLD")
-RA:playerSetPosition(10, 2, 10, 0)
-RA:playerSetWalk(1.0, 0, 0)
-RA:worldSetSkybox("default_sky.png", 0.5)
-local function fmt(v) return string.format("%.1f", v) end
+
+local MAP = "world.txt"
+
+-- Where the player starts. This MUST be a point inside one of the map's rooms:
+-- read the coordinates off the map editor. y gets pulled down onto the floor
+-- by gravity, so it only needs to be somewhere between the floor and ceiling.
+local SPAWN_X, SPAWN_Y, SPAWN_Z = 5, 2, 5
+local SPAWN_DIR = 0                     -- facing, in radians: 0 looks along +X
+
+RA:audioStopBGM()                       -- the title music ends here
+RA:worldLoadMapAsync(MAP, "LOADING")
+RA:playerSetPosition(SPAWN_X, SPAWN_Y, SPAWN_Z, SPAWN_DIR)
+RA:playerSetWalk(1.0, 0, 0)       -- eye height above the floor, head-bob speed, head-bob amount
+
+local frames_loaded = 0                 -- frames since the map finished loading
+
 function update()
-    if RA:loadingIsActive() then return end
-    local x, y, z = RA:playerGetPosition(0), RA:playerGetPosition(1), RA:playerGetPosition(2)
-    RA:uiFillRect(6, 6, 150, 56, 0, 0.35)
-    RA:uiText("X " .. fmt(x), 12, 10, FONT, 0.6)
-    RA:uiText("Y " .. fmt(y), 12, 26, FONT, 0.6)
-    RA:uiText("Z " .. fmt(z), 12, 42, FONT, 0.6)
-    if RA:inputGetKeyStatus(true, "esc") then RA:systemQuit() end
+    if RA:loadingIsActive() then return end    -- the engine is showing its loading screen
+    frames_loaded = frames_loaded + 1
+
+    -- Catch a spawn point outside the map: there the player can't move at all.
+    -- This waits for the SECOND frame after loading, because the engine works out
+    -- the player's sector at the start of each frame. On the first frame the
+    -- number can still be from before the map existed.
+    if frames_loaded == 2 then
+        if RA:playerGetSector() < 0 then
+            print("[game.lua] The spawn point (" .. SPAWN_X .. ", " .. SPAWN_Z .. ") is outside every sector of "
+                  .. MAP .. ". Change SPAWN_X / SPAWN_Z to a point inside the room.")
+        end
+    end
+
+    if RA:inputGetKeyStatus(true, "e") then
+        -- Interact. Nothing to interact with yet; the bed comes later.
+    end
+
+    if RA:inputGetKeyStatus(true, "esc") then
+        RA:systemQuit()
+    end
 end

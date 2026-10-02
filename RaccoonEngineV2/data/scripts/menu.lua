@@ -57,7 +57,15 @@ function update()
 
     if pressed("enter", "z") then
         RA:audioPlaySE("select.wav", false, SE_VOLUME)
-        -- Nothing happens yet. OPTIONS[selected] is the option that was chosen.
+        local choice = OPTIONS[selected]
+        if choice == "New Game" then
+            RA:scriptAdd("intro.lua", 10)
+            RA:scriptEndByName("menu.lua")
+            return                    -- skip drawing; intro.lua fades in from black
+        elseif choice == "Quit" then
+            RA:systemQuit()
+        end
+        -- "Dream Diary" does nothing yet.
     end
 
     if pressed("esc") then
