@@ -1,9 +1,0 @@
-I actually have a lot for this one though it needs to be polished. So far, I kind of have the original version or version 1 for my previous engine: https://github.com/rsanche4/Raycast-Engine
-
-I also lost all this stuff due to time, but I had an entire thing where I had all the zombies, the menu, everything. Even the whole campaign. The idea is that it's the classic shooter but inspired by the lone gunman mutation. And it follows a girl through school of zombies.
-
-Inspired by Left For Dead, Duke Nukem Witty Shooter humor with references to other zombie media, and just good old High school of the Dead.
-
-https://chatgpt.com/share/6ab1b34c-ddb4-83e9-8076-7961441682a2
-
-This conversation basically has a lot of stuff regarding Lone Gungirl concept.

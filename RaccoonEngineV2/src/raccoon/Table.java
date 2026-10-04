@@ -37,7 +37,7 @@ public class Table {
 	public static int[] src_x = new int[render_w];
 	public static int NUM_COLORS = 4096;
 	public static int[] PALETTE = new int[NUM_COLORS];
-	public static int NUM_LIGHT_LEVELS = 32;
+	public static int NUM_LIGHT_LEVELS = 31;
 	public static int[][] SHADE_TABLE = new int[NUM_LIGHT_LEVELS][NUM_COLORS];
 	public static int SPRITE_NUM_DIRECTIONS = 8;
 	public static double DIRECTIONAL_SLICE_ANGLE = pi2 / SPRITE_NUM_DIRECTIONS;
@@ -72,33 +72,41 @@ public class Table {
             }
         }
     	
-        int middleindex = (NUM_LIGHT_LEVELS/2)-1;
+        int middleindex = NUM_LIGHT_LEVELS / 2;
+
         for (int light = 0; light < NUM_LIGHT_LEVELS; light++) {
             for (int i = 0; i < NUM_COLORS; i++) {
                 int color = PALETTE[i];
+
                 int r = (color >> 16) & 0xFF;
-                int g = (color >> 8)  & 0xFF;
-                int b =  color        & 0xFF;
+                int g = (color >> 8) & 0xFF;
+                int b = color & 0xFF;
 
                 int nr, ng, nb;
 
                 if (light == middleindex) {
-                    nr = r; ng = g; nb = b;
-                } else if (light < 15) {
-                    // black → color
-                    double t = (double) light / 15;
+                    nr = r;
+                    ng = g;
+                    nb = b;
+
+                } else if (light < middleindex) {
+                    double t = (double) light / middleindex;
+
                     nr = (int)(r * t);
                     ng = (int)(g * t);
                     nb = (int)(b * t);
+
                 } else {
-                    // color → white
-                    double t = (double)(light - 15) / 15;
+                    double t = (double)(light - middleindex)
+                             / (NUM_LIGHT_LEVELS - 1 - middleindex);
+
                     nr = (int)(r + (255 - r) * t);
                     ng = (int)(g + (255 - g) * t);
                     nb = (int)(b + (255 - b) * t);
                 }
 
-                SHADE_TABLE[light][i] = findClosestColorIndex(nr, ng, nb);
+                SHADE_TABLE[light][i] =
+                    findClosestColorIndex(nr, ng, nb);
             }
         }
     }

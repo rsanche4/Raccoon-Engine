@@ -1,3 +1,0 @@
-https://github.com/rsanche4/Good-Old-Games/tree/main/Bitland
-
-This is where it originally spawned the idea. Basically Skyrim meets low resolution, and it's a roguelike.

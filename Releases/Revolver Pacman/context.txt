@@ -1,1 +1,0 @@
-Silly little Pacman First Person Shooter clone basically. Kind of creepy, arcady, with a revolver.
