@@ -9,45 +9,120 @@ body {
     background: #1a1a1a;
     color: #0f0;
     overflow: hidden;
+    scrollbar-color: #0a0 #000;
 }
 
-#menu {
+/* ----------------------------------------------------------- boxes */
+
+.box {
+    background: #000;
+    border: 2px solid #0f0;
+    padding: 30px;
+}
+
+.centered {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #000;
-    border: 2px solid #0f0;
-    padding: 40px;
-    text-align: center;
 }
 
-#menu h1 {
+h1 {
     margin-bottom: 30px;
     font-size: 28px;
     letter-spacing: 2px;
 }
 
-#editor {
-    display: none;
-    width: 100vw;
-    height: 100vh;
+h2 {
+    font-size: 18px;
+    margin: 12px 0 8px 0;
+    letter-spacing: 1px;
 }
 
-#canvas {
-    display: block;
-    background: #0a0a0a;
-}
-
-#info {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 10px;
-    border: 1px solid #0f0;
+.hint {
+    color: #0a0;
     font-size: 12px;
+    margin: 4px 0;
 }
+
+.message {
+    color: #ff0;
+    font-size: 13px;
+    margin-top: 10px;
+    white-space: pre-wrap;
+    max-width: 520px;
+}
+
+#startScreen {
+    text-align: center;
+}
+
+#mapChoice {
+    display: none;
+    min-width: 440px;
+    max-height: 85vh;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.form-row {
+    display: flex;
+    gap: 14px;
+    margin: 8px 0;
+    font-size: 13px;
+}
+
+.map-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 240px;
+    overflow-y: auto;
+    font-size: 13px;
+}
+
+.list-button {
+    background: #000;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 6px 10px;
+    text-align: left;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.list-button:hover {
+    background: #0f0;
+    color: #000;
+}
+
+/* --------------------------------------------------------- inputs */
+
+input[type="text"],
+input[type="number"] {
+    background: #1a1a1a;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+}
+
+input:disabled {
+    opacity: 0.4;
+}
+
+.form-row input[type="number"] {
+    width: 80px;
+}
+
+input[type="checkbox"] {
+    accent-color: #0f0;
+    transform: scale(1.2);
+}
+
+/* -------------------------------------------------------- buttons */
 
 .button {
     background: #000;
@@ -61,6 +136,12 @@ body {
     margin: 10px;
 }
 
+.button.small {
+    padding: 8px 20px;
+    font-size: 14px;
+    margin: 10px 10px 0 0;
+}
+
 .button:hover:not(:disabled) {
     background: #0f0;
     color: #000;
@@ -71,122 +152,297 @@ body {
     cursor: not-allowed;
 }
 
-.top-button {
-    position: absolute;
-    top: 10px;
-    padding: 10px 20px;
-    font-size: 14px;
-    margin: 0;
-}
-
-#saveProjectBtn {
-    right: 280px;
-}
-
-#worldBoundaryBtn {
-    right: 10px;
-}
-
-#downloadBtn {
-    right: 10px;
-    display: none;
+.tbtn {
     background: #000;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 4px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.tbtn:hover:not(:disabled) {
+    background: #030;
+}
+
+.tbtn.active {
+    background: #0f0;
+    color: #000;
+}
+
+.tbtn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.tbtn.save {
     color: #ff0;
     border-color: #ff0;
 }
 
-#downloadBtn:hover {
-    background: #ff0;
-    color: #000;
+.texture-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-#configPanel {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #000;
-    border: 2px solid #0f0;
-    padding: 20px;
+.thumb {
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated;
+    border: 1px solid #060;
+    background: #111;
+}
+
+.small-thumb {
+    width: 22px;
+    height: 22px;
+}
+
+/* --------------------------------------------------------- editor */
+
+#editor {
     display: none;
-    max-height: 80vh;
-    overflow-y: auto;
-    min-width: 500px;
+    width: 100vw;
+    height: 100vh;
 }
 
-#configPanel h2 {
-    margin-bottom: 15px;
-    color: #0f0;
+#topBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 46px;
+    background: #000;
+    border-bottom: 2px solid #0f0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 10px;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow-x: auto;
 }
 
-#configPanel h3 {
-    margin-top: 15px;
-    margin-bottom: 10px;
-    color: #ff0;
-    font-size: 14px;
+#topBar .group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
-#configPanel label {
-    display: block;
-    margin: 8px 0 3px 0;
-    color: #0f0;
-    font-size: 12px;
+#topBar .right {
+    margin-left: auto;
 }
 
-#configPanel input {
-    width: 100%;
-    background: #1a1a1a;
-    color: #0f0;
-    border: 1px solid #0f0;
-    padding: 5px;
-    font-family: 'Courier New', monospace;
+.name-input {
+    width: 140px;
 }
 
-.wall-section {
-    border: 1px solid #0f0;
+.size-input {
+    width: 64px;
+}
+
+#sidePanel {
+    position: absolute;
+    top: 46px;
+    left: 0;
+    width: 290px;
+    bottom: 26px;
+    background: #000;
+    border-right: 2px solid #0f0;
     padding: 10px;
-    margin: 10px 0;
+    overflow-y: auto;
+    font-size: 13px;
 }
 
-#configPanel input[type="checkbox"] {
-    width: auto;
-    accent-color: #0f0;
-    transform: scale(1.3);
-    margin: 4px 0 8px 0;
-    display: block;
+.button-row {
+    display: flex;
+    margin-bottom: 8px;
 }
 
-.button-group button {
+.button-row .tbtn {
     flex: 1;
 }
 
-#loadingBar {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 6px 0;
+}
+
+.field input {
+    width: 90px;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+}
+
+.surface-box {
+    border: 1px solid #060;
+    padding: 8px;
+    margin: 10px 0;
+}
+
+.surface-box h3 {
+    color: #ff0;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.surface-box .texture-button {
+    width: 100%;
     background: #000;
-    border: 2px solid #0f0;
-    padding: 20px;
-    display: none;
-    text-align: center;
-}
-
-#loadingBar h2 {
     color: #0f0;
-    margin-bottom: 10px;
-}
-
-.progress-bar {
-    width: 300px;
-    height: 20px;
     border: 1px solid #0f0;
-    margin-top: 10px;
+    padding: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    cursor: pointer;
 }
 
-.progress-fill {
-    height: 100%;
-    background: #0f0;
-    width: 0%;
-    transition: width 0.3s;
+.surface-box .texture-button:hover {
+    background: #030;
+}
+
+select {
+    background: #1a1a1a;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    max-width: 150px;
+}
+
+.selection-line {
+    color: #ff0;
+    border: 1px solid #660;
+    padding: 6px;
+    margin: 8px 0;
+}
+
+.sprite-image-button {
+    background: #000;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    max-width: 170px;
+    overflow: hidden;
+}
+
+.dial {
+    display: grid;
+    grid-template-columns: repeat(3, 30px);
+    gap: 2px;
+}
+
+.dial-button {
+    width: 30px;
+    height: 26px;
+    padding: 0;
+    font-size: 15px;
+}
+
+.dial-button:disabled {
+    opacity: 1;
+    border-color: #030;
+    cursor: default;
+}
+
+#canvas {
+    position: absolute;
+    top: 46px;
+    left: 290px;
+    width: calc(100vw - 290px);
+    height: calc(100vh - 72px);
+    display: block;
+    background: #0a0a0a;
+}
+
+#statusLine {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 26px;
+    background: #000;
+    border-top: 2px solid #0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 0 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#statusMessage {
+    color: #ff0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --------------------------------------------------------- popups */
+
+.popup {
+    display: none;
+    z-index: 20;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+#palette {
+    width: 640px;
+}
+
+#boundaryDialog {
+    width: 340px;
+    font-size: 13px;
+}
+
+.palette-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+    margin: 10px 0;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.palette-item {
+    background: #000;
+    color: #0f0;
+    border: 1px solid #060;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    word-break: break-all;
+}
+
+.palette-item:hover {
+    border-color: #0f0;
+}
+
+.palette-item.selected {
+    border-color: #ff0;
+}
+
+.palette-item .thumb {
+    width: 48px;
+    height: 48px;
 }

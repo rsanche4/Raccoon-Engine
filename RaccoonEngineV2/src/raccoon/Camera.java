@@ -21,7 +21,8 @@ import java.util.Set;
 
 public class Camera implements KeyListener, MouseMotionListener, MouseListener, MouseWheelListener {
 
-    public static int    player_sector = 0;
+    /** The cell the player was in at the start of this frame (Screen.update), or -1. */
+    public static int    player_cell = -1;
     public static double player_x = 0;
     public static double player_y = 0;
     public static double player_z = 0;
@@ -244,10 +245,6 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
         comp.setCursor(Cursor.getDefaultCursor());
     }
 
-    private boolean isPortalSolid(int sector_a, int sector_b) {
-    	return Screen.portal_collision_data[sector_a * Screen.sectors_count + sector_b];
-    }
-
     private boolean collisionWithSprites(double srcx, double srcz) {
     	for (Map.Entry<String, Sprite> entry : ResourceManager.sprites.entrySet()) {
 			Sprite entity = entry.getValue();
@@ -262,19 +259,65 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
 		return false;
     }
 
-    private boolean isCollisionVertical(double temp_y) {
-    	return (temp_y>=Screen.sectors[player_sector].ceil_height) || (temp_y<=Screen.sectors[player_sector].floor_height);
+    private boolean isCollisionVertical(Cell cell, double temp_y) {
+    	return (temp_y>=cell.ceil_height) || (temp_y<=cell.floor_height);
     }
-    
+
+    /**
+     * Is the player blocked from moving by (val_to_add_x, val_to_add_z)?
+     * update() asks one axis at a time, with a look-ahead of move_speed + buffer_dist so
+     * the player stops just short of things.
+     *
+     * The move starts from where the player is NOW, not from the cell worked out at the
+     * start of the frame: the X part of a move can already have put the player in a new
+     * cell before the Z part is asked about.
+     *
+     * Every cell between here and the look-ahead point is checked, one at a time, so a
+     * big move_speed (RA:playerSetMoveSpeed) can't jump over a thin wall or a solid line.
+     * Stepping from one cell into the next is blocked when:
+     *   - the next cell is outside the map
+     *   - the grid line between them is solid
+     *   - the next cell's floor is at or above eye height (too high to step up)
+     *   - the next cell's ceiling is at or below eye height (too low to fit under)
+     * Comparing with eye height (player_y) keeps small steps climbable, as before.
+     * Sprites with a collision radius block too.
+     */
     private boolean isCollisionHorizontal(double val_to_add_x, double val_to_add_z) {
-    	double temp_x = player_x;
-		double temp_z = player_z;
-		temp_x += val_to_add_x;
-		temp_z += val_to_add_z;
-		int possible_sector = Screen.updatePlayerSector(temp_x, temp_z);
-		int sector_a = player_sector;
-		int sector_b = possible_sector;
-        return (possible_sector<0) || (sector_a!=sector_b && isPortalSolid(sector_a, sector_b)) || (Screen.sectors[possible_sector].floor_height>=player_y) || (player_y>=Screen.sectors[possible_sector].ceil_height) || (collisionWithSprites(temp_x, temp_z));
+        double temp_x = player_x + val_to_add_x;
+        double temp_z = player_z + val_to_add_z;
+        // Outside the map there is nowhere to walk, and nothing past the map's edge.
+        if (Screen.cellIndexAt(player_x, player_z) < 0 || Screen.cellIndexAt(temp_x, temp_z) < 0) {
+            return true;
+        }
+        int x = (int) Math.floor(player_x);
+        int z = (int) Math.floor(player_z);
+        int target_x = (int) Math.floor(temp_x);
+        int target_z = (int) Math.floor(temp_z);
+        while (x != target_x) {
+            int next_x = x + (target_x > x ? 1 : -1);
+            if (isStepBlocked(Math.max(x, next_x), z, 0, next_x, z)) {
+                return true;
+            }
+            x = next_x;
+        }
+        while (z != target_z) {
+            int next_z = z + (target_z > z ? 1 : -1);
+            if (isStepBlocked(x, Math.max(z, next_z), 1, x, next_z)) {
+                return true;
+            }
+            z = next_z;
+        }
+        return collisionWithSprites(temp_x, temp_z);
+    }
+
+    /** Crossing one grid line into the cell (to_x, to_z): is a solid line or that cell in the way? */
+    private boolean isStepBlocked(int line_x, int line_z, int orientation, int to_x, int to_z) {
+        Edge edge = Screen.verticals[Screen.lineIndex(line_x, line_z, orientation)];
+        if (edge != null && edge.solid) {
+            return true;
+        }
+        Cell to = Screen.cells[to_z * Screen.map_width + to_x];
+        return to.floor_height >= player_y || to.ceil_height <= player_y;
     }
 
     public void update() {
@@ -296,8 +339,11 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
             direction_rad = ((direction_rad + turn_speed) % Table.pi2 + Table.pi2) % Table.pi2;
         }
         
-    	if (Screen.sectors_count!=0) {
-    		if (isHeld(KeyEvent.VK_W)) {	
+    	// While a map loads, the player stays put: the loading screen is up, and the world
+    	// is about to be swapped. Looking around still works.
+    	boolean world_ready = Screen.cells != null && !ResourceManager.is_loading;
+    	if (world_ready) {
+    		if (isHeld(KeyEvent.VK_W)) {
     			double step = move_speed + buffer_dist;
 				if (!isCollisionHorizontal(Math.cos(direction_rad) * step, 0)) {
 					player_x += Math.cos(direction_rad) * move_speed;
@@ -335,26 +381,26 @@ public class Camera implements KeyListener, MouseMotionListener, MouseListener, 
 			}
 		}
 		
-		// No world yet? Then there is no floor to fall onto and no ceiling to
-		// bump into. This is the normal state during a main menu or a loading
-		// screen, and without this guard Camera.update() threw a
-		// NullPointerException on Screen.sectors every single frame before the
-		// first map was loaded. player_sector can also be -1 when the player is
-		// outside every sector, which would index the array with -1.
-		if (Screen.sectors == null || Screen.sectors_count == 0
-				|| player_sector < 0 || player_sector >= Screen.sectors_count) {
+		// The cell the player is in NOW, after this frame's moves (not the one worked out
+		// at the start of the frame).
+		int cell_index = Screen.cellIndexAt(player_x, player_z);
+
+		// No world yet, still loading, or standing outside the map? Then there is no
+		// floor to fall onto and no ceiling to bump into. No world is the normal state
+		// during a main menu or a loading screen.
+		if (!world_ready || cell_index < 0) {
 			velocity_y = 0;
 			walk_time = 0;
 		} else if (jetpack) {
 			double temp_y=player_y;
 			if (isHeld(KeyEvent.VK_SPACE)) { temp_y += move_speed; }
 			else if (isHeld(KeyEvent.VK_CONTROL)) { temp_y -= move_speed; }
-			if (!isCollisionVertical(temp_y)) {	player_y = temp_y; }
+			if (!isCollisionVertical(Screen.cells[cell_index], temp_y)) {	player_y = temp_y; }
 		} else {
 		    // gravity
 		    velocity_y -= GRAVITY;
 		    double temp_y = player_y + velocity_y;
-		    double floor = Screen.sectors[player_sector].floor_height + FLOOR_OFFSET;
+		    double floor = Screen.cells[cell_index].floor_height + FLOOR_OFFSET;
 
 		    if (temp_y <= floor) {
 		        temp_y = floor;

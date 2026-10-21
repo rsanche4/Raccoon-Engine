@@ -499,15 +499,6 @@ public class RaccoonAPI {
 		Screen.sky_offset = offset;
 	}
 
-	public int worldGetSectorCountLimit() {
-		return Screen.MAX_NUM_SECTORS;
-	}
-
-	public void worldSetSectorCountLimit(int lim) {
-		systemLog("Setting sector limit.", "worldSetSectorCountLimit");
-		Screen.MAX_NUM_SECTORS = lim;
-	}
-
 	/** Sprites further away than this are not drawn at all. */
 	public void worldSetSpriteRenderDistance(double dist) {
 		systemLog("Setting sprite render distance to " + dist + ".", "worldSetSpriteRenderDistance");
@@ -518,320 +509,313 @@ public class RaccoonAPI {
 		return Screen.sprite_render_distance;
 	}
 
-	private double[] worldLoadMapHelperNormalize(double x1, double z1, double x2, double z2) {
-		if (x1 > x2 || (x1 == x2 && z1 > z2)) {
-			double tmpX = x1, tmpZ = z1;
-			x1 = x2; z1 = z2;
-			x2 = tmpX; z2 = tmpZ;
-		}
-		return new double[] { x1, z1, x2, z2 };
-	}
-
 	/**
 	 * Loads a map on a background thread behind a loading screen. Prefer this
 	 * over worldLoadMap for anything bigger than a test room - it keeps the
 	 * window responsive instead of freezing mid-frame.
+	 *
+	 * The loading thread only READS the file (Rmap.read builds a whole new world on
+	 * the side). The new world is swapped in on the game thread at the start of the
+	 * first frame after loading ends (Screen.update), so the player, the scripts and
+	 * the renderer never see a half-built world. A bad file leaves the old one.
 	 */
 	public void worldLoadMapAsync(String mapname, String loading_text) {
-		runAsync(loading_text, () -> worldLoadMap(mapname));
+		runAsync(loading_text, () -> {
+			Rmap.World world = readMapFile(mapname);
+			if (world != null) {
+				Screen.pending_world = world;
+			}
+		});
 	}
 
 	/**
-	 * MAP FILE FORMAT
-	 * ---------------
-	 * Unchanged, so existing maps and the existing editor export still work.
+	 * Loads a map from data/maps/ straight away, inside the current frame.
 	 *
-	 *   [SIZE]     width height
-	 *   [SECTORS]  one per sector
-	 *   [WALLS]    the outer shell     -> becomes Edge.TYPE_WORLD_BOUNDARY
-	 *   [PORTALS]  between two sectors -> becomes Edge.TYPE_WALL
+	 * MAP FILES are .rmap files saved by the map editor (RaccoonMapEditor). The layout,
+	 * and every check made while reading, are in Rmap.java. In short: a grid
+	 * of 1x1 cells, each with its own heights and four surfaces, optional edge settings
+	 * on grid lines, one boundary surface for the map's outer edge, and the map's sprites.
 	 *
-	 * The section names kept their old spelling on purpose: renaming them would
-	 * break every map already exported from the editor. [BOUNDARIES] and [EDGES]
-	 * are accepted as aliases, so the editor can be renamed later without
-	 * touching the engine again.
+	 * Loading a map removes the previous map's sprites; sprites made by scripts stay.
+	 * If the file is missing or broken, the reason is printed to System.err and the
+	 * world that was loaded before stays as it was.
 	 */
 	public void worldLoadMap(String mapname) {
+		Rmap.World world = readMapFile(mapname);
+		if (world != null) {
+			Screen.installWorld(world);
+		}
+	}
+
+	/** Reads and checks a map file. Returns null (after saying why) if it can't be used. */
+	private Rmap.World readMapFile(String mapname) {
 		systemLog("Loading map " + mapname + ".", "worldLoadMap");
-		Screen.sectors = new Sector[Screen.MAX_NUM_SECTORS];
-		Screen.map_width = 0;
-		Screen.map_height = 0;
-		Screen.sectors_count = 0;
-		int selected = -1;
+		byte[] data = ResourceManager.getBytes(mapname);
+		if (data == null) {
+			System.err.println("[worldLoadMap] FAILED: there is no map called '" + mapname + "' in data/maps/.");
+			systemLog("Failed! No such map: " + mapname, "worldLoadMap");
+			return null;
+		}
 		try {
-			systemLog("Reading level data.", "worldLoadMap");
-			String maptxt = ResourceManager.getText(mapname);
-			if (maptxt == null) {
-				systemLog("Not a map. Resetting sectors to 0.", "worldLoadMap");
-				return;
-			}
-			String[] lines = maptxt.split("\n");
-			for (String line : lines) {
-				line = line.trim();
-				if (line.isEmpty()) {
-					continue;
-				}
-				if (line.equals("[SIZE]")) {
-					systemLog("Reading map size and establishing verticals.", "worldLoadMap");
-					selected = 3;
-					continue;
-				}
-				if (line.equals("[SECTORS]")) {
-					systemLog("Reading sectors.", "worldLoadMap");
-					selected = 0;
-					continue;
-				}
-				if (line.equals("[WALLS]") || line.equals("[BOUNDARIES]")) {
-					systemLog("Reading world boundaries.", "worldLoadMap");
-					selected = 1;
-					continue;
-				}
-				if (line.equals("[PORTALS]") || line.equals("[EDGES]")) {
-					systemLog("Reading walls and initializing collision.", "worldLoadMap");
-					Screen.portal_collision_data = new boolean[Screen.sectors_count * Screen.sectors_count];
-					selected = 2;
-					continue;
-				}
-
-				String[] parts = line.split("\\s+");
-				switch (selected) {
-					case 0 -> {
-						if (Screen.sectors_count >= Screen.MAX_NUM_SECTORS) {
-							System.err.println("[worldLoadMap] FAILED: map '" + mapname + "' has more than "
-									+ Screen.MAX_NUM_SECTORS + " sectors. Raise the cap BEFORE loading with "
-									+ "RA:worldSetSectorCountLimit(n), or simplify the map. The world is now "
-									+ "half-built and will not render correctly.");
-							systemLog("Failed! Too many sectors. Raise the limit with worldSetSectorCountLimit before loading.", "worldLoadMap");
-							return;
-						}
-						int sector_id = Integer.parseInt(parts[0]);
-						double floor_height = Double.parseDouble(parts[1]);
-						double ceil_height = Double.parseDouble(parts[2]);
-						if (floor_height < 0 || floor_height > Screen.LIMIT_MAP_COORD
-								|| ceil_height < 0 || ceil_height > Screen.LIMIT_MAP_COORD) {
-							systemLog("Failed! Your height value is bigger than the world coordinate limit of " + Screen.LIMIT_MAP_COORD + ".", "worldLoadMap");
-							return;
-						}
-						double floor_brightness = Double.parseDouble(parts[4]);
-						double ceil_brightness = Double.parseDouble(parts[8]);
-						if (floor_brightness < 0 || floor_brightness > 1 || ceil_brightness < 0 || ceil_brightness > 1) {
-							systemLog("Failed! Your brightness value is invalid.", "worldLoadMap");
-							return;
-						}
-						int actual_floor_brightness = (int) (floor_brightness * (Table.NUM_LIGHT_LEVELS - 1));
-						int actual_ceil_brightness = (int) (ceil_brightness * (Table.NUM_LIGHT_LEVELS - 1));
-						Screen.sectors[sector_id] = new Sector(sector_id, floor_height, ceil_height,
-								parts[3], actual_floor_brightness, Double.parseDouble(parts[5]),
-								Boolean.parseBoolean(parts[6]), parts[7], actual_ceil_brightness,
-								Double.parseDouble(parts[9]), Boolean.parseBoolean(parts[10]));
-						Screen.sectors_count++;
-					}
-					case 1 -> {
-						// World boundary: one sector, one texture, ray stops.
-						double[] xz = worldLoadMapHelperNormalize(
-								Double.parseDouble(parts[0]), Double.parseDouble(parts[1]),
-								Double.parseDouble(parts[2]), Double.parseDouble(parts[3]));
-						double x1 = xz[0], z1 = xz[1], x2 = xz[2], z2 = xz[3];
-						if (x1 < 0 || z1 < 0 || x2 < 0 || z2 < 0) {
-							systemLog("Failed! Your map has negative values! No bueno!", "worldLoadMap");
-							return;
-						}
-						int sector_id = Integer.parseInt(parts[4]);
-						String texture = parts[5];
-						double brightness = Double.parseDouble(parts[6]);
-						if (brightness < 0 || brightness > 1) {
-							systemLog("Failed! Your brightness value is invalid.", "worldLoadMap");
-							return;
-						}
-						int actual_brightness = (int) (brightness * (Table.NUM_LIGHT_LEVELS - 1));
-						double tiled = Double.parseDouble(parts[7]);
-						boolean skip_texture = Boolean.parseBoolean(parts[8]);
-						if (z1 == z2) {
-							Screen.sectors[sector_id].updateSectorBoundary(z1, 1);
-							int start_x = (int) Math.floor(x1);
-							int end_x = (int) Math.floor(x2);
-							for (int px = start_x; px < end_x; px++) {
-								int key = Screen.makeWallIndex(px, (int) z1, 1);
-								if (key < 0) continue;
-								Screen.verticals[key] = Edge.worldBoundary(px, z1, x2, z2, sector_id,
-										texture, actual_brightness, tiled, skip_texture);
-							}
-						} else if (x1 == x2) {
-							Screen.sectors[sector_id].updateSectorBoundary(x1, 0);
-							int start_z = (int) Math.floor(z1);
-							int end_z = (int) Math.floor(z2);
-							for (int pz = start_z; pz < end_z; pz++) {
-								int key = Screen.makeWallIndex((int) x1, pz, 0);
-								if (key < 0) continue;
-								Screen.verticals[key] = Edge.worldBoundary(x1, pz, x2, z2, sector_id,
-										texture, actual_brightness, tiled, skip_texture);
-							}
-						}
-					}
-					case 2 -> {
-						// Wall: between two sectors, three texture bands, ray passes through.
-						double[] xz = worldLoadMapHelperNormalize(
-								Double.parseDouble(parts[0]), Double.parseDouble(parts[1]),
-								Double.parseDouble(parts[2]), Double.parseDouble(parts[3]));
-						double x1 = xz[0], z1 = xz[1], x2 = xz[2], z2 = xz[3];
-						if (x1 < 0 || z1 < 0 || x2 < 0 || z2 < 0) {
-							systemLog("Failed! Your map has negative values! No bueno!", "worldLoadMap");
-							return;
-						}
-						int sector_a = Integer.parseInt(parts[4]);
-						int sector_b = Integer.parseInt(parts[5]);
-						String bottom_tex = parts[6];
-						double bottom_brightness = Double.parseDouble(parts[7]);
-						String middle_tex = parts[10];
-						double middle_brightness = Double.parseDouble(parts[11]);
-						String top_tex = parts[14];
-						double top_brightness = Double.parseDouble(parts[15]);
-						if (bottom_brightness < 0 || bottom_brightness > 1
-								|| middle_brightness < 0 || middle_brightness > 1
-								|| top_brightness < 0 || top_brightness > 1) {
-							systemLog("Failed! Your brightness value is invalid.", "worldLoadMap");
-							return;
-						}
-						int actual_bottom_brightness = (int) (bottom_brightness * (Table.NUM_LIGHT_LEVELS - 1));
-						double bottom_tiled = Double.parseDouble(parts[8]);
-						boolean bottom_skip_texture = Boolean.parseBoolean(parts[9]);
-						int actual_middle_brightness = (int) (middle_brightness * (Table.NUM_LIGHT_LEVELS - 1));
-						double middle_tiled = Double.parseDouble(parts[12]);
-						boolean middle_skip_texture = Boolean.parseBoolean(parts[13]);
-						int actual_top_brightness = (int) (top_brightness * (Table.NUM_LIGHT_LEVELS - 1));
-						double top_tiled = Double.parseDouble(parts[16]);
-						boolean top_skip_texture = Boolean.parseBoolean(parts[17]);
-						boolean is_solid = Boolean.parseBoolean(parts[18]);
-						Screen.portal_collision_data[sector_a * Screen.sectors_count + sector_b] = is_solid;
-						Screen.portal_collision_data[sector_b * Screen.sectors_count + sector_a] = is_solid;
-						if (z1 == z2) {
-							Screen.sectors[sector_a].updateSectorBoundary(z1, 1);
-							Screen.sectors[sector_b].updateSectorBoundary(z1, 1);
-							int start_x = (int) Math.floor(x1);
-							int end_x = (int) Math.floor(x2);
-							for (int px = start_x; px < end_x; px++) {
-								int key = Screen.makeWallIndex(px, (int) z1, 1);
-								if (key < 0) continue;
-								Screen.verticals[key] = Edge.wall(px, z1, x2, z2, sector_a, sector_b,
-										bottom_tex, actual_bottom_brightness, bottom_tiled, bottom_skip_texture,
-										middle_tex, actual_middle_brightness, middle_tiled, middle_skip_texture,
-										top_tex, actual_top_brightness, top_tiled, top_skip_texture, is_solid);
-							}
-						} else if (x1 == x2) {
-							Screen.sectors[sector_a].updateSectorBoundary(x1, 0);
-							Screen.sectors[sector_b].updateSectorBoundary(x1, 0);
-							int start_z = (int) Math.floor(z1);
-							int end_z = (int) Math.floor(z2);
-							for (int pz = start_z; pz < end_z; pz++) {
-								int key = Screen.makeWallIndex((int) x1, pz, 0);
-								if (key < 0) continue;
-								Screen.verticals[key] = Edge.wall(x1, pz, x2, z2, sector_a, sector_b,
-										bottom_tex, actual_bottom_brightness, bottom_tiled, bottom_skip_texture,
-										middle_tex, actual_middle_brightness, middle_tiled, middle_skip_texture,
-										top_tex, actual_top_brightness, top_tiled, top_skip_texture, is_solid);
-							}
-						}
-					}
-					case 3 -> {
-						Screen.map_width = Integer.parseInt(parts[0]);
-						Screen.map_height = Integer.parseInt(parts[1]);
-						if (Screen.map_width > Screen.LIMIT_MAP_COORD || Screen.map_height > Screen.LIMIT_MAP_COORD) {
-							systemLog("Failed! Your world is bigger than the world coordinate limit of " + Screen.LIMIT_MAP_COORD + ".", "worldLoadMap");
-							return;
-						}
-						Screen.vertical_length = (Screen.map_width + 1) * (Screen.map_height + 1) * 2;
-						Screen.verticals = new Edge[Screen.vertical_length];
-					}
-				}
-			}
-		} catch (Exception e) {
-			// Deliberately printed to stderr, not just systemLog: systemLog is a
-			// no-op whenever the debug console is off, so a broken map used to
-			// fail completely silently and leave a half-built world behind.
-			System.err.println("[worldLoadMap] FAILED to read '" + mapname + "': " + e);
-			e.printStackTrace();
-			systemLog("Failed to read map data. Exception " + e.getMessage(), "worldLoadMap");
+			return Rmap.read(data);
+		} catch (IOException e) {
+			// Deliberately printed to stderr, not just systemLog: systemLog is a no-op
+			// whenever the debug console is off, and a broken map must never fail silently.
+			System.err.println("[worldLoadMap] FAILED to read '" + mapname + "': " + e.getMessage());
+			systemLog("Failed to read map data: " + e.getMessage(), "worldLoadMap");
+			return null;
 		}
 	}
 
-	public void worldSetPortalCollision(int sector_a, int sector_b, boolean is_solid) {
-		systemLog("Setting collision to " + is_solid + " from sector " + sector_a + " to " + sector_b + ".", "worldSetPortalCollision");
-		Screen.portal_collision_data[sector_a * Screen.sectors_count + sector_b] = is_solid;
+	/** Width of the loaded map in cells (X), or 0 with no map. */
+	public int worldGetMapWidth() {
+		return Screen.cells == null ? 0 : Screen.map_width;
 	}
 
-	public void worldChangeSectorVals(boolean is_floor, int sector_id, String texture, double brightness, int tiled, boolean skip_texture) {
-		systemLog("Setting sector values.", "worldChangeSectorVals");
-		if (sector_id < 0 || sector_id >= Screen.sectors_count) {
-			systemLog("Failed! Sector ID must be valid.", "worldChangeSectorVals");
+	/** Height of the loaded map in cells (Z), or 0 with no map. */
+	public int worldGetMapHeight() {
+		return Screen.cells == null ? 0 : Screen.map_height;
+	}
+
+	/** True if the world position (x, z) is on the loaded map. */
+	public boolean worldIsInsideMap(double x, double z) {
+		return Screen.cellIndexAt(x, z) >= 0;
+	}
+
+	/**
+	 * Changes the face drawn on the map's outer edge, all the way round.
+	 *   brightness - 0.0 to 1.0, 0.5 = true colours
+	 *   tiled      - 0 or more, as in the map editor
+	 */
+	public void worldSetBoundaryTexture(String texture, double brightness, double tiled, boolean skip_texture) {
+		String problem = surfaceProblem(texture, brightness, tiled);
+		if (problem != null || Screen.cells == null) {
+			systemLog("Failed! " + (problem != null ? problem : "No map is loaded."), "worldSetBoundaryTexture");
 			return;
 		}
-		if (brightness < 0 || brightness > 1) {
-			systemLog("Failed! Invalid brightness.", "worldChangeSectorVals");
-			return;
-		}
-		if (is_floor) {
-			Screen.sectors[sector_id].floor_texture = texture;
-			Screen.sectors[sector_id].floor_tiled = tiled;
-			Screen.sectors[sector_id].floor_brightness = (int) (brightness * (Table.NUM_LIGHT_LEVELS - 1));
-			Screen.sectors[sector_id].floor_skip_texture = skip_texture;
-		} else {
-			Screen.sectors[sector_id].ceil_texture = texture;
-			Screen.sectors[sector_id].ceil_tiled = tiled;
-			Screen.sectors[sector_id].ceil_brightness = (int) (brightness * (Table.NUM_LIGHT_LEVELS - 1));
-			Screen.sectors[sector_id].ceil_skip_texture = skip_texture;
+		systemLog("Setting the boundary texture to " + texture + ".", "worldSetBoundaryTexture");
+		Screen.boundary_texture = texture;
+		Screen.boundary_brightness = lightLevel(brightness);
+		Screen.boundary_tiled = tiled;
+		Screen.boundary_skip_texture = skip_texture;
+	}
+
+	// ============================================================ world: cells
+	//
+	// One cell at a time, by cell coordinates: cell (x, z) covers x..x+1, z..z+1, with
+	// 0 <= x < worldGetMapWidth() and 0 <= z < worldGetMapHeight().
+	//
+	//   surface: 0 = floor, 1 = ceiling, 2 = lower wall, 3 = upper wall
+	//
+	// THE WORLD'S SHAPE NEVER CHANGES: there are deliberately no height setters.
+	// A height change could leave the player inside a floor or sprites floating, and the
+	// engine doesn't try to handle that. What scripts CAN change is how things look.
+	// To retexture an area, loop over its cells.
+	//
+	// Bad input (outside the map, a surface number that doesn't exist, brightness outside
+	// 0..1 ...) does nothing and logs "Failed!" to the debug console.
+	//
+	// THREADING: scripts run in Screen.update after the render threads have finished
+	// (latch.await), and not at all while a map loads, so these never race the renderer.
+
+	/** The floor height of cell (x, z), or -1 if there is no such cell. */
+	public double worldGetCellFloorHeight(int x, int z) {
+		Cell cell = cellOrLog(x, z, "worldGetCellFloorHeight");
+		return cell == null ? -1 : cell.floor_height;
+	}
+
+	/** The ceiling height of cell (x, z), or -1 if there is no such cell. */
+	public double worldGetCellCeilHeight(int x, int z) {
+		Cell cell = cellOrLog(x, z, "worldGetCellCeilHeight");
+		return cell == null ? -1 : cell.ceil_height;
+	}
+
+	/** The texture of one surface of cell (x, z), or nil if there is no such cell or surface. */
+	public String worldGetCellTexture(int x, int z, int surface) {
+		Cell cell = cellOrLog(x, z, "worldGetCellTexture");
+		if (cell == null) return null;
+		switch (surface) {
+			case 0: return cell.floor_texture;
+			case 1: return cell.ceil_texture;
+			case 2: return cell.lower_texture;
+			case 3: return cell.upper_texture;
+			default:
+				systemLog("Failed! Surface must be 0 (floor), 1 (ceiling), 2 (lower wall) or 3 (upper wall).", "worldGetCellTexture");
+				return null;
 		}
 	}
 
 	/**
-	 * Retextures one edge at runtime.
-	 *   band: 0 = bottom, 1 = middle, 2 = top.
-	 * A world boundary only has a middle band (that is its single wall texture),
-	 * so pass 1 for those.
+	 * Changes one surface of cell (x, z). Shows from the next frame on.
+	 *   surface    - 0 floor, 1 ceiling, 2 lower wall, 3 upper wall
+	 *   brightness - 0.0 to 1.0, 0.5 = true colours
+	 *   tiled      - 0 or more, as in the map editor
+	 *   skip_texture - true draws nothing there (a skipped ceiling shows the sky)
 	 */
-	public void worldChangeVerticalVals(int x, int z, int is_vertical, String texture,
-			boolean skip_texture, double brightness, int tiled, int band) {
-		systemLog("Setting vertical values.", "worldChangeVerticalVals");
-		int index = Screen.makeWallIndex(x, z, is_vertical);
-		if (index < 0) {
-			systemLog("Failed! Out of bounds index.", "worldChangeVerticalVals");
+	public void worldSetCellSurface(int x, int z, int surface, String texture, double brightness,
+			double tiled, boolean skip_texture) {
+		Cell cell = cellOrLog(x, z, "worldSetCellSurface");
+		if (cell == null) return;
+		String problem = surfaceProblem(texture, brightness, tiled);
+		if (problem != null) {
+			systemLog("Failed! " + problem, "worldSetCellSurface");
 			return;
 		}
-		if (brightness < 0 || brightness > 1) {
-			systemLog("Failed! Invalid brightness.", "worldChangeVerticalVals");
+		int light = lightLevel(brightness);
+		switch (surface) {
+			case 0 -> {
+				cell.floor_texture = texture;
+				cell.floor_brightness = light;
+				cell.floor_tiled = tiled;
+				cell.floor_skip_texture = skip_texture;
+			}
+			case 1 -> {
+				cell.ceil_texture = texture;
+				cell.ceil_brightness = light;
+				cell.ceil_tiled = tiled;
+				cell.ceil_skip_texture = skip_texture;
+			}
+			case 2 -> {
+				cell.lower_texture = texture;
+				cell.lower_brightness = light;
+				cell.lower_tiled = tiled;
+				cell.lower_skip_texture = skip_texture;
+			}
+			case 3 -> {
+				cell.upper_texture = texture;
+				cell.upper_brightness = light;
+				cell.upper_tiled = tiled;
+				cell.upper_skip_texture = skip_texture;
+			}
+			default -> {
+				systemLog("Failed! Surface must be 0 (floor), 1 (ceiling), 2 (lower wall) or 3 (upper wall).", "worldSetCellSurface");
+				return;
+			}
+		}
+		// The cell may now look like its neighbours, or stop looking like them.
+		Screen.refreshCellLines(x, z);
+	}
+
+	// ============================================================ world: edges
+	//
+	// Edge settings sit on the grid lines BETWEEN cells:
+	//
+	//   orientation 0 = the line of constant X at x, running from z to z+1
+	//   orientation 1 = the line of constant Z at z, running from x to x+1
+	//   band: 0 = bottom override, 1 = middle, 2 = top override
+	//
+	// Only interior lines can have edge settings; the map's outer lines always use the
+	// boundary texture (worldSetBoundaryTexture), so asking for one fails with a log.
+	// A line that ends up with nothing set (not solid, no band enabled) goes back to
+	// having no edge settings at all, exactly like painting "nothing" in the editor.
+
+	/**
+	 * Turns one band of a line on or off, and sets its texture.
+	 *   bottom override - replaces the lower wall seen on this line (a door on one side)
+	 *   middle          - drawn in the opening: fences, glass, grates
+	 *   top override    - replaces the upper wall seen on this line
+	 */
+	public void worldSetEdgeBand(int x, int z, int orientation, int band, boolean enabled, String texture,
+			double brightness, double tiled, boolean skip_texture) {
+		int line = interiorLineOrLog(x, z, orientation, "worldSetEdgeBand");
+		if (line < 0) return;
+		if (band < 0 || band > 2) {
+			systemLog("Failed! Band must be 0 (bottom override), 1 (middle) or 2 (top override).", "worldSetEdgeBand");
 			return;
 		}
-		Edge edge = Screen.verticals[index];
-		if (edge == null) {
-			systemLog("Failed! Nothing at that grid edge.", "worldChangeVerticalVals");
+		String problem = surfaceProblem(texture, brightness, tiled);
+		if (problem != null) {
+			systemLog("Failed! " + problem, "worldSetEdgeBand");
 			return;
 		}
-		int actual_brightness = (int) (brightness * (Table.NUM_LIGHT_LEVELS - 1));
-		if (edge.isWorldBoundary()) {
-			// One band only; ignore whatever band was asked for.
-			edge.middle_texture = texture;
-			edge.middle_skip_texture = skip_texture;
-			edge.middle_brightness = actual_brightness;
-			edge.middle_tiled = tiled;
-			return;
-		}
+		Edge edge = edgeForChange(line);
+		int light = lightLevel(brightness);
 		if (band == 0) {
+			edge.bottom_enabled = enabled;
 			edge.bottom_texture = texture;
-			edge.bottom_skip_texture = skip_texture;
-			edge.bottom_brightness = actual_brightness;
+			edge.bottom_brightness = light;
 			edge.bottom_tiled = tiled;
+			edge.bottom_skip_texture = skip_texture;
 		} else if (band == 1) {
+			edge.middle_enabled = enabled;
 			edge.middle_texture = texture;
-			edge.middle_skip_texture = skip_texture;
-			edge.middle_brightness = actual_brightness;
+			edge.middle_brightness = light;
 			edge.middle_tiled = tiled;
-		} else if (band == 2) {
-			edge.top_texture = texture;
-			edge.top_skip_texture = skip_texture;
-			edge.top_brightness = actual_brightness;
-			edge.top_tiled = tiled;
+			edge.middle_skip_texture = skip_texture;
 		} else {
-			systemLog("Failed! Band must be 0 (bottom), 1 (middle) or 2 (top).", "worldChangeVerticalVals");
+			edge.top_enabled = enabled;
+			edge.top_texture = texture;
+			edge.top_brightness = light;
+			edge.top_tiled = tiled;
+			edge.top_skip_texture = skip_texture;
 		}
+		storeEdge(line, edge, x, z, orientation);
+	}
+
+	/** Makes a line block the player (a fence, an invisible wall) or stop blocking. */
+	public void worldSetEdgeSolid(int x, int z, int orientation, boolean is_solid) {
+		int line = interiorLineOrLog(x, z, orientation, "worldSetEdgeSolid");
+		if (line < 0) return;
+		Edge edge = edgeForChange(line);
+		edge.solid = is_solid;
+		storeEdge(line, edge, x, z, orientation);
+	}
+
+	/** True if a line is set to block the player. False (with a log) for outer or missing lines. */
+	public boolean worldGetEdgeSolid(int x, int z, int orientation) {
+		int line = interiorLineOrLog(x, z, orientation, "worldGetEdgeSolid");
+		if (line < 0) return false;
+		Edge edge = Screen.verticals[line];
+		return edge != null && edge.solid;
+	}
+
+	// ----------------------------------------------------- helpers for the above
+
+	private Cell cellOrLog(int x, int z, String call) {
+		if (Screen.cells == null || x < 0 || z < 0 || x >= Screen.map_width || z >= Screen.map_height) {
+			systemLog("Failed! There is no cell (" + x + ", " + z + ") in the loaded map.", call);
+			return null;
+		}
+		return Screen.cells[z * Screen.map_width + x];
+	}
+
+	/** The slot of an interior line, or -1 (after logging why) for outer or missing lines. */
+	private int interiorLineOrLog(int x, int z, int orientation, String call) {
+		int line = Screen.lineIndex(x, z, orientation);
+		if (line < 0) {
+			systemLog("Failed! There is no line x " + x + ", z " + z + ", orientation " + orientation
+					+ " in the loaded map (orientation is 0 or 1).", call);
+			return -1;
+		}
+		if (Screen.isOuterLine(Screen.map_width, Screen.map_height, x, z, orientation)) {
+			systemLog("Failed! That is an outer line of the map. Use worldSetBoundaryTexture for those.", call);
+			return -1;
+		}
+		return line;
+	}
+
+	/** The line's edge settings, or fresh empty ones if it has none yet. */
+	private Edge edgeForChange(int line) {
+		Edge edge = Screen.verticals[line];
+		return edge != null ? edge : new Edge();
+	}
+
+	/** Puts the edge back on its line - or nothing, if nothing is set any more. */
+	private void storeEdge(int line, Edge edge, int x, int z, int orientation) {
+		Screen.verticals[line] = edge.isEmpty() ? null : edge;
+		Screen.refreshLine(x, z, orientation);
+	}
+
+	/** What is wrong with these surface settings, or null. The same rules as map files. */
+	private String surfaceProblem(String texture, double brightness, double tiled) {
+		if (texture == null) return "A texture name is needed.";
+		if (!(brightness >= 0 && brightness <= 1)) return "Brightness must be 0 to 1.";
+		if (!(tiled >= 0) || Double.isInfinite(tiled)) return "Tiled must be 0 or more.";
+		return null;
+	}
+
+	private int lightLevel(double brightness) {
+		return (int) (brightness * (Table.NUM_LIGHT_LEVELS - 1));
 	}
 
 	// =================================================================== entity
@@ -876,10 +860,6 @@ public class RaccoonAPI {
 		Camera.player_y = y;
 		Camera.player_z = z;
 		Camera.direction_rad = dir;
-	}
-
-	public int playerGetSector() {
-		return Camera.player_sector;
 	}
 
 	public double playerGetDirection() {
@@ -962,9 +942,9 @@ public class RaccoonAPI {
 	 *
 	 * This writes every storeSet value to a plain text file, one per line:
 	 *
-	 *     n|player_hp|100.0        n = number
-	 *     s|current_map|level2.txt s = string
-	 *     b|has_red_key|true       b = boolean
+	 *     n|player_hp|100.0         n = number
+	 *     s|current_map|level2.rmap s = string
+	 *     b|has_red_key|true        b = boolean
 	 *
 	 * Text on purpose: you can open a save in an editor and see what went wrong.
 	 *
@@ -976,7 +956,7 @@ public class RaccoonAPI {
 	 *     are NOT captured automatically. Put whatever matters into the store
 	 *     before saving:
 	 *
-	 *         RA:storeSet("map",  "level2.txt")
+	 *         RA:storeSet("map",  "level2.rmap")
 	 *         RA:storeSet("px",   RA:playerGetPosition(0))
 	 *         RA:storeSet("py",   RA:playerGetPosition(1))
 	 *         RA:storeSet("pz",   RA:playerGetPosition(2))

@@ -67,7 +67,12 @@ public class ResourceManager {
 	private static final String IMG_TYPE = ".png";
 	private static final String FONT_TYPE = ".ttf";
 	private static final String SOUND_TYPE = ".wav";
-	private static final String MAP_TYPE = ".txt";
+	/**
+	 * Maps are binary .rmap files from the map editor (see Rmap.java). Any other
+	 * file left in data/maps/ - an old .txt map, say - stops the engine at startup, the
+	 * same as a wrong file type in any other folder.
+	 */
+	private static final String MAP_TYPE = ".rmap";
 	private static final String SCRIPT_TYPE = ".lua";
 
 	private static final HashMap<String, String> REQUIRED_EXT = new HashMap<>();
@@ -109,9 +114,11 @@ public class ResourceManager {
 	public static final ConcurrentHashMap<String, Texture> images = new ConcurrentHashMap<>();
 	/** Font glyphs, keyed "<char>_<fontfile>" e.g. "A_system_font.ttf". */
 	public static final ConcurrentHashMap<String, Texture> fonts = new ConcurrentHashMap<>();
-	/** Maps and scripts (both plain text), keyed by filename. */
+	/** Scripts (plain text), keyed by filename. */
 	public static final ConcurrentHashMap<String, String> level_data = new ConcurrentHashMap<>();
 	public static final ConcurrentHashMap<String, byte[]> sounds = new ConcurrentHashMap<>();
+	/** Raw file bytes, keyed by filename. Used for maps (.rmap). */
+	public static final ConcurrentHashMap<String, byte[]> raw_data = new ConcurrentHashMap<>();
 
 	public static ArrayList<Event> active_scripts = new ArrayList<>();
 	public static HashMap<String, Sprite> sprites = new HashMap<>();
@@ -322,7 +329,7 @@ public class ResourceManager {
 		}
 	}
 
-	/** Map or script text, loaded on first use. */
+	/** Script text, loaded on first use. */
 	public static String getText(String name) {
 		String cached = level_data.get(name);
 		if (cached != null) return cached;
@@ -357,6 +364,26 @@ public class ResourceManager {
 				return readBytes(e);
 			} catch (IOException ex) {
 				System.err.println("[ResourceManager] Failed reading sound '" + name + "': " + ex.getMessage());
+				return null;
+			}
+		});
+	}
+
+	/** A file's raw bytes (maps), loaded on first use. */
+	public static byte[] getBytes(String name) {
+		byte[] cached = raw_data.get(name);
+		if (cached != null) return cached;
+
+		AssetEntry e = catalog.get(name);
+		if (e == null) {
+			System.err.println("[ResourceManager] Unknown file '" + name + "'.");
+			return null;
+		}
+		return raw_data.computeIfAbsent(name, n -> {
+			try {
+				return readBytes(e);
+			} catch (IOException ex) {
+				System.err.println("[ResourceManager] Failed reading '" + name + "': " + ex.getMessage());
 				return null;
 			}
 		});
@@ -452,6 +479,7 @@ public class ResourceManager {
 		if (IMG_TYPE.equals(e.type)) getImage(name);
 		else if (FONT_TYPE.equals(e.type)) loadFont(name);
 		else if (SOUND_TYPE.equals(e.type)) getSoundBytes(name);
+		else if (MAP_TYPE.equals(e.type)) getBytes(name);
 		else getText(name);
 	}
 
@@ -460,6 +488,7 @@ public class ResourceManager {
 		images.remove(name);
 		sounds.remove(name);
 		level_data.remove(name);
+		raw_data.remove(name);
 		fonts.keySet().removeIf(k -> k.endsWith("_" + name));
 		ScriptRunner.forget(name);
 	}
@@ -469,17 +498,18 @@ public class ResourceManager {
 		images.clear();
 		sounds.clear();
 		level_data.clear();
+		raw_data.clear();
 		fonts.clear();
 		ScriptRunner.forgetAll();
 	}
 
 	public static boolean isLoaded(String name) {
-		return images.containsKey(name) || sounds.containsKey(name)
-				|| level_data.containsKey(name) || fonts.containsKey("A_" + name);
+		return images.containsKey(name) || sounds.containsKey(name) || level_data.containsKey(name)
+				|| raw_data.containsKey(name) || fonts.containsKey("A_" + name);
 	}
 
 	public static int loadedCount() {
-		return images.size() + sounds.size() + level_data.size() + fonts.size();
+		return images.size() + sounds.size() + level_data.size() + raw_data.size() + fonts.size();
 	}
 
 	/** Every asset in one folder, reporting progress for a loading screen. */

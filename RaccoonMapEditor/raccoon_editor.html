@@ -7,64 +7,127 @@
     <link rel="stylesheet" href="editor_style.css">
 </head>
 <body>
-    <div id="menu">
+    <!-- Start screen: pick the game's data/ folder. -->
+    <div id="startScreen" class="box centered">
         <h1>RACCOON MAP EDITOR</h1>
-        <button class="button" id="newProjectBtn">NEW PROJECT</button>
-        <button class="button" id="loadProjectBtn">LOAD PROJECT</button>
+        <button class="button" id="openFolderBtn">OPEN DATA FOLDER</button>
+        <div class="hint">Pick your game's data/ folder (the one with tex, sprites, scripts and maps).</div>
+        <div id="startMessage" class="message"></div>
+    </div>
+
+    <!-- New map / open map. Shown after the folder is picked, and by OPEN in the top bar. -->
+    <div id="mapChoice" class="box centered">
+        <h2>NEW MAP</h2>
+        <div class="form-row">
+            <label>Name <input type="text" id="newMapName" value="world"></label>
+        </div>
+        <div class="form-row">
+            <label>Width <input type="number" id="newMapWidth" value="50" min="1" max="2000" step="1"></label>
+            <label>Height <input type="number" id="newMapHeight" value="50" min="1" max="2000" step="1"></label>
+        </div>
+        <button class="button small" id="createMapBtn">CREATE</button>
+        <h2>OPEN MAP</h2>
+        <div id="mapList" class="map-list"></div>
+        <div id="mapChoiceMessage" class="message"></div>
+        <button class="button small" id="mapChoiceCancelBtn">CANCEL</button>
     </div>
 
     <div id="editor">
-        <canvas id="canvas"></canvas>
-        
-        <div id="info">
-            <div>Zoom: <span id="zoomLevel">1.0</span>x</div>
-            <div>Position: (<span id="mouseX">0</span>, <span id="mouseZ">0</span>)</div>
-            <div>Rectangles: <span id="rectCount">0</span></div>
-            <div>Mode: <span id="modeText">Drawing</span></div>
+        <div id="topBar">
+            <label class="group">MAP <input type="text" id="mapNameInput" class="name-input"></label>
+            <span class="group">
+                <input type="number" id="mapWidthInput" class="size-input" min="1" max="2000" step="1" title="Map width (X)">
+                x
+                <input type="number" id="mapHeightInput" class="size-input" min="1" max="2000" step="1" title="Map height (Z)">
+                <button class="tbtn" id="applySizeBtn" title="Grow or shrink the map. New cells appear on the right and top.">APPLY</button>
+            </span>
+            <span class="group">SURFACE
+                <button class="tbtn toggle" id="surfaceFloorBtn">FLOOR</button><button class="tbtn toggle" id="surfaceCeilingBtn">CEILING</button>
+            </span>
+            <span class="group">MODE
+                <button class="tbtn toggle" id="modeTexturedBtn">TEXTURED</button><button class="tbtn toggle" id="modeHeightBtn" title="Flat shading by height: brighter = higher">HEIGHT</button>
+            </span>
+            <span class="group">BOUNDARY
+                <button class="tbtn texture-button" id="boundaryBtn"><canvas class="thumb small-thumb" width="32" height="32"></canvas><span class="texture-name"></span></button>
+            </span>
+            <span class="group right">
+                <button class="tbtn save" id="saveBtn">SAVE</button>
+                <button class="tbtn" id="openBtn">OPEN</button>
+            </span>
         </div>
-        
-        <button id="saveProjectBtn" class="button top-button">SAVE PROJECT</button>
-        <button id="worldBoundaryBtn" class="button top-button">DEFINE WORLD BOUNDARY</button>
-        <button id="downloadBtn" class="button top-button">DOWNLOAD MAP.TXT</button>
-        
-        <div id="loadingBar">
-            <h2>MANHATTAN PARTITIONING</h2>
-            <div>Processing...</div>
-            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-        </div>
-        
-        <div id="configPanel">
-            <h2 id="configTitle">Configure Rectangle</h2>
-            
-            <h3>Floor/Ceiling Properties</h3>
-            <label>Floor Height:</label>
-            <input type="number" id="floorHeight" value="-2" step="0.1">
-            <label>Ceiling Height:</label>
-            <input type="number" id="ceilingHeight" value="2" step="0.1">
-            <label>Floor Texture:</label>
-            <input type="text" id="floorTexture" value="floor.png">
-            <label>Floor Brightness:</label>
-            <input type="number" id="floorBrightness" value="1.0" step="0.1" min="0">
-            <label>Floor Tiled:</label>
-            <input type="number" id="floorTiled" value="1" step="1" min="0">
-            <label>Floor Skip Texture:</label>
-            <input type="checkbox" id="floorSkipTexture">
-            <label>Ceiling Texture:</label>
-            <input type="text" id="ceilingTexture" value="ceiling.png">
-            <label>Ceiling Brightness:</label>
-            <input type="number" id="ceilingBrightness" value="1.0" step="0.1" min="0">
-            <label>Ceiling Tiled:</label>
-            <input type="number" id="ceilingTiled" value="1" step="1" min="0">
-            <label>Ceiling Skip Texture:</label>
-            <input type="checkbox" id="ceilingSkipTexture">
-            
-            <div id="wallsConfig"></div>
-            
-            <div class="button-group">
-                <button id="saveConfig" class="button">SAVE</button>
+
+        <div id="sidePanel">
+            <div class="button-row">
+                <button class="tbtn toggle" id="layerTilesBtn" title="1">TILES</button><button class="tbtn toggle" id="layerEdgesBtn" title="2">EDGES</button><button class="tbtn toggle" id="layerSpritesBtn" title="3">SPRITES</button>
+            </div>
+            <div class="button-row">
+                <button class="tbtn toggle" id="toolPenBtn" title="P">PEN</button><button class="tbtn toggle" id="toolBucketBtn" title="B">BUCKET</button><button class="tbtn toggle" id="toolPickerBtn" title="I">PICKER</button>
+            </div>
+            <div id="panelMessage" class="message"></div>
+
+            <div id="tilesPanel">
+                <label class="field">Floor height <input type="number" id="floorHeightInput" step="0.5" min="0" max="2000"></label>
+                <label class="field">Ceiling height <input type="number" id="ceilingHeightInput" step="0.5" min="0" max="2000"></label>
+                <div id="tileSurfaces"></div>
+            </div>
+
+            <div id="edgesPanel">
+                <div class="hint">The pen paints the grid line nearest the mouse. Painting with nothing set clears the line. The map's outer lines use the boundary and can't be painted.</div>
+                <label class="check"><input type="checkbox" id="edgeSolidInput"> Solid (blocks the player)</label>
+                <div id="edgeBands"></div>
+            </div>
+
+            <div id="spritesPanel">
+                <div class="hint">Click empty space to place a sprite. Click a sprite to select it, drag to move it.</div>
+                <div id="spriteSelection" class="selection-line"></div>
+                <label class="field">Id <input type="text" id="spriteIdInput"></label>
+                <label class="field">X <input type="number" id="spriteXInput" step="0.1"></label>
+                <label class="field">Z <input type="number" id="spriteZInput" step="0.1"></label>
+                <label class="check"><input type="checkbox" id="spriteStandInput"> Stand on floor</label>
+                <label class="field" id="spriteYRow">Y <input type="number" id="spriteYInput" step="0.1"></label>
+                <label class="field">Size <input type="number" id="spriteSizeInput" step="10" min="0"></label>
+                <div class="hint">Raw engine units: 320 is about one tile tall.</div>
+                <label class="field">Brightness <input type="number" id="spriteBrightnessInput" step="0.05" min="0" max="1"></label>
+                <div class="hint">0.5 = true colours</div>
+                <div class="field">Image
+                    <button class="texture-button sprite-image-button" id="spriteImageBtn"><canvas class="thumb" width="32" height="32"></canvas><span class="texture-name"></span></button>
+                </div>
+                <label class="field">Behaviour <select id="spriteScriptInput"></select></label>
+                <label class="field">Collision radius <input type="number" id="spriteRadiusInput" step="0.1" min="0"></label>
+                <div class="field">Direction <div id="directionDial" class="dial"></div></div>
             </div>
         </div>
+
+        <canvas id="canvas"></canvas>
+
+        <div id="statusLine">
+            <span id="statusHover"></span>
+            <span id="statusMessage"></span>
+        </div>
     </div>
+
+    <!-- Texture palette: every .png in tex/. -->
+    <div id="palette" class="box centered popup">
+        <h2 id="paletteTitle">CHOOSE TEXTURE</h2>
+        <div id="paletteGrid" class="palette-grid"></div>
+        <button class="button small" id="paletteCancelBtn">CANCEL</button>
+    </div>
+
+    <!-- Boundary surface: the face drawn on every outer line of the map. -->
+    <div id="boundaryDialog" class="box centered popup">
+        <h2>BOUNDARY SURFACE</h2>
+        <div class="hint">Drawn on the map's outer edge, all the way round.</div>
+        <div id="boundarySurface"></div>
+        <button class="button small" id="boundaryOkBtn">OK</button>
+        <button class="button small" id="boundaryCancelBtn">CANCEL</button>
+    </div>
+
+    <script src="rmap_format.js"></script>
+    <script src="map_state.js"></script>
+    <script src="data_folder.js"></script>
+    <script src="drawing.js"></script>
+    <script src="panels.js"></script>
+    <script src="tools.js"></script>
     <script src="editor.js"></script>
 </body>
 </html>

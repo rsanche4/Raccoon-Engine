@@ -2,10 +2,10 @@
 
 local script_index = ...
 
-local MAP = "world.txt"
+local MAP = "world.rmap"
 
--- Where the player starts. This MUST be a point inside one of the map's rooms:
--- read the coordinates off the map editor. y gets pulled down onto the floor
+-- Where the player starts. This MUST be a point inside the map: read the
+-- coordinates off the map editor's status line. y gets pulled down onto the floor
 -- by gravity, so it only needs to be somewhere between the floor and ceiling.
 local SPAWN_X, SPAWN_Y, SPAWN_Z = 5, 2, 5
 local SPAWN_DIR = 0                     -- facing, in radians: 0 looks along +X
@@ -22,13 +22,12 @@ function update()
     frames_loaded = frames_loaded + 1
 
     -- Catch a spawn point outside the map: there the player can't move at all.
-    -- This waits for the SECOND frame after loading, because the engine works out
-    -- the player's sector at the start of each frame. On the first frame the
-    -- number can still be from before the map existed.
+    -- This waits for the SECOND frame after loading, because the engine swaps the
+    -- new map in at the start of a frame.
     if frames_loaded == 2 then
-        if RA:playerGetSector() < 0 then
-            print("[game.lua] The spawn point (" .. SPAWN_X .. ", " .. SPAWN_Z .. ") is outside every sector of "
-                  .. MAP .. ". Change SPAWN_X / SPAWN_Z to a point inside the room.")
+        if not RA:worldIsInsideMap(SPAWN_X, SPAWN_Z) then
+            print("[game.lua] The spawn point (" .. SPAWN_X .. ", " .. SPAWN_Z .. ") is outside the map "
+                  .. MAP .. ". Change SPAWN_X / SPAWN_Z to a point inside the map.")
         end
     end
 
